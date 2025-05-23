@@ -30,8 +30,16 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
 $projetos = $conn->query("SELECT id, titulo FROM projetos");
 $funcionarios = $conn->query("SELECT id, nome FROM usuarios WHERE tipo = 'funcionario'");
 ?>
-
-<h2>Criar Nova Tarefa</h2>
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Document</title>
+    <link rel="stylesheet" href="../style.css">
+</head>
+<body>
+    <h2>Criar Nova Tarefa</h2>
 
 <form method="post">
     Título: <input type="text" name="titulo" required><br><br>
@@ -56,3 +64,6 @@ $funcionarios = $conn->query("SELECT id, nome FROM usuarios WHERE tipo = 'funcio
     <button type="submit">Criar Tarefa</button>
     
 </form>
+
+</body>
+</html>

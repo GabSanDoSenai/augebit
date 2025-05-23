@@ -368,9 +368,6 @@ $tarefasRecentes = $conn->query("
 </head>
 <body>
     <nav class="sidebar">
-        <div class="logo">
-            <h1>AugeBit</h1>
-        </div>
         
         <div class="user-info">
             <h3><?= htmlspecialchars($_SESSION['usuario_nome']) ?></h3>
@@ -384,7 +381,7 @@ $tarefasRecentes = $conn->query("
                 </a>
             </li>
             <li class="nav-item">
-                <a href="projetos.php" class="nav-link">
+                <a href="gestor/projetos/listar_projetos.php" class="nav-link">
                     <span>📋</span> Projetos
                 </a>
             </li>
@@ -394,12 +391,12 @@ $tarefasRecentes = $conn->query("
                 </a>
             </li>
             <li class="nav-item">
-                <a href="funcionarios.php" class="nav-link">
+                <a href="gestor/funcionariosGestor.php" class="nav-link">
                     <span>👥</span> Funcionários
                 </a>
             </li>
             <li class="nav-item">
-                <a href="gestor/projetos/ver_documentos.php" class="nav-link">
+                <a href="gestor/documentos/visualizar_documentos.php" class="nav-link">
                     <span>📁</span> Documentos
                 </a>
             </li>
@@ -478,14 +475,14 @@ $tarefasRecentes = $conn->query("
             <?php if ($tarefasUrgentes > 0): ?>
             <div class="notification-item">
                 <span><strong><?= $tarefasUrgentes ?></strong> tarefa(s) aguardando início.</span>
-                <a href="tarefas.php?status=a_fazer" style="margin-left: auto; color: #667eea; text-decoration: none; font-weight: 600;">Ver Tarefas →</a>
+                <a href="tarefas/listar_tarefas.php?status=a_fazer" style="margin-left: auto; color: #667eea; text-decoration: none; font-weight: 600;">Ver Tarefas →</a>
             </div>
             <?php endif; ?>
             
             <?php if ($novosDocs > 0): ?>
             <div class="notification-item">
                 <span><strong><?= $novosDocs ?></strong> novo(s) documento(s) enviado(s) recentemente.</span>
-                <a href="documentos.php" style="margin-left: auto; color: #667eea; text-decoration: none; font-weight: 600;">Ver Documentos →</a>
+                <a href="gestor/documentos/visualizar_documentos.php" style="margin-left: auto; color: #667eea; text-decoration: none; font-weight: 600;">Ver Documentos →</a>
             </div>
             <?php endif; ?>
         </div>

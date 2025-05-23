@@ -31,8 +31,16 @@ $sql = "
 
 $result = $conn->query($sql);
 ?>
-
-<h2>Lista de Tarefas</h2>
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Document</title>
+    <link rel="stylesheet" href="../style.css">
+</head>
+<body>
+    <h2>Lista de Tarefas</h2>
 
 <table border="1" cellpadding="8" cellspacing="0">
     <tr>
@@ -66,3 +74,6 @@ $result = $conn->query($sql);
         </tr>
     <?php endwhile; ?>
 </table>
+</body>
+</html>
+

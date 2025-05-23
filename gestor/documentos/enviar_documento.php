@@ -31,8 +31,16 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
 
 $projetos = $conn->query("SELECT id, titulo FROM projetos");
 ?>
-
-<h2>Enviar Documento</h2>
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Document</title>
+    <link rel="stylesheet" href="../../style.css">
+</head>
+<body>
+   <h2>Enviar Documento</h2>
 <form method="post" enctype="multipart/form-data">
     Projeto:
     <select name="projeto_id" required>
@@ -43,4 +51,7 @@ $projetos = $conn->query("SELECT id, titulo FROM projetos");
 
     Arquivo: <input type="file" name="arquivo" required><br><br>
     <button type="submit">Enviar</button>
-</form>
+</form> 
+</body>
+</html>
+

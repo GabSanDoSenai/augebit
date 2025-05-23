@@ -30,8 +30,16 @@ $tarefa = $conn->query("SELECT * FROM tarefas WHERE id = $id")->fetch_assoc();
 $projetos = $conn->query("SELECT id, titulo FROM projetos");
 $funcionarios = $conn->query("SELECT id, nome FROM usuarios WHERE tipo = 'funcionario'");
 ?>
-
-<h2>Editar Tarefa</h2>
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Document</title>
+    <link rel="stylesheet" href="../../style.css">
+</head>
+<body>
+    <h2>Editar Tarefa</h2>
 <form method="post">
     Título: <input type="text" name="titulo" value="<?= htmlspecialchars($tarefa['titulo']) ?>" required><br><br>
     Descrição: <textarea name="descricao"><?= htmlspecialchars($tarefa['descricao']) ?></textarea><br><br>
@@ -56,3 +64,6 @@ $funcionarios = $conn->query("SELECT id, nome FROM usuarios WHERE tipo = 'funcio
 
     <button type="submit">Salvar Alterações</button>
 </form>
+
+</body>
+</html>
