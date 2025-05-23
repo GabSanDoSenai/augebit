@@ -33,7 +33,7 @@ $funcionarios = $conn->query("
             <td><?= $f['em_progresso'] ?></td>
             <td><?= $f['concluidas'] ?></td>
             <td>
-                <a href="/views/tarefas/listar.php?funcionario_id=<?= $f['id'] ?>">🔍 Ver Tarefas</a>
+                <a href="../tarefas/listar_tarefas.php?funcionario_id=<?= $f['id'] ?>">🔍 Ver Tarefas</a>
             </td>
         </tr>
     <?php endwhile; ?>
