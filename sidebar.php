@@ -118,8 +118,6 @@ function getUserTypeName($type) {
 
 <nav class="sidebar" id="sidebar">
     <div class="logo">
-        <h1>AugeBit</h1>
-        <p>Sistema de Gestão</p>
     </div>
     
     <div class="user-info">
