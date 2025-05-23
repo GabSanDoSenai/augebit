@@ -1,3 +1,21 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Document</title>
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+    <h2>Criar Projeto</h2>
+<form method="post">
+    Título: <input type="text" name="titulo" required><br>
+    Descrição: <textarea name="descricao"></textarea><br>
+    Cliente ID: <input type="number" name="cliente_id" required><br>
+    <button type="submit">Criar</button>
+</form>
+</body>
+</html>
 <?php
 session_start();
 if (!isset($_SESSION['usuario_id']) || $_SESSION['usuario_tipo'] !== 'admin') {
@@ -23,10 +41,3 @@ if ($_SERVER["REQUEST_METHOD"] === "POST") {
 }
 ?>
 
-<h2>Criar Projeto</h2>
-<form method="post">
-    Título: <input type="text" name="titulo" required><br>
-    Descrição: <textarea name="descricao"></textarea><br>
-    Cliente ID: <input type="number" name="cliente_id" required><br>
-    <button type="submit">Criar</button>
-</form>

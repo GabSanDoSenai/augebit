@@ -54,4 +54,5 @@ $funcionarios = $conn->query("SELECT id, nome FROM usuarios WHERE tipo = 'funcio
     </select><br><br>
 
     <button type="submit">Criar Tarefa</button>
+    
 </form>

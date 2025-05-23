@@ -8,10 +8,7 @@ require '../../conexao.php';
 
 $result = $conn->query("SELECT id, titulo, status FROM projetos ORDER BY criado_em DESC");
 ?>
-<form method="get">
-    <input type="text" name="busca" placeholder="Buscar por título..." value="<?= $_GET['busca'] ?? '' ?>">
-    <button type="submit">🔍 Buscar</button>
-</form>
+
 <?php 
 $busca = $_GET['busca'] ?? '';
 
@@ -25,9 +22,21 @@ if ($busca !== '') {
     $result = $conn->query("SELECT id, titulo, status FROM projetos ORDER BY criado_em DESC");
 }
 ?>
-<h2>Projetos</h2>
-
-<table border="1" cellpadding="8" cellspacing="0">
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Document</title>
+    <link rel="stylesheet" href="../../style.css">
+</head>
+<body>
+    <h2>Projetos</h2>
+    <form method="get">
+    <input type="text" name="busca" placeholder="Buscar por título..." value="<?= $_GET['busca'] ?? '' ?>">
+    <button type="submit">🔍 Buscar</button>
+</form>
+    <table border="1" cellpadding="8" cellspacing="0">
     <tr>
         <th>ID</th>
         <th>Título</th>
@@ -50,4 +59,9 @@ if ($busca !== '') {
 </table>
 
 <br>
+
+</body>
+</html>
+
+
 

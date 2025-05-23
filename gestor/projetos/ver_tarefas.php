@@ -27,8 +27,18 @@ $sql = "
 ";
 $tarefas = $conn->query($sql);
 ?>
-
-<h2>Tarefas do Projeto: <?= htmlspecialchars($projeto['titulo']) ?></h2>
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Document</title>
+    <link rel="stylesheet" href="../../style.css">
+</head>
+<body>
+    <h2>Tarefas do Projeto: <?= htmlspecialchars($projeto['titulo']) ?></h2>
+</body>
+</html>
 
 <?php if ($tarefas->num_rows === 0): ?>
     <p>Nenhuma tarefa cadastrada neste projeto.</p>

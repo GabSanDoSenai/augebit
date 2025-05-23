@@ -1,3 +1,15 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="stylesheet" href="../../style.css">
+    <title>Document</title>
+</head>
+<body>
+    <h2>Documentos do Projeto: <?= htmlspecialchars($projeto['titulo']) ?></h2>
+</body>
+</html>
 <?php
 session_start();
 if (!isset($_SESSION['usuario_id']) || $_SESSION['usuario_tipo'] !== 'admin') {
@@ -24,17 +36,30 @@ $stmt->execute();
 $result = $stmt->get_result();
 ?>
 
-<h2>Documentos do Projeto: <?= htmlspecialchars($projeto['titulo']) ?></h2>
+
 
 <?php if ($result->num_rows === 0): ?>
     <p>Nenhum documento enviado para este projeto.</p>
 <?php else: ?>
     <ul>
-        <?php while ($doc = $result->fetch_assoc()): ?>
+        <?php while ($doc = $result->fetch_assoc()): 
+            $nome = htmlspecialchars($doc['nome_arquivo']);
+            $caminho = htmlspecialchars($doc['caminho_arquivo']);
+            $ext = strtolower(pathinfo($caminho, PATHINFO_EXTENSION));
+        ?>
             <li>
-                <a href="<?= htmlspecialchars($doc['caminho_arquivo']) ?>" download>
-                    <?= htmlspecialchars($doc['nome_arquivo']) ?>
-                </a> (<?= $doc['enviado_em'] ?>)
+                <p><strong><?= $nome ?></strong> (<?= $doc['enviado_em'] ?>)</p>
+
+                <?php if (in_array($ext, ['jpg', 'jpeg', 'png', 'gif'])): ?>
+                    <img src="<?= $caminho ?>" alt="<?= $nome ?>" style="max-width:300px; max-height:300px;"><br>
+                <?php elseif ($ext === 'pdf'): ?>
+                    <iframe src="<?= $caminho ?>" width="100%" height="500px" style="border:1px solid #ccc;"></iframe><br>
+                <?php else: ?>
+                    <p><em>Visualização indisponível para este tipo de arquivo.</em></p>
+                <?php endif; ?>
+
+                <p><a href="<?= $caminho ?>" download>⬇️ Baixar arquivo</a></p>
+                <hr>
             </li>
         <?php endwhile; ?>
     </ul>
