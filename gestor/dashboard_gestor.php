@@ -16,7 +16,7 @@ class DashboardData {
         $this->conn = $connection;
     }
     public function getProjectsData() {
-    $query = "SELECT status, COUNT(*) AS total FROM projetos WHERE status IN ('em andamento', 'aprovado') GROUP BY status";
+    $query = "SELECT status, COUNT(*) AS total FROM projetos WHERE status IN ('em_andamento', 'aprovado') GROUP BY status";
     $result = $this->conn->query($query);
     $data = [];
     
