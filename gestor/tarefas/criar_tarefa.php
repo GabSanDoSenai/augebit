@@ -37,11 +37,11 @@ $funcionarios = $conn->query("SELECT id, nome FROM usuarios WHERE tipo = 'funcio
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Document</title>
-    <link rel="stylesheet" href="../style.css">
+    <link rel="stylesheet" href="../css/geral.css">
 </head>
 <body>
+    <div class="main-content">
     <h2>Criar Nova Tarefa</h2>
-
 <form method="post">
     Título: <input type="text" name="titulo" required><br><br>
     Descrição: <textarea name="descricao"></textarea><br><br>
@@ -63,8 +63,8 @@ $funcionarios = $conn->query("SELECT id, nome FROM usuarios WHERE tipo = 'funcio
     </select><br><br>
 
     <button type="submit">Criar Tarefa</button>
-    
 </form>
-
+</div>
+</div>
 </body>
 </html>

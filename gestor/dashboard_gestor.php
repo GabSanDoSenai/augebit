@@ -15,18 +15,19 @@ class DashboardData {
     public function __construct($connection) {
         $this->conn = $connection;
     }
-    
     public function getProjectsData() {
-        $query = "SELECT status, COUNT(*) AS total FROM projetos GROUP BY status";
-        $result = $this->conn->query($query);
-        $data = [];
-        
-        while ($row = $result->fetch_assoc()) {
-            $data[$row['status']] = $row['total'];
-        }
-        
-        return $data;
+    $query = "SELECT status, COUNT(*) AS total FROM projetos WHERE status IN ('em andamento', 'aprovado') GROUP BY status";
+    $result = $this->conn->query($query);
+    $data = [];
+    
+    while ($row = $result->fetch_assoc()) {
+        $data[$row['status']] = $row['total'];
     }
+    
+    return $data;
+}
+
+
     
     public function getTasksData() {
         $query = "SELECT status, COUNT(*) AS total FROM tarefas GROUP BY status";
@@ -277,7 +278,7 @@ while ($row = $taxaConclusao->fetch_assoc()) {
                 <a href="projetos/criar_projeto.php" class="action-btn">
                     ➕ Novo Projeto
                 </a>
-                <a href="tarefas/cria_tarefa.php" class="action-btn">
+                <a href="tarefas/criar_tarefa.php" class="action-btn">
                     ✅ Nova Tarefa
                 </a>
                 <a href="documentos/enviar_documento.php" class="action-btn">

@@ -9,7 +9,7 @@ require '../../conexao.php';
 $result = $conn->query("SELECT id, titulo, status FROM projetos ORDER BY criado_em DESC");
 ?>
 
-<?php 
+<?php
 $busca = $_GET['busca'] ?? '';
 
 if ($busca !== '') {
@@ -25,46 +25,67 @@ if ($busca !== '') {
 <?php include '../sidebar.php'; ?>
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Document</title>
     <link rel="stylesheet" href="../css/geral.css">
 </head>
+
 <body>
     <div class="main-content">
-    <h2>Projetos</h2>
-    <form method="get">
-    <input type="text" name="busca" placeholder="Buscar por título..." value="<?= $_GET['busca'] ?? '' ?>">
-    <button type="submit">🔍 Buscar</button>
-</form>
-    <table border="1" cellpadding="8" cellspacing="0">
-    <tr>
-        <th>ID</th>
-        <th>Título</th>
-        <th>Status</th>
-        <th>Ações</th>
-    </tr>
+        <h2>Projetos</h2>
+        <form method="get">
+            <input type="text" name="busca" placeholder="Buscar por título..." value="<?= $_GET['busca'] ?? '' ?>">
+            <button type="submit">🔍 Buscar</button>
+        </form>
+        <table border="1" cellpadding="8" cellspacing="0">
+            <tr>
+                <th>ID</th>
+                <th>Título</th>
+                <th>Status</th>
+                <th>Ações</th>
+            </tr>
 
-    <?php while ($p = $result->fetch_assoc()): ?>
-        
-        <tr>
-            <td><?= $p['id'] ?></td>
-            <td><?= htmlspecialchars($p['titulo']) ?></td>
-            <td><?= ucfirst($p['status']) ?></td>
-            <td>
-                <a href="ver_tarefas.php?projeto_id=<?= $p['id'] ?>">Ver Tarefas</a> |
-                <a href="ver_documentos.php?projeto_id=<?= $p['id'] ?>">Ver Documentos</a>
-            </td>
-        </tr>
-    <?php endwhile; ?>
-</table>
+            <?php while ($p = $result->fetch_assoc()): ?>
 
-<br>
-</div>
-</div>
+                <tr>
+                    <td><?= $p['id'] ?></td>
+                    <td><?= htmlspecialchars($p['titulo']) ?></td>
+                    <td><?= ucfirst($p['status']) ?></td>
+                    <td>
+                        <a href="ver_tarefas.php?projeto_id=<?= $p['id'] ?>">Ver Tarefas</a> |
+                        <a href="ver_documentos.php?projeto_id=<?= $p['id'] ?>">Ver Documentos</a>
+
+                        <?php if ($p['status'] === 'aprovado'): ?>
+                            <br><span style="color: green; font-weight: bold;">✅ Aprovado</span>
+                            <form method="post" action="finalizar_projeto.php" style="display:inline;">
+                                <input type="hidden" name="id" value="<?= $p['id'] ?>">
+                                <button type="submit" onclick="return confirm('Finalizar este projeto?')">Finalizar</button>
+                            </form>
+                        <?php elseif ($p['status'] === 'finalizado'): ?>
+                            <br><span style="color: blue; font-weight: bold;">✔️ Finalizado</span>
+                        <?php endif; ?>
+
+                        <br>
+                        <a href="excluir_projeto.php?id=<?= $p['id'] ?>"
+                            onclick="return confirm('Deseja recusar (excluir) este projeto?')"
+                            style="color:red;">Recusar</a>
+                    </td>
+                </tr>
+            <?php endwhile; ?>
+        </table>
+
+        <br>
+    </div>
+    </div>
+    <style>
+        a.recusar {
+            color: red;
+            font-weight: bold;
+        }
+    </style>
 </body>
+
 </html>
-
-
-
