@@ -133,7 +133,6 @@ while ($row = $taxaConclusao->fetch_assoc()) {
     $taxaConclusaoData[] = $row;
 }
 ?>
-
 <!DOCTYPE html>
 <html lang="pt-BR">
 <head>
@@ -142,12 +141,12 @@ while ($row = $taxaConclusao->fetch_assoc()) {
     <link rel="stylesheet" href="css/gestor.css">
     <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/3.9.1/chart.min.js"></script>
 </head>
-<body>
-    <!-- Sidebar -->
-    <?php include 'sidebar.php'; ?>
 
+<body>
+    <div class="sidebar">
+    <?php include 'sidebar.php'; ?>
+</div>
     <main class="main-content">
-        <!-- Header -->
         <div class="header">
             <h1>Bem-vindo, <?= htmlspecialchars($_SESSION['usuario_nome']) ?>!</h1>
             <p>Aqui está um resumo do seu sistema de gestão</p>

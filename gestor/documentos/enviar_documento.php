@@ -1,58 +1,104 @@
-
 <?php
 session_start();
 if (!isset($_SESSION['usuario_id']) || $_SESSION['usuario_tipo'] !== 'admin') {
-    header("Location: ../login.php");
+    header("Location: ../../login.php");
     exit;
 }
-include '../../conexao.php';
 
-if ($_SERVER["REQUEST_METHOD"] == "POST") {
-    $projeto_id = $_POST['projeto_id'];
-    $tipo = "funcionario";
-    $enviado_por = $_SESSION['usuario_id'];
+require '../../conexao.php';
+require 'upload_functions.php';
 
-    if (isset($_FILES['arquivo']) && $_FILES['arquivo']['error'] === 0) {
-        $nome_original = $_FILES['arquivo']['name'];
-        $temp = $_FILES['arquivo']['tmp_name'];
-        $destino = '../../uploads/' . time() . '_' . basename($nome_original);
+$mensagem = '';
+$erros = [];
 
-        if (move_uploaded_file($temp, $destino)) {
-            $stmt = $conn->prepare("INSERT INTO uploads (projeto_id, nome_arquivo, caminho_arquivo, tipo, enviado_por) VALUES (?, ?, ?, ?, ?)");
-            $stmt->bind_param("isssi", $projeto_id, $nome_original, $destino, $tipo, $enviado_por);
-            $stmt->execute();
-            echo "Arquivo enviado com sucesso!";
-        } else {
-            echo "Erro ao mover o arquivo.";
-        }
+if ($_SERVER['REQUEST_METHOD'] === 'POST') {
+    $projeto_id = $_POST['projeto_id'] ?? null;
+
+    if (!$projeto_id || !is_numeric($projeto_id)) {
+        $erros[] = "Projeto inválido.";
+    } elseif (empty($_FILES['arquivos']['name'][0])) {
+        $erros[] = "Nenhum arquivo selecionado.";
     } else {
-        echo "Erro no upload.";
+        $nomeProjeto = $conn->query("SELECT titulo FROM projetos WHERE id = $projeto_id")->fetch_assoc()['titulo'] ?? "projeto";
+        $diretorioProjeto = "../../../uploads/" . sanitizarNomeDiretorio($nomeProjeto);
+        criarDiretorio("../../$diretorioProjeto");
+
+        foreach ($_FILES['arquivos']['name'] as $i => $nomeOriginal) {
+            $arquivo = [
+                'name'     => $_FILES['arquivos']['name'][$i],
+                'type'     => $_FILES['arquivos']['type'][$i],
+                'tmp_name' => $_FILES['arquivos']['tmp_name'][$i],
+                'error'    => $_FILES['arquivos']['error'][$i],
+                'size'     => $_FILES['arquivos']['size'][$i]
+            ];
+
+            $valErros = validarArquivo($arquivo, $ALLOWED_TYPES, $ALLOWED_EXTENSIONS, $MAX_FILE_SIZE);
+            if (!empty($valErros)) {
+                $erros[] = "Arquivo $nomeOriginal: " . implode(', ', $valErros);
+                continue;
+            }
+
+            $caminhoFinal = "$diretorioProjeto/" . uniqid() . "_" . basename($nomeOriginal);
+            if (move_uploaded_file($arquivo['tmp_name'], "../../$caminhoFinal")) {
+                $stmt = $conn->prepare("INSERT INTO uploads (nome_arquivo, caminho_arquivo, projeto_id) VALUES (?, ?, ?)");
+                $stmt->bind_param("ssi", $nomeOriginal, $caminhoFinal, $projeto_id);
+                $stmt->execute();
+            } else {
+                $erros[] = "Erro ao mover o arquivo $nomeOriginal.";
+            }
+        }
+
+        if (empty($erros)) {
+            $mensagem = "Documentos enviados com sucesso.";
+        }
     }
 }
 
-$projetos = $conn->query("SELECT id, titulo FROM projetos");
+// Buscar projetos para o select
+$projetos = $conn->query("SELECT id, titulo FROM projetos ORDER BY criado_em DESC");
 ?>
+
 <!DOCTYPE html>
-<html lang="en">
+<html lang="pt-br">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Document</title>
+    <title>Enviar Documentos</title>
     <link rel="stylesheet" href="../../style.css">
+    <style>
+        .erros { color: red; margin-bottom: 10px; }
+        .mensagem { color: green; margin-bottom: 10px; }
+    </style>
 </head>
 <body>
-   <h2>Enviar Documento</h2>
-<form method="post" enctype="multipart/form-data">
-    Projeto:
-    <select name="projeto_id" required>
-        <?php while ($p = $projetos->fetch_assoc()): ?>
-            <option value="<?= $p['id'] ?>"><?= $p['titulo'] ?></option>
-        <?php endwhile; ?>
-    </select><br><br>
+    <h2>📁 Enviar Documentos para Projeto</h2>
 
-    Arquivo: <input type="file" name="arquivo" required><br><br>
-    <button type="submit">Enviar</button>
-</form> 
+    <?php if ($mensagem): ?>
+        <p class="mensagem"><?= $mensagem ?></p>
+    <?php endif; ?>
+
+    <?php if (!empty($erros)): ?>
+        <div class="erros">
+            <ul>
+                <?php foreach ($erros as $erro): ?>
+                    <li><?= htmlspecialchars($erro) ?></li>
+                <?php endforeach; ?>
+            </ul>
+        </div>
+    <?php endif; ?>
+
+    <form method="post" enctype="multipart/form-data">
+        <label>Projeto:</label><br>
+        <select name="projeto_id" required>
+            <option value="">Selecione</option>
+            <?php while ($proj = $projetos->fetch_assoc()): ?>
+                <option value="<?= $proj['id'] ?>"><?= htmlspecialchars($proj['titulo']) ?></option>
+            <?php endwhile; ?>
+        </select><br><br>
+
+        <label>Arquivos (PDF ou Imagens):</label><br>
+        <input type="file" name="arquivos[]" multiple accept=".pdf,image/*"><br><br>
+
+        <button type="submit">📤 Enviar Documentos</button>
+    </form>
 </body>
 </html>
-

@@ -34,14 +34,12 @@ $tarefas = $conn->query($sql);
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Document</title>
-    <link rel="stylesheet" href="../../style.css">
+    <link rel="stylesheet" href="../css/geral.css">
 </head>
 <body>
+    <div class="main-content">
     <h2>Tarefas do Projeto: <?= htmlspecialchars($projeto['titulo']) ?></h2>
-</body>
-</html>
-
-<?php if ($tarefas->num_rows === 0): ?>
+    <?php if ($tarefas->num_rows === 0): ?>
     <p>Nenhuma tarefa cadastrada neste projeto.</p>
 <?php else: ?>
     <table border="1" cellpadding="8" cellspacing="0">
@@ -63,3 +61,8 @@ $tarefas = $conn->query($sql);
         <?php endwhile; ?>
     </table>
 <?php endif; ?>
+
+</div>
+</body>
+</html>
+

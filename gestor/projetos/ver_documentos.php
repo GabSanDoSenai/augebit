@@ -30,9 +30,10 @@ $result = $stmt->get_result();
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Documentos do Projeto</title>
-    <link rel="stylesheet" href="../../style.css">
+    <link rel="stylesheet" href="../css/geral.css">
 </head>
 <body>
+    <div class="main-content">
     <h2>Documentos do Projeto: <?= htmlspecialchars($projeto['titulo']) ?></h2>
 
     <?php if ($result->num_rows === 0): ?>
@@ -61,5 +62,6 @@ $result = $stmt->get_result();
             <?php endwhile; ?>
         </ul>
     <?php endif; ?>
+</div>
 </body>
 </html>

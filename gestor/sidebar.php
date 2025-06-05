@@ -8,97 +8,59 @@ if (session_status() === PHP_SESSION_NONE) {
 }
 
 // Definir navegação baseada no tipo de usuário
+$basePath = '/augebit/gestor/'; // Caminho base absoluto
+
 $navigation = [
     'admin' => [
         [
             'icon' => '📊',
             'label' => 'Dashboard',
-            'url' => 'dashboard_gestor.php',
+            'url' => $basePath . 'dashboard_gestor.php',
             'active' => basename($_SERVER['PHP_SELF']) === 'dashboard_gestor.php'
         ],
         [
             'icon' => '📋',
             'label' => 'Projetos',
-            'url' => 'projetos/listar_projetos.php',
+            'url' => $basePath . 'projetos/listar_projetos.php',
             'active' => strpos($_SERVER['PHP_SELF'], 'projetos') !== false
         ],
         [
             'icon' => '✅',
             'label' => 'Tarefas',
-            'url' => 'tarefas/listar_tarefas.php',
+            'url' => $basePath . 'tarefas/tarefas.php',
             'active' => strpos($_SERVER['PHP_SELF'], 'tarefas') !== false
         ],
         [
             'icon' => '👥',
             'label' => 'Funcionários',
-            'url' => 'funcionarios.php',
+            'url' => $basePath . 'funcionarios.php',
             'active' => strpos($_SERVER['PHP_SELF'], 'funcionarios') !== false
         ],
         [
             'icon' => '📁',
             'label' => 'Documentos',
-            'url' => 'gestor/documentos/visualizar_documentos.php',
+            'url' => $basePath . 'documentos/visualizar_documentos.php',
             'active' => strpos($_SERVER['PHP_SELF'], 'documentos') !== false
         ],
         [
             'icon' => '📈',
             'label' => 'Relatórios',
-            'url' => 'projetos/avaliar_projetos.php',
+            'url' => $basePath . 'relatorio/relatorios.php',
             'active' => strpos($_SERVER['PHP_SELF'], 'avaliar_projetos') !== false
         ],
         [
             'icon' => '⚙️',
             'label' => 'Configurações',
-            'url' => 'gestor/configuracoes.php',
+            'url' => $basePath . 'configuracoes.php',
+            'active' => strpos($_SERVER['PHP_SELF'], 'configuracoes') !== false
+        ],
+        [
+            'icon' => '👤',
+            'label' => 'Perfil',
+            'url' => $basePath . 'perfil/perfil.php',
             'active' => strpos($_SERVER['PHP_SELF'], 'configuracoes') !== false
         ]
     ],
-    'funcionario' => [
-        [
-            'icon' => '📊',
-            'label' => 'Dashboard',
-            'url' => 'dashboard_funcionario.php',
-            'active' => basename($_SERVER['PHP_SELF']) === 'dashboard_funcionario.php'
-        ],
-        [
-            'icon' => '✅',
-            'label' => 'Minhas Tarefas',
-            'url' => 'funcionario/tarefas.php',
-            'active' => strpos($_SERVER['PHP_SELF'], 'tarefas') !== false
-        ],
-        [
-            'icon' => '📋',
-            'label' => 'Projetos',
-            'url' => 'funcionario/projetos.php',
-            'active' => strpos($_SERVER['PHP_SELF'], 'projetos') !== false
-        ],
-        [
-            'icon' => '📁',
-            'label' => 'Documentos',
-            'url' => 'funcionario/documentos.php',
-            'active' => strpos($_SERVER['PHP_SELF'], 'documentos') !== false
-        ]
-    ],
-    'cliente' => [
-        [
-            'icon' => '📊',
-            'label' => 'Dashboard',
-            'url' => 'dashboard_cliente.php',
-            'active' => basename($_SERVER['PHP_SELF']) === 'dashboard_cliente.php'
-        ],
-        [
-            'icon' => '📋',
-            'label' => 'Meus Projetos',
-            'url' => 'cliente/projetos.php',
-            'active' => strpos($_SERVER['PHP_SELF'], 'projetos') !== false
-        ],
-        [
-            'icon' => '📁',
-            'label' => 'Documentos',
-            'url' => 'cliente/documentos.php',
-            'active' => strpos($_SERVER['PHP_SELF'], 'documentos') !== false
-        ]
-    ]
 ];
 
 // Obter tipo de usuário e navegação correspondente
@@ -146,20 +108,6 @@ function getUserTypeName($type) {
         </li>
         
         <li class="nav-item">
-            <a href="perfil.php" class="nav-link" title="Meu Perfil" data-url="perfil.php">
-                <span class="nav-icon">👤</span>
-                <span class="nav-text">Meu Perfil</span>
-            </a>
-        </li>
-        
-        <li class="nav-item">
-            <a href="ajuda.php" class="nav-link" title="Ajuda" data-url="ajuda.php">
-                <span class="nav-icon">❓</span>
-                <span class="nav-text">Ajuda</span>
-            </a>
-        </li>
-        
-        <li class="nav-item">
             <a href="logout.php" class="nav-link nav-logout" title="Sair do Sistema" data-url="logout.php">
                 <span class="nav-icon">🚪</span>
                 <span class="nav-text">Sair</span>
@@ -174,9 +122,6 @@ function getUserTypeName($type) {
         <span></span>
     </button>
 </nav>
-
-<!-- Overlay for mobile -->
-<div class="sidebar-overlay" id="sidebarOverlay"></div>
 
 <style>
 /* Sidebar Styles */

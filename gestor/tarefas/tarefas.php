@@ -6,7 +6,7 @@ if (!isset($_SESSION['usuario_id']) || $_SESSION['usuario_tipo'] !== 'admin') {
     exit;
 }
 
-require '../conexao.php';
+require '../../conexao.php';
 
 // Processar ações
 $mensagem = '';
@@ -173,7 +173,7 @@ if (isset($_GET['editar'])) {
     $stmt->close();
 }
 ?>
-<?php include '../../../sidebar.php'; ?>
+<?php include '../sidebar.php'; ?>
 <!DOCTYPE html>
 <html lang="pt-br">
 <head>
