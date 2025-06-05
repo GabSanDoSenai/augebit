@@ -1,17 +1,15 @@
+<?php include '../sidebar.php'; ?>
 <!DOCTYPE html>
 <html lang="en">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Document</title>
-    <link rel="stylesheet" href="style.css">
+    <link rel="stylesheet" href="../css/geral.css">
 </head>
 <body>
-    
-</body>
-</html>
-<?php include '../sidebar.php'; ?>
-<?php
+    <div class="main-content">
+      <?php
 session_start();
 if (!isset($_SESSION['usuario_id']) || $_SESSION['usuario_tipo'] !== 'admin') {
     header("Location: ../login.php");
@@ -50,3 +48,8 @@ if ($result->num_rows === 0) {
         echo "</div>";
     }
 }
+?>  
+    </div>
+</body>
+</html>
+

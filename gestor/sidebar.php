@@ -31,7 +31,7 @@ $navigation = [
         [
             'icon' => '👥',
             'label' => 'Funcionários',
-            'url' => 'gestor/funcionariosGestor.php',
+            'url' => 'funcionarios.php',
             'active' => strpos($_SERVER['PHP_SELF'], 'funcionarios') !== false
         ],
         [
@@ -43,7 +43,7 @@ $navigation = [
         [
             'icon' => '📈',
             'label' => 'Relatórios',
-            'url' => 'gestor/projetos/avaliar_projetos.php',
+            'url' => 'projetos/avaliar_projetos.php',
             'active' => strpos($_SERVER['PHP_SELF'], 'avaliar_projetos') !== false
         ],
         [
@@ -133,7 +133,8 @@ function getUserTypeName($type) {
         <li class="nav-item">
             <a href="<?= htmlspecialchars($item['url']) ?>" 
                class="nav-link <?= $item['active'] ? 'active' : '' ?>"
-               title="<?= htmlspecialchars($item['label']) ?>">
+               title="<?= htmlspecialchars($item['label']) ?>"
+               data-url="<?= htmlspecialchars($item['url']) ?>">
                 <span class="nav-icon"><?= $item['icon'] ?></span>
                 <span class="nav-text"><?= htmlspecialchars($item['label']) ?></span>
             </a>
@@ -145,21 +146,21 @@ function getUserTypeName($type) {
         </li>
         
         <li class="nav-item">
-            <a href="perfil.php" class="nav-link" title="Meu Perfil">
+            <a href="perfil.php" class="nav-link" title="Meu Perfil" data-url="perfil.php">
                 <span class="nav-icon">👤</span>
                 <span class="nav-text">Meu Perfil</span>
             </a>
         </li>
         
         <li class="nav-item">
-            <a href="ajuda.php" class="nav-link" title="Ajuda">
+            <a href="ajuda.php" class="nav-link" title="Ajuda" data-url="ajuda.php">
                 <span class="nav-icon">❓</span>
                 <span class="nav-text">Ajuda</span>
             </a>
         </li>
         
         <li class="nav-item">
-            <a href="logout.php" class="nav-link nav-logout" title="Sair do Sistema">
+            <a href="logout.php" class="nav-link nav-logout" title="Sair do Sistema" data-url="logout.php">
                 <span class="nav-icon">🚪</span>
                 <span class="nav-text">Sair</span>
             </a>
@@ -442,6 +443,16 @@ function getUserTypeName($type) {
     height: 40px;
     font-size: 1.2rem;
 }
+
+/* Animação suave para feedback visual */
+.nav-link.clicked {
+    transform: scale(0.95);
+}
+
+.nav-link.loading {
+    opacity: 0.7;
+    pointer-events: none;
+}
 </style>
 
 <script>
@@ -451,6 +462,12 @@ document.addEventListener('DOMContentLoaded', function() {
     const sidebarToggle = document.getElementById('sidebarToggle');
     const sidebarOverlay = document.getElementById('sidebarOverlay');
     
+    // Variáveis para controle de navegação
+    let isNavigating = false;
+    let lastClickTime = 0;
+    const DOUBLE_CLICK_THRESHOLD = 300; // ms
+    
+    // Toggle sidebar para mobile
     if (sidebarToggle) {
         sidebarToggle.addEventListener('click', function() {
             sidebar.classList.toggle('active');
@@ -467,7 +484,7 @@ document.addEventListener('DOMContentLoaded', function() {
         });
     }
     
-    // Close sidebar on window resize to desktop
+    // Fechar sidebar quando redimensionar para desktop
     window.addEventListener('resize', function() {
         if (window.innerWidth > 768) {
             sidebar.classList.remove('active');
@@ -476,15 +493,98 @@ document.addEventListener('DOMContentLoaded', function() {
         }
     });
     
-    // Add active class to current page
-    const currentPath = window.location.pathname;
-    const navLinks = document.querySelectorAll('.nav-link');
+    // Função para verificar se o link está ativo (página atual)
+    function isCurrentPage(linkUrl) {
+        const currentPath = window.location.pathname;
+        const currentFile = currentPath.split('/').pop();
+        const linkFile = linkUrl.split('/').pop();
+        
+        // Verificar correspondência exata do arquivo
+        if (currentFile === linkFile) {
+            return true;
+        }
+        
+        // Verificar se estamos em uma subpasta relacionada
+        const linkFolder = linkUrl.includes('/') ? linkUrl.split('/')[0] : '';
+        if (linkFolder && currentPath.includes(linkFolder)) {
+            return true;
+        }
+        
+        return false;
+    }
+    
+    // Controle inteligente de navegação
+    const navLinks = document.querySelectorAll('.nav-link:not(.nav-logout)');
     
     navLinks.forEach(link => {
-        const linkPath = link.getAttribute('href');
-        if (currentPath.includes(linkPath) && linkPath !== '#') {
+        const linkUrl = link.getAttribute('data-url') || link.getAttribute('href');
+        
+        // Marcar link ativo baseado na página atual
+        if (isCurrentPage(linkUrl)) {
             link.classList.add('active');
         }
+        
+        link.addEventListener('click', function(e) {
+            const currentTime = Date.now();
+            const timeDiff = currentTime - lastClickTime;
+            
+            // Prevenir navegação se:
+            // 1. Já estamos navegando
+            // 2. É um clique duplo muito rápido
+            // 3. É a página atual
+            if (isNavigating || timeDiff < DOUBLE_CLICK_THRESHOLD || isCurrentPage(linkUrl)) {
+                e.preventDefault();
+                
+                // Feedback visual para indicar que o clique foi registrado
+                link.classList.add('clicked');
+                setTimeout(() => {
+                    link.classList.remove('clicked');
+                }, 150);
+                
+                return false;
+            }
+            
+            // Marcar que estamos navegando
+            isNavigating = true;
+            lastClickTime = currentTime;
+            
+            // Adicionar classe de loading
+            link.classList.add('loading');
+            
+            // Remover classe active de todos os links
+            navLinks.forEach(l => l.classList.remove('active'));
+            
+            // Adicionar classe active no link clicado
+            link.classList.add('active');
+            
+            // Reset após timeout (caso a navegação falhe)
+            setTimeout(() => {
+                isNavigating = false;
+                link.classList.remove('loading');
+            }, 2000);
+        });
+    });
+    
+    // Tratamento especial para logout
+    const logoutLink = document.querySelector('.nav-logout');
+    if (logoutLink) {
+        logoutLink.addEventListener('click', function(e) {
+            // Sempre permitir logout
+            logoutLink.classList.add('loading');
+        });
+    }
+    
+    // Reset do estado de navegação quando a página carrega
+    window.addEventListener('beforeunload', function() {
+        isNavigating = false;
+    });
+    
+    // Reset do estado quando a página é totalmente carregada
+    window.addEventListener('load', function() {
+        isNavigating = false;
+        navLinks.forEach(link => {
+            link.classList.remove('loading');
+        });
     });
 });
 </script>
