@@ -1,10 +1,10 @@
 <?php
 session_start();
 if (!isset($_SESSION['usuario_id']) || $_SESSION['usuario_tipo'] !== 'admin') {
-    header("Location: ../login.php");
+    header("Location: ../../login.php");
     exit;
 }
-require '../conexao.php';
+require '../../conexao.php';
 
 $id = $_GET['id'] ?? null;
 if (!$id || !is_numeric($id)) {
@@ -30,6 +30,7 @@ $tarefa = $conn->query("SELECT * FROM tarefas WHERE id = $id")->fetch_assoc();
 $projetos = $conn->query("SELECT id, titulo FROM projetos");
 $funcionarios = $conn->query("SELECT id, nome FROM usuarios WHERE tipo = 'funcionario'");
 ?>
+<?php include 'sidebar.php'; ?>
 <!DOCTYPE html>
 <html lang="en">
 <head>

@@ -23,7 +23,7 @@ $stmt->bind_param("i", $projeto_id);
 $stmt->execute();
 $result = $stmt->get_result();
 ?>
-
+<?php include '../sidebar.php'; ?>
 <!DOCTYPE html>
 <html lang="pt-br">
 <head>

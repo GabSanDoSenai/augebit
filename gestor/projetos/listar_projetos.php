@@ -22,6 +22,7 @@ if ($busca !== '') {
     $result = $conn->query("SELECT id, titulo, status FROM projetos ORDER BY criado_em DESC");
 }
 ?>
+<?php include '../sidebar.php'; ?>
 <!DOCTYPE html>
 <html lang="en">
 <head>

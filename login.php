@@ -2,8 +2,7 @@
 session_start();
 include 'conexao.php';
 
-if ($_SERVER['REQUEST_METHOD'] === 'POST') {  // verifica se o formulário foi enviado
-
+if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     $email = $_POST['email'];
     $senha = $_POST['senha'];
 
@@ -19,12 +18,21 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {  // verifica se o formulário foi e
             $_SESSION['usuario_nome'] = $user['nome'];
             $_SESSION['usuario_tipo'] = $user['tipo'];
 
-            if ($user['tipo'] == 'funcionario') {
-                header("Location: dashboard_funcionario.php");
-            } elseif ($user['tipo'] == 'cliente') {
-                header("Location: dashboard_cliente.php");
-            } elseif ($user['tipo'] == 'admin') {
-                header("Location: dashboard_gestor.php");
+            // Redireciona para a dashboard correta
+            switch ($user['tipo']) {
+                case 'funcionario':
+                    header("Location: funcionario/dashboard_funcionario.php");
+                    break;
+                case 'cliente':
+                    header("Location: cliente/dashboard_cliente.php");
+                    break;
+                case 'admin':
+                case 'gestor':
+                    header("Location: gestor/dashboard_gestor.php");
+                    break;
+                default:
+                    echo "Tipo de usuário inválido.";
+                    exit;
             }
             exit;
         } else {
@@ -36,6 +44,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {  // verifica se o formulário foi e
 }
 ?>
 
+<!-- Formulário de Login -->
 <h2>Login</h2>
 <form method="POST">
     Email: <input type="email" name="email" required><br>

@@ -72,6 +72,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 $projetos = $conn->query("SELECT id, titulo FROM projetos");
 $funcionarios = $conn->query("SELECT id, nome FROM usuarios WHERE tipo = 'funcionario'");
 ?>
+<?php include '../sidebar.php'; ?>
 <link rel="stylesheet" href="../../style.css">
 <h2>Atribuir Funcionário a Projeto</h2>
 <form method="post">

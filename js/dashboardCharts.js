@@ -34,12 +34,12 @@ class DashboardCharts {
         };
         
         this.colors = {
-            primary: '#667eea',
+            primary: '#fff',
             secondary: '#764ba2',
             success: '#43e97b',
             warning: '#fa709a',
             info: '#4facfe',
-            light: '#fee140',
+            light: '#000',
             gradients: {
                 primary: 'linear-gradient(135deg, #667eea, #764ba2)',
                 success: 'linear-gradient(135deg, #43e97b, #38f9d7)',

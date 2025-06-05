@@ -5,7 +5,7 @@ if (!isset($_SESSION['usuario_id']) || $_SESSION['usuario_tipo'] !== 'admin') {
     exit;
 }
 
-require '../conexao.php';
+require '../../conexao.php';
 
 if ($_SERVER["REQUEST_METHOD"] == "POST") {
     $titulo = $_POST['titulo'];
@@ -30,6 +30,7 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
 $projetos = $conn->query("SELECT id, titulo FROM projetos");
 $funcionarios = $conn->query("SELECT id, nome FROM usuarios WHERE tipo = 'funcionario'");
 ?>
+<?php include '../sidebar.php'; ?>
 <!DOCTYPE html>
 <html lang="en">
 <head>

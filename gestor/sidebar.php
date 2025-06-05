@@ -19,7 +19,7 @@ $navigation = [
         [
             'icon' => '📋',
             'label' => 'Projetos',
-            'url' => 'gestor/projetos/listar_projetos.php',
+            'url' => 'projetos/listar_projetos.php',
             'active' => strpos($_SERVER['PHP_SELF'], 'projetos') !== false
         ],
         [

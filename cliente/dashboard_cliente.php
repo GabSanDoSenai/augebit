@@ -6,6 +6,6 @@
     <title>Document</title>
 </head>
 <body>
-    <a href="cliente/solicitar_projeto.php">solicitar projeto</a>
+    <a href="solicitar_projeto.php">solicitar projeto</a>
 </body>
 </html>

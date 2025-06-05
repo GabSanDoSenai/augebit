@@ -3,11 +3,11 @@ session_start();
 
 // Verificação de autenticação
 if (!isset($_SESSION['usuario_id']) || $_SESSION['usuario_tipo'] !== 'admin') {
-    header("Location: login.php");
+    header("Location: ../login.php");
     exit;
 }
 
-include 'conexao.php';
+include '../conexao.php';
 
 class DashboardData {
     private $conn;
@@ -139,7 +139,7 @@ while ($row = $taxaConclusao->fetch_assoc()) {
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <link rel="stylesheet" href="gestor.css">
+    <link rel="stylesheet" href="css/gestor.css">
     <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/3.9.1/chart.min.js"></script>
 </head>
 <body>
@@ -236,7 +236,7 @@ while ($row = $taxaConclusao->fetch_assoc()) {
             <?php if ($notificacoes['novos_documentos'] > 0): ?>
             <div class="notification-item">
                 <span><strong><?= $notificacoes['novos_documentos'] ?></strong> novo(s) documento(s) enviado(s) recentemente.</span>
-                <a href="gestor/documentos/visualizar_documentos.php" class="notification-link">Ver Documentos →</a>
+                <a href="documentos/visualizar_documentos.php" class="notification-link">Ver Documentos →</a>
             </div>
             <?php endif; ?>
         </div>
@@ -275,16 +275,16 @@ while ($row = $taxaConclusao->fetch_assoc()) {
         <div class="quick-actions">
             <h3>🚀 Ações Rápidas</h3>
             <div class="action-grid">
-                <a href="gestor/criar_projeto.php" class="action-btn">
+                <a href="projetos/criar_projeto.php" class="action-btn">
                     ➕ Novo Projeto
                 </a>
-                <a href="tarefas/cria_tarefa.php" class="action-btn">
+                <a href="cria_tarefa.php" class="action-btn">
                     ✅ Nova Tarefa
                 </a>
-                <a href="gestor/documentos/enviar_documento.php" class="action-btn">
+                <a href="documentos/enviar_documento.php" class="action-btn">
                     📁 Enviar Documento
                 </a>
-                <a href="gestor/projetos/listar_projetos.php" class="action-btn">
+                <a href="projetos/listar_projetos.php" class="action-btn">
                     ⚖️ Avaliar Projetos
                 </a>
             </div>
@@ -426,6 +426,6 @@ while ($row = $taxaConclusao->fetch_assoc()) {
             }
         });
     </script>
-    <script src="dashboardCharts.js"></script>
+    <script src="../js/dashboardCharts.js"></script>
 </body>
 </html>

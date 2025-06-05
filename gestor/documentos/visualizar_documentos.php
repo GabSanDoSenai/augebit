@@ -69,7 +69,7 @@ while ($row = $result->fetch_assoc()) {
     $totalTamanho += $row['tamanho_arquivo'] ?? 0;
 }
 ?>
-
+<?php include '../sidebar.php'; ?>
 <!DOCTYPE html>
 <html lang="pt-br">
 <head>

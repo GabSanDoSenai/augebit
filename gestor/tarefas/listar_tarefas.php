@@ -4,7 +4,7 @@ if (!isset($_SESSION['usuario_id']) || $_SESSION['usuario_tipo'] !== 'admin') {
     header("Location: ../login.php");
     exit;
 }
-require '../conexao.php';
+require '../../conexao.php';
 
 // Atualizar status se enviado via POST
 if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['tarefa_id'], $_POST['status'])) {
@@ -31,17 +31,20 @@ $sql = "
 
 $result = $conn->query($sql);
 ?>
+<?php include '../sidebar.php'; ?>
 <!DOCTYPE html>
 <html lang="en">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Document</title>
-    <link rel="stylesheet" href="../style.css">
+    <link rel="stylesheet" href="../css/geral.css">
 </head>
 <body>
-    <h2>Lista de Tarefas</h2>
-
+    
+    
+<div class="main-content">
+<h2>Lista de Tarefas</h2>
 <table border="1" cellpadding="8" cellspacing="0">
     <tr>
         <th>ID</th>
@@ -74,6 +77,7 @@ $result = $conn->query($sql);
         </tr>
     <?php endwhile; ?>
 </table>
+</div>
 </body>
 </html>
 

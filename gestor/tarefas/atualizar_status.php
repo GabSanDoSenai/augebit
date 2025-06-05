@@ -20,6 +20,7 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
     $id = $_GET['id'];
 }
 ?>
+<?php include 'sidebar.php'; ?>
 <!DOCTYPE html>
 <html lang="en">
 <head>
