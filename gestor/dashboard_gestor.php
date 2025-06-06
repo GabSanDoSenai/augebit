@@ -222,7 +222,7 @@ while ($row = $taxaConclusao->fetch_assoc()) {
             <?php if ($notificacoes['projetos_pendentes'] > 0): ?>
             <div class="notification-item urgent">
                 <span><strong><?= $notificacoes['projetos_pendentes'] ?></strong> projeto(s) aguardando aprovação.</span>
-                <a href="projetos.php?status=pendente" class="notification-link">Ver Projetos →</a>
+                <a href="projetos/listar_projetos.php?status=pendente" class="notification-link">Ver Projetos →</a>
             </div>
             <?php endif; ?>
             
