@@ -272,7 +272,7 @@ if (isset($_GET['editar'])) {
                         <td colspan="2">
                             <button type="submit"><?= $tarefa_editar ? 'Atualizar Tarefa' : 'Criar Tarefa' ?></button>
                             <?php if ($tarefa_editar): ?>
-                                <a href="index.php">Cancelar</a>
+                                <a href="tarefas.php">Cancelar</a>
                             <?php endif; ?>
                         </td>
                     </tr>
@@ -343,7 +343,7 @@ if (isset($_GET['editar'])) {
                     <tr>
                         <td colspan="4">
                             <button type="submit">Aplicar Filtros</button>
-                            <a href="index.php">Limpar Filtros</a>
+                            <a href="tarefas.php">Limpar Filtros</a>
                         </td>
                     </tr>
                 </table>
@@ -392,7 +392,7 @@ if (isset($_GET['editar'])) {
                                 </td>
                                 <td><?= date('d/m/Y H:i', strtotime($t['criado_em'])) ?></td>
                                 <td>
-                                    <a href="index.php?editar=<?= $t['id'] ?>">✏️ Editar</a>
+                                    <a href="tarefas.php?editar=<?= $t['id'] ?>">✏️ Editar</a>
                                     |
                                     <a href="detalhes.php?id=<?= $t['id'] ?>">👁️ Ver</a>
                                     |
@@ -418,7 +418,7 @@ if (isset($_GET['editar'])) {
         <div style="margin: 20px 0; padding: 15px; border: 1px solid #ddd;">
             <h3>Ações Rápidas</h3>
             <p>
-                <a href="index.php">🔄 Atualizar Lista</a> |
+                <a href="tarefas.php">🔄 Atualizar Lista</a> |
                 <a href="relatorio.php">📊 Relatório de Tarefas</a> |
                 <a href="exportar.php">📥 Exportar CSV</a>
             </p>

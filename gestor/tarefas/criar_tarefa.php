@@ -494,7 +494,7 @@ if ($_SERVER["REQUEST_METHOD"] === "POST") {
                 </div>
 
                 <div class="btn-group">
-                    <a href="../dashboard.php" class="btn btn-secondary">
+                    <a href="../dashboard_gestor.php" class="btn btn-secondary">
                         <i class="fas fa-arrow-left"></i> Cancelar
                     </a>
                     <button type="submit" class="btn btn-primary">
