@@ -157,7 +157,7 @@ $conn->close();
             justify-content: center;
             background: rgba(255, 255, 255, 0.05);
             backdrop-filter: blur(15px);
-            transition: all 0.6s ease-in-out;
+            transition: all 0.3s ease-in-out;
             z-index: 2;
             position: relative;
         }
@@ -481,8 +481,7 @@ $conn->close();
         <!-- Overlay with Logo -->
         <div class="overlay">
             <div class="overlay-panel logo-panel">
-                <img src="img/Modelo 01 1.png" alt="AugeBit Logo" />
-                <h3>AugeBit</h3>
+                <img src="assets/images/augebit-logo.png" alt="AugeBit Logo" />
                 <p>Bem-vindo ao nosso sistema</p>
             </div>
         </div>
