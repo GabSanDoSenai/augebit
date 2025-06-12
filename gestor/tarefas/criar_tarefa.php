@@ -12,7 +12,7 @@ if ($_SESSION['usuario_tipo'] === 'admin') {
     $projetos_query = "SELECT p.id, p.titulo, u.nome as cliente_nome 
                        FROM projetos p 
                        LEFT JOIN usuarios u ON p.cliente_id = u.id 
-                       WHERE p.status IN ('em_andamento', 'ajustes')
+                       WHERE p.status IN ('aprovado','em_andamento', 'ajustes')
                        ORDER BY p.titulo";
 } else {
     // Funcionário vê apenas projetos atribuídos a ele
@@ -20,7 +20,7 @@ if ($_SESSION['usuario_tipo'] === 'admin') {
                        FROM projetos p 
                        LEFT JOIN usuarios u ON p.cliente_id = u.id
                        INNER JOIN projetos_usuarios pu ON p.id = pu.projeto_id
-                       WHERE pu.funcionario_id = ? AND p.status IN ('em_andamento', 'ajustes')
+                       WHERE pu.funcionario_id = ? AND p.status IN ('aprovado','em_andamento', 'ajustes')
                        ORDER BY p.titulo";
 }
 

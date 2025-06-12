@@ -9,67 +9,75 @@ if (!isset($_SESSION['usuario_id']) || $_SESSION['usuario_tipo'] !== 'admin') {
 
 include '../conexao.php';
 
-class DashboardData {
+class DashboardData
+{
     private $conn;
-    
-    public function __construct($connection) {
+
+    public function __construct($connection)
+    {
         $this->conn = $connection;
     }
-    public function getProjectsData() {
-    $query = "SELECT status, COUNT(*) AS total FROM projetos WHERE status IN ('em_andamento', 'aprovado') GROUP BY status";
-    $result = $this->conn->query($query);
-    $data = [];
-    
-    while ($row = $result->fetch_assoc()) {
-        $data[$row['status']] = $row['total'];
-    }
-    
-    return $data;
-}
-
-
-    
-    public function getTasksData() {
-        $query = "SELECT status, COUNT(*) AS total FROM tarefas GROUP BY status";
+    public function getProjectsData()
+    {
+        $query = "SELECT status, COUNT(*) AS total FROM projetos WHERE status IN ('em_andamento', 'aprovado') GROUP BY status";
         $result = $this->conn->query($query);
         $data = [];
-        
+
         while ($row = $result->fetch_assoc()) {
             $data[$row['status']] = $row['total'];
         }
-        
+
         return $data;
     }
-    
-    public function getUserCounts() {
+
+
+
+    public function getTasksData()
+    {
+        $query = "SELECT status, COUNT(*) AS total FROM tarefas GROUP BY status";
+        $result = $this->conn->query($query);
+        $data = [];
+
+        while ($row = $result->fetch_assoc()) {
+            $data[$row['status']] = $row['total'];
+        }
+
+        return $data;
+    }
+
+    public function getUserCounts()
+    {
         $funcionarios = $this->conn->query("SELECT COUNT(*) AS total FROM usuarios WHERE tipo = 'funcionario'")->fetch_assoc()['total'];
         $clientes = $this->conn->query("SELECT COUNT(*) AS total FROM usuarios WHERE tipo = 'cliente'")->fetch_assoc()['total'];
-        
+
         return ['funcionarios' => $funcionarios, 'clientes' => $clientes];
     }
-    
-    public function getNotifications() {
+
+    public function getNotifications()
+    {
         $projPendentes = $this->conn->query("SELECT COUNT(*) AS total FROM projetos WHERE status = 'pendente'")->fetch_assoc()['total'] ?? 0;
         $tarefasUrgentes = $this->conn->query("SELECT COUNT(*) AS total FROM tarefas WHERE status = 'a_fazer'")->fetch_assoc()['total'] ?? 0;
         $novosDocs = $this->conn->query("SELECT COUNT(*) AS total FROM uploads WHERE enviado_em >= NOW() - INTERVAL 3 DAY")->fetch_assoc()['total'] ?? 0;
-        
+
         return [
             'projetos_pendentes' => $projPendentes,
             'tarefas_urgentes' => $tarefasUrgentes,
             'novos_documentos' => $novosDocs
         ];
     }
-    
-    public function getRecentProjects($limit = 5) {
+
+    public function getRecentProjects($limit = 5)
+    {
         $query = "SELECT id, titulo, status, criado_em FROM projetos ORDER BY criado_em DESC LIMIT ?";
         $stmt = $this->conn->prepare($query);
         $stmt->bind_param("i", $limit);
         $stmt->execute();
-        
+
         return $stmt->get_result();
     }
-    
-    public function getRecentTasks($limit = 5) {
+
+    public function getRecentTasks($limit = 5)
+    {
         $query = "
             SELECT t.id, t.titulo, t.status, u.nome AS funcionario, p.titulo AS projeto
             FROM tarefas t
@@ -80,11 +88,12 @@ class DashboardData {
         $stmt = $this->conn->prepare($query);
         $stmt->bind_param("i", $limit);
         $stmt->execute();
-        
+
         return $stmt->get_result();
     }
-    
-    public function getMonthlyProgress() {
+
+    public function getMonthlyProgress()
+    {
         $query = "
             SELECT 
                 DATE_FORMAT(criado_em, '%Y-%m') as mes,
@@ -95,11 +104,12 @@ class DashboardData {
             GROUP BY DATE_FORMAT(criado_em, '%Y-%m')
             ORDER BY mes ASC
         ";
-        
+
         return $this->conn->query($query);
     }
-    
-    public function getTaskCompletionRate() {
+
+    public function getTaskCompletionRate()
+    {
         $query = "
             SELECT 
                 status,
@@ -107,7 +117,7 @@ class DashboardData {
             FROM tarefas 
             GROUP BY status
         ";
-        
+
         return $this->conn->query($query);
     }
 }
@@ -136,6 +146,7 @@ while ($row = $taxaConclusao->fetch_assoc()) {
 ?>
 <!DOCTYPE html>
 <html lang="pt-BR">
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -145,8 +156,8 @@ while ($row = $taxaConclusao->fetch_assoc()) {
 
 <body>
     <div class="sidebar">
-    <?php include 'sidebar.php'; ?>
-</div>
+        <?php include 'sidebar.php'; ?>
+    </div>
     <main class="main-content">
         <div class="header">
             <h1>Bem-vindo, <?= htmlspecialchars($_SESSION['usuario_nome']) ?>!</h1>
@@ -155,7 +166,7 @@ while ($row = $taxaConclusao->fetch_assoc()) {
 
         <!-- Stats Grid -->
         <div class="stats-grid">
-            <div class="stat-card">
+            <a href="projetos/listar_projetos.php" class="stat-card">
                 <div class="stat-header">
                     <div>
                         <div class="stat-number"><?= array_sum($dadosProjetos) ?></div>
@@ -163,9 +174,9 @@ while ($row = $taxaConclusao->fetch_assoc()) {
                     </div>
                     <div class="stat-icon projects">📋</div>
                 </div>
-            </div>
-            
-            <div class="stat-card">
+            </a>
+
+            <a href="tarefas/listar_tarefas.php" class="stat-card">
                 <div class="stat-header">
                     <div>
                         <div class="stat-number"><?= array_sum($dadosTarefas) ?></div>
@@ -173,9 +184,9 @@ while ($row = $taxaConclusao->fetch_assoc()) {
                     </div>
                     <div class="stat-icon tasks">✅</div>
                 </div>
-            </div>
-            
-            <div class="stat-card">
+            </a>
+
+            <a href="usuarios/funcionarios.php" class="stat-card">
                 <div class="stat-header">
                     <div>
                         <div class="stat-number"><?= $dadosUsuarios['funcionarios'] ?></div>
@@ -183,9 +194,9 @@ while ($row = $taxaConclusao->fetch_assoc()) {
                     </div>
                     <div class="stat-icon users">👥</div>
                 </div>
-            </div>
-            
-            <div class="stat-card">
+            </a>
+
+            <a href="usuarios/gerenciar_clientes.php" class="stat-card">
                 <div class="stat-header">
                     <div>
                         <div class="stat-number"><?= $dadosUsuarios['clientes'] ?></div>
@@ -193,8 +204,9 @@ while ($row = $taxaConclusao->fetch_assoc()) {
                     </div>
                     <div class="stat-icon docs">👤</div>
                 </div>
-            </div>
+            </a>
         </div>
+
 
         <!-- Charts Section -->
         <div class="charts-grid">
@@ -202,12 +214,12 @@ while ($row = $taxaConclusao->fetch_assoc()) {
                 <h3>📈 Progresso Mensal de Projetos</h3>
                 <canvas id="progressoMensalChart"></canvas>
             </div>
-            
+
             <div class="chart-card">
                 <h3>🎯 Status das Tarefas</h3>
                 <canvas id="statusTarefasChart"></canvas>
             </div>
-            
+
             <div class="chart-card">
                 <h3>📊 Distribuição de Projetos</h3>
                 <canvas id="statusProjetosChart"></canvas>
@@ -216,30 +228,32 @@ while ($row = $taxaConclusao->fetch_assoc()) {
 
         <!-- Notifications -->
         <?php if ($notificacoes['projetos_pendentes'] > 0 || $notificacoes['tarefas_urgentes'] > 0 || $notificacoes['novos_documentos'] > 0): ?>
-        <div class="notifications">
-            <h2>Notificações Importantes</h2>
-            
-            <?php if ($notificacoes['projetos_pendentes'] > 0): ?>
-            <div class="notification-item urgent">
-                <span><strong><?= $notificacoes['projetos_pendentes'] ?></strong> projeto(s) aguardando aprovação.</span>
-                <a href="projetos/listar_projetos.php?status=pendente" class="notification-link">Ver Projetos →</a>
+            <div class="notifications">
+                <h2>Notificações Importantes</h2>
+
+                <?php if ($notificacoes['projetos_pendentes'] > 0): ?>
+                    <div class="notification-item urgent">
+                        <span><strong><?= $notificacoes['projetos_pendentes'] ?></strong> projeto(s) aguardando
+                            aprovação.</span>
+                        <a href="projetos/listar_projetos.php?status=pendente" class="notification-link">Ver Projetos →</a>
+                    </div>
+                <?php endif; ?>
+
+                <?php if ($notificacoes['tarefas_urgentes'] > 0): ?>
+                    <div class="notification-item">
+                        <span><strong><?= $notificacoes['tarefas_urgentes'] ?></strong> tarefa(s) aguardando início.</span>
+                        <a href="tarefas/listar_tarefas.php?status=a_fazer" class="notification-link">Ver Tarefas →</a>
+                    </div>
+                <?php endif; ?>
+
+                <?php if ($notificacoes['novos_documentos'] > 0): ?>
+                    <div class="notification-item">
+                        <span><strong><?= $notificacoes['novos_documentos'] ?></strong> novo(s) documento(s) enviado(s)
+                            recentemente.</span>
+                        <a href="documentos/visualizar_documentos.php" class="notification-link">Ver Documentos →</a>
+                    </div>
+                <?php endif; ?>
             </div>
-            <?php endif; ?>
-            
-            <?php if ($notificacoes['tarefas_urgentes'] > 0): ?>
-            <div class="notification-item">
-                <span><strong><?= $notificacoes['tarefas_urgentes'] ?></strong> tarefa(s) aguardando início.</span>
-                <a href="tarefas/listar_tarefas.php?status=a_fazer" class="notification-link">Ver Tarefas →</a>
-            </div>
-            <?php endif; ?>
-            
-            <?php if ($notificacoes['novos_documentos'] > 0): ?>
-            <div class="notification-item">
-                <span><strong><?= $notificacoes['novos_documentos'] ?></strong> novo(s) documento(s) enviado(s) recentemente.</span>
-                <a href="documentos/visualizar_documentos.php" class="notification-link">Ver Documentos →</a>
-            </div>
-            <?php endif; ?>
-        </div>
         <?php endif; ?>
 
         <!-- Recent Items Grid -->
@@ -247,26 +261,31 @@ while ($row = $taxaConclusao->fetch_assoc()) {
             <div class="recent-section">
                 <h3>📋 Projetos Recentes</h3>
                 <?php while ($projeto = $projetosRecentes->fetch_assoc()): ?>
-                <div class="recent-item">
-                    <div>
-                        <strong><?= htmlspecialchars($projeto['titulo']) ?></strong>
-                        <br><small><?= date('d/m/Y', strtotime($projeto['criado_em'])) ?></small>
-                    </div>
-                    <span class="status-badge <?= $projeto['status'] ?>"><?= ucfirst(str_replace('_', ' ', $projeto['status'])) ?></span>
-                </div>
+                    <a href="projetos/listar_projetos.php?id=<?= $projeto['id'] ?>" class="recent-item"
+                        style="text-decoration: none; color: inherit;">
+                        <div>
+                            <strong><?= htmlspecialchars($projeto['titulo']) ?></strong>
+                            <br><small><?= date('d/m/Y', strtotime($projeto['criado_em'])) ?></small>
+                        </div>
+                        <span
+                            class="status-badge <?= $projeto['status'] ?>"><?= ucfirst(str_replace('_', ' ', $projeto['status'])) ?></span>
+                    </a>
+
                 <?php endwhile; ?>
             </div>
-            
+
             <div class="recent-section">
                 <h3>✅ Tarefas Recentes</h3>
                 <?php while ($tarefa = $tarefasRecentes->fetch_assoc()): ?>
-                <div class="recent-item">
-                    <div>
-                        <strong><?= htmlspecialchars($tarefa['titulo']) ?></strong>
-                        <br><small><?= htmlspecialchars($tarefa['funcionario'] ?? 'Não atribuído') ?> - <?= htmlspecialchars($tarefa['projeto'] ?? 'Sem projeto') ?></small>
+                    <div class="recent-item">
+                        <div>
+                            <strong><?= htmlspecialchars($tarefa['titulo']) ?></strong>
+                            <br><small><?= htmlspecialchars($tarefa['funcionario'] ?? 'Não atribuído') ?> -
+                                <?= htmlspecialchars($tarefa['projeto'] ?? 'Sem projeto') ?></small>
+                        </div>
+                        <span
+                            class="status-badge <?= $tarefa['status'] ?>"><?= ucfirst(str_replace('_', ' ', $tarefa['status'])) ?></span>
                     </div>
-                    <span class="status-badge <?= $tarefa['status'] ?>"><?= ucfirst(str_replace('_', ' ', $tarefa['status'])) ?></span>
-                </div>
                 <?php endwhile; ?>
             </div>
         </div>
@@ -296,11 +315,11 @@ while ($row = $taxaConclusao->fetch_assoc()) {
         const progressoMensalData = <?= json_encode($progressoMensalData) ?>;
         const taxaConclusaoData = <?= json_encode($taxaConclusaoData) ?>;
         const dadosProjetos = <?= json_encode($dadosProjetos) ?>;
-        
+
         // Configuração padrão dos gráficos
         Chart.defaults.font.family = "'Segoe UI', Tahoma, Geneva, Verdana, sans-serif";
         Chart.defaults.color = '#666';
-        
+
         // Gráfico de Progresso Mensal
         const ctxProgresso = document.getElementById('progressoMensalChart').getContext('2d');
         new Chart(ctxProgresso, {
@@ -349,7 +368,7 @@ while ($row = $taxaConclusao->fetch_assoc()) {
                 }
             }
         });
-        
+
         // Gráfico de Status das Tarefas
         const ctxTarefas = document.getElementById('statusTarefasChart').getContext('2d');
         new Chart(ctxTarefas, {
@@ -382,7 +401,7 @@ while ($row = $taxaConclusao->fetch_assoc()) {
                 }
             }
         });
-        
+
         // Gráfico de Distribuição de Projetos
         const ctxProjetos = document.getElementById('statusProjetosChart').getContext('2d');
         new Chart(ctxProjetos, {
@@ -428,4 +447,5 @@ while ($row = $taxaConclusao->fetch_assoc()) {
     </script>
     <script src="../js/dashboardCharts.js"></script>
 </body>
+
 </html>

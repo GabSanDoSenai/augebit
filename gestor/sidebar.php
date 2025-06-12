@@ -33,7 +33,7 @@ $navigation = [
         [
             'icon' => '👥',
             'label' => 'Funcionários',
-            'url' => $basePath . 'funcionarios.php',
+            'url' => $basePath . 'usuarios/funcionarios.php',
             'active' => strpos($_SERVER['PHP_SELF'], 'funcionarios') !== false
         ],
         [
@@ -43,9 +43,9 @@ $navigation = [
             'active' => strpos($_SERVER['PHP_SELF'], 'documentos') !== false
         ],
         [
-            'icon' => '📈',
-            'label' => 'Relatórios',
-            'url' => $basePath . 'relatorio/relatorios.php',
+            'icon' => '👤',
+            'label' => 'Clientes',
+            'url' => $basePath . 'usuarios/clientes.php',
             'active' => strpos($_SERVER['PHP_SELF'], 'avaliar_projetos') !== false
         ],
         [
@@ -108,7 +108,7 @@ function getUserTypeName($type) {
         </li>
         
         <li class="nav-item">
-            <a href="logout.php" class="nav-link nav-logout" title="Sair do Sistema" data-url="logout.php">
+            <a href="logout.php" class="nav-link nav-logout" title="Sair do Sistema" data-url="./logout.php">
                 <span class="nav-icon">🚪</span>
                 <span class="nav-text">Sair</span>
             </a>

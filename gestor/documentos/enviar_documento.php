@@ -6,7 +6,7 @@ if (!isset($_SESSION['usuario_id']) || $_SESSION['usuario_tipo'] !== 'admin') {
 }
 
 require '../../conexao.php';
-require 'upload_functions.php';
+require '../includes/upload_functions.php';
 
 $mensagem = '';
 $erros = [];
