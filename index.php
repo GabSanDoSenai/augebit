@@ -1,5 +1,6 @@
 <!DOCTYPE html>
 <html lang="pt-BR">
+
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -15,17 +16,20 @@
       --transicao: all 0.4s cubic-bezier(0.65, 0, 0.35, 1);
     }
 
-/* Garante que não há margens ou paddings indesejados */
-body {
-  margin: 0;
-  padding: 0;
-  overflow-x: hidden; /* Evita barras de rolagem horizontais */
-}
+    /* Garante que não há margens ou paddings indesejados */
+    body {
+      margin: 0;
+      padding: 0;
+      overflow-x: hidden;
+      /* Evita barras de rolagem horizontais */
+    }
 
-/* Remove qualquer espaço extra após o rodapé */
-html, body {
-  height: 100%;
-}
+    /* Remove qualquer espaço extra após o rodapé */
+    html,
+    body {
+      height: 100%;
+    }
+
     * {
       padding: 0;
       margin: 0;
@@ -34,58 +38,65 @@ html, body {
 
     @font-face {
       font-family: 'Black';
-      src: url(fontes/Poppins/Poppins-Black.ttf);
-    }
-    @font-face {
-      font-family:'SemiBold' ;
-      src: url(fontes/Poppins/Poppins-SemiBold.ttf);
+      src: url('assets/fonte/Poppins-Black.ttf');
     }
 
-   
+    @font-face {
+      font-family: 'SemiBold';
+      src: url('assets/fonte/Poppins-SemiBold.ttf');
+    }
+
     @font-face {
       font-family: 'Italic';
-      src: url(fontes/Poppins/Poppins-Italic.ttf)
+      src: url('assets/fonte/Poppins-Italic.ttf');
     }
+
     @font-face {
       font-family: 'Medium';
-      src: url(fontes/Poppins/Poppins-Medium.ttf);
+      src: url('assets/fonte/Poppins-Medium.ttf');
     }
-    
+
     @font-face {
-      font-family:  'Light';
-      src: url(fontes/Poppins/Poppins-Light.ttf);
+      font-family: 'Light';
+      src: url('assets/fonte/Poppins-Light.ttf');
     }
 
     /* Estilos da Página Principal - CORRIGIDOS */
     .hero {
       font-family: 'Medium';
-     background: linear-gradient(20deg, #9999FF, #9999FF, #4747d9 );
-  height: 100vh;
-  margin: 0;
-  color: white;
+      background: linear-gradient(20deg, #9999FF, #9999FF, #4747d9);
+      height: 100vh;
+      margin: 0;
+      color: white;
       height: 100vh;
       overflow: hidden;
       position: relative;
       width: 100%;
       padding: 20px;
     }
-   @keyframes waveGradient {
-  0% {
-    background-position: 0% 50%;
-  }
-  25% {
-    background-position: 50% 75%;
-  }
-  50% {
-    background-position: 100% 50%;
-  }
-  75% {
-    background-position: 50% 25%;
-  }
-  100% {
-    background-position: 0% 50%;
-  }
-}
+
+    @keyframes waveGradient {
+      0% {
+        background-position: 0% 50%;
+      }
+
+      25% {
+        background-position: 50% 75%;
+      }
+
+      50% {
+        background-position: 100% 50%;
+      }
+
+      75% {
+        background-position: 50% 25%;
+      }
+
+      100% {
+        background-position: 0% 50%;
+      }
+    }
+
     header {
       display: flex;
       justify-content: space-between;
@@ -105,7 +116,7 @@ html, body {
       position: relative;
       width: 100px;
       height: 80px;
-      top:-10px; 
+      top: -10px;
     }
 
     .logo-header h1 {
@@ -146,12 +157,14 @@ html, body {
     }
 
     /* Layout principal corrigido */
-    
-      .hero {
-  height: 100vh; /* Isso força uma altura fixa */
-  overflow: hidden; /* Isso corta o conteúdo que excede */
-}
-    
+
+    .hero {
+      height: 100vh;
+      /* Isso força uma altura fixa */
+      overflow: hidden;
+      /* Isso corta o conteúdo que excede */
+    }
+
     .hero-content {
       display: flex;
       justify-content: space-between;
@@ -171,19 +184,22 @@ html, body {
     }
 
     .italic p {
-      font-size:60px; 
+      font-size: 60px;
       width: 700px;
       line-height: 1.1;
-      margin-bottom:100px;
+      margin-bottom: 100px;
       font-family: "Medium";
     }
-.italic p em{
-  color:#3e206e;
-  
-}
-.buttons button {
-  font-family: 'Medium';
-}
+
+    .italic p em {
+      color: #3e206e;
+
+    }
+
+    .buttons button {
+      font-family: 'Medium';
+    }
+
     .buttons {
       margin-top: 80px;
       display: flex;
@@ -200,17 +216,20 @@ html, body {
       font-size: 15px;
       cursor: pointer;
       border: solid #ffffff05;
-     background: radial-gradient(circle, rgba(255, 255, 255, 0.04) 0%, rgba(255, 255, 255, 0.307) 100%);
-  backdrop-filter: blur(30px);
-  -webkit-backdrop-filter: blur(5px);
+      background: radial-gradient(circle, rgba(255, 255, 255, 0.04) 0%, rgba(255, 255, 255, 0.307) 100%);
+      backdrop-filter: blur(30px);
+      -webkit-backdrop-filter: blur(5px);
       box-shadow: 0 4px 10px rgba(0, 0, 0, 0.111);
     }
 
     button:hover {
       background: rgba(255, 255, 255, 0.35);
     }
-section {
-  scroll-margin-top: 80px; }
+
+    section {
+      scroll-margin-top: 80px;
+    }
+
     /* Lado direito */
     .right-content {
       width: 45%;
@@ -220,7 +239,7 @@ section {
       display: flex;
       flex-direction: column;
       justify-content: center;
-      
+
     }
 
     .cube-container {
@@ -249,35 +268,57 @@ section {
       border: 2px solid rgb(255, 255, 255);
     }
 
-    .front  { transform: translateZ(50px); }
-    .back   { transform: rotateY(180deg) translateZ(50px); }
-    .right  { transform: rotateY(90deg) translateZ(50px); }
-    .left   { transform: rotateY(-90deg) translateZ(50px); }
-    .top    { transform: rotateX(90deg) translateZ(50px); }
-    .bottom { transform: rotateX(-90deg) translateZ(50px); }
+    .front {
+      transform: translateZ(50px);
+    }
+
+    .back {
+      transform: rotateY(180deg) translateZ(50px);
+    }
+
+    .right {
+      transform: rotateY(90deg) translateZ(50px);
+    }
+
+    .left {
+      transform: rotateY(-90deg) translateZ(50px);
+    }
+
+    .top {
+      transform: rotateX(90deg) translateZ(50px);
+    }
+
+    .bottom {
+      transform: rotateX(-90deg) translateZ(50px);
+    }
 
     @keyframes rotate {
-      0% { transform: rotateX(0) rotateY(0); }
-      100% { transform: rotateX(360deg) rotateY(360deg); }
+      0% {
+        transform: rotateX(0) rotateY(0);
+      }
+
+      100% {
+        transform: rotateX(360deg) rotateY(360deg);
+      }
     }
 
     .company-description {
       position: relative;
       z-index: 1;
-  
-       margin-top: 150px;
-        text-align: center;
+
+      margin-top: 150px;
+      text-align: center;
     }
 
     .company-description p {
       font-size: 20px;
-font-family: 'Light';
+      font-family: 'Light';
       color: #f9f9ffe3;
       line-height: 1.4;
       text-align: center;
     }
 
-   
+
 
     /* Responsividade */
     @media (max-width: 992px) {
@@ -287,7 +328,8 @@ font-family: 'Light';
         height: auto;
       }
 
-      .left-content, .right-content {
+      .left-content,
+      .right-content {
         width: 100%;
         text-align: center;
       }
@@ -299,11 +341,11 @@ font-family: 'Light';
 
 
       .cube-container {
-                position: relative;
+        position: relative;
         top: 590px;
         left: -140px;
         transform: none;
-       
+
       }
     }
 
@@ -313,7 +355,7 @@ font-family: 'Light';
         gap: 30px;
       }
 
-      
+
 
       .company-description p {
         font-size: 18px;
@@ -323,7 +365,7 @@ font-family: 'Light';
       button {
         padding: 12px 30px;
         font-size: 16px;
-    
+
       }
     }
 
@@ -335,15 +377,16 @@ font-family: 'Light';
       .buttons {
         flex-direction: column;
         gap: 15px;
-        
+
       }
 
-    
+
       button {
         width: 100%;
       }
     }
-        body {
+
+    body {
       font-family: 'Segoe UI', sans-serif;
       line-height: 1.6;
       color: var(--roxo-principal);
@@ -356,22 +399,25 @@ font-family: 'Light';
       position: relative;
       overflow: hidden;
     }
- .trabalhos h3 {
-  position: relative;
-  right: 130px;
-  text-align: left;
-  margin-left: 50px;
-  font-size: 40px;
-  margin-top: 130px;
-  margin-right: 30px;
-  margin-bottom: 40px;
-  color: var(--roxo-principal);
-  font-family: 'SemiBold';
-  position: relative;
-  z-index: 2;
 
- }
-    h2, h3 {
+    .trabalhos h3 {
+      position: relative;
+      right: 130px;
+      text-align: left;
+      margin-left: 50px;
+      font-size: 40px;
+      margin-top: 130px;
+      margin-right: 30px;
+      margin-bottom: 40px;
+      color: var(--roxo-principal);
+      font-family: 'SemiBold';
+      position: relative;
+      z-index: 2;
+
+    }
+
+    h2,
+    h3 {
       text-align: center;
       font-weight: normal;
       letter-spacing: 1px;
@@ -383,7 +429,8 @@ font-family: 'Light';
       font-size: 40px;
     }
 
-    h2::after, h3::after {
+    h2::after,
+    h3::after {
       content: '';
       display: block;
       width: 60px;
@@ -435,9 +482,9 @@ font-family: 'Light';
       line-height: 1.2;
       text-align: left;
       margin-bottom: 2rem;
-     
+
       text-transform: none;
-     
+
       color: var(--roxo-principal);
     }
 
@@ -449,7 +496,7 @@ font-family: 'Light';
       max-width: 100%;
       height: auto;
       border-radius: 15px;
-     
+
     }
 
     .imagem1:hover img {
@@ -461,26 +508,29 @@ font-family: 'Light';
       text-align: left;
       color: var(--roxo-principal);
       font-size: 20px;
-    
+
     }
 
     /* Seção Clientes */
-   .clientes {
-  padding: 120px 20px 80px; /* Aumenta o padding superior */
-  background: #fff;
-  position: relative;
-  overflow: visible; /* Mude de hidden para visible */
-  z-index: 2;
-}
+    .clientes {
+      padding: 120px 20px 80px;
+      /* Aumenta o padding superior */
+      background: #fff;
+      position: relative;
+      overflow: visible;
+      /* Mude de hidden para visible */
+      z-index: 2;
+    }
 
-.tudo {
-  background: #fff;
-  position: relative;
-  z-index: 3;
-  margin-top: -190px; /* Reduz o margin negativo */
-  padding: 40px 20px;
-  border-radius: 15px;
-}
+    .tudo {
+      background: #fff;
+      position: relative;
+      z-index: 3;
+      margin-top: -190px;
+      /* Reduz o margin negativo */
+      padding: 40px 20px;
+      border-radius: 15px;
+    }
 
     .tudo::before {
       content: '';
@@ -489,7 +539,7 @@ font-family: 'Light';
       left: -50%;
       width: 200%;
       height: 200%;
-      background: radial-gradient(circle, rgba(255,255,255,0.1) 0%, rgba(255,255,255,0) 70%);
+      background: radial-gradient(circle, rgba(255, 255, 255, 0.1) 0%, rgba(255, 255, 255, 0) 70%);
       transform: rotate(30deg);
       z-index: 1;
     }
@@ -510,105 +560,111 @@ font-family: 'Light';
       height: 2px;
       margin: 10px auto;
     }
-/* Seção Clientes */
-.clientes {
-  padding: 80px 20px;
-  background: #fff;
-}
 
-.container {
-  max-width: 1200px;
-  margin: 0 auto;
-  position: relative;
-  display: flex;
-  padding-top: 60px; /* Espaço extra no topo */
-}
-.titulo-clientes {
-  margin-right: 280px;
-  margin-left:90px;
-  font-size: 2.5rem;
-  color: var(--roxo-principal);
-  font-family: 'SemiBold';
-  text-transform: none;
-  margin-top: 3ch;
-  letter-spacing: 3px;
-}
+    /* Seção Clientes */
+    .clientes {
+      padding: 80px 20px;
+      background: #fff;
+    }
 
+    .container {
+      max-width: 1200px;
+      margin: 0 auto;
+      position: relative;
+      display: flex;
+      padding-top: 60px;
+      /* Espaço extra no topo */
+    }
 
-.lista-clientes {
-
-  padding-top: 40px; /* Espaço para as bolas */
-  position: relative;
-  z-index: 3;
-  display: flex;
-}
-
-.cliente-item {
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  min-width: 200px;
-}
+    .titulo-clientes {
+      margin-right: 280px;
+      margin-left: 90px;
+      font-size: 2.5rem;
+      color: var(--roxo-principal);
+      font-family: 'SemiBold';
+      text-transform: none;
+      margin-top: 3ch;
+      letter-spacing: 3px;
+    }
 
 
-.bola-roxa {
-  width: 100px; /* Aumente um pouco o tamanho */
-  height: 100px;
-  background: #9999FF;
-  border-radius: 50%;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  margin: -30px auto 20px; /* Ajuste o margin */
-  position: relative;
-  z-index: 4;
-  box-shadow: 0 8px 25px rgba(62, 32, 110, 0.4);
-}
+    .lista-clientes {
 
-.logo-cliente {
-  max-width: 55px;
-  max-height: 55px;
-  filter: brightness(0) invert(1);
-}
+      padding-top: 40px;
+      /* Espaço para as bolas */
+      position: relative;
+      z-index: 3;
+      display: flex;
+    }
 
-.nome-cliente {
-  color: var(--roxo-principal);
-  font-family: 'SemiBold';
-  font-size: 1.0rem;
-  margin-bottom: 10px;
-  text-transform: uppercase;
-}
+    .cliente-item {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      min-width: 200px;
+    }
 
 
+    .bola-roxa {
+      width: 100px;
+      /* Aumente um pouco o tamanho */
+      height: 100px;
+      background: #9999FF;
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      margin: -30px auto 20px;
+      /* Ajuste o margin */
+      position: relative;
+      z-index: 4;
+      box-shadow: 0 8px 25px rgba(62, 32, 110, 0.4);
+    }
 
-/* Responsivo */
-@media (max-width: 768px) {
-  .container {
-    flex-direction: column;
-    gap: 30px;
-  }
-  
-  .titulo-clientes {
-    writing-mode: horizontal-tb;
-    transform: none;
-    text-align: left;
-    padding-right: 20px;
-  }
-  
-  .bola-roxa {
-    width: 100px;
-    height: 100px;
-  }
-  
-  .logo-cliente {
-    max-width: 50px;
-    max-height: 50px;
-  }
-}
+    .logo-cliente {
+      max-width: 55px;
+      max-height: 55px;
+      filter: brightness(0) invert(1);
+    }
+
+    .nome-cliente {
+      color: var(--roxo-principal);
+      font-family: 'SemiBold';
+      font-size: 1.0rem;
+      margin-bottom: 10px;
+      text-transform: uppercase;
+    }
+
+
+
+    /* Responsivo */
+    @media (max-width: 768px) {
+      .container {
+        flex-direction: column;
+        gap: 30px;
+      }
+
+      .titulo-clientes {
+        writing-mode: horizontal-tb;
+        transform: none;
+        text-align: left;
+        padding-right: 20px;
+      }
+
+      .bola-roxa {
+        width: 100px;
+        height: 100px;
+      }
+
+      .logo-cliente {
+        max-width: 50px;
+        max-height: 50px;
+      }
+    }
 
 
     /* Seção Trabalhos */
-   
+
 
     .galeria-trabalhos {
       display: flex;
@@ -620,8 +676,7 @@ font-family: 'Light';
 
     .trabalho-item {
       background-color: #9999ffb8;
-      border-radius: 1px solid #4b4b79b8
-      ;
+      border-radius: 1px solid #4b4b79b8;
       align-items: center;
       position: relative;
       overflow: hidden;
@@ -636,18 +691,19 @@ font-family: 'Light';
     .trabalho-item:hover {
       transform: translateY(-10px);
     }
-       .trabalho-item p{
-        font-size: 18px;
-        width: 380px;
-       padding-right: 80px;
-        
-       
-       }
+
+    .trabalho-item p {
+      font-size: 18px;
+      width: 380px;
+      padding-right: 80px;
+
+
+    }
 
     .trabalho-item img {
       width: 100%;
       height: auto;
-      margin-bottom:30%;
+      margin-bottom: 30%;
       display: block;
       transition: var(--transicao);
     }
@@ -655,17 +711,18 @@ font-family: 'Light';
     .trabalho-item:hover img {
       transform: scale(1.05);
     }
+
     .trabalhos {
       padding: 80px 20px;
       text-align: center;
       background-color: #ffffff;
       display: flex;
-  position: relative;
-  overflow: visible;
-  min-height: 600px;
+      position: relative;
+      overflow: visible;
+      min-height: 600px;
     }
 
-    
+
     .carrossel-container {
       max-width: 900px;
       margin: 40px auto 0;
@@ -738,12 +795,13 @@ font-family: 'Light';
       background: #3e206e;
       transform: scale(1.2);
     }
+
     /* Seção Compromisso */
     .compromisso {
       display: flex;
       justify-content: center;
       align-items: center;
-      background:#ffffff;
+      background: #ffffff;
       color: var(--branco);
       flex-wrap: wrap;
       max-height: 500px;
@@ -760,7 +818,7 @@ font-family: 'Light';
       left: 0;
       width: 100%;
       height: 100%;
-      
+
       opacity: 0.5;
     }
 
@@ -777,22 +835,23 @@ font-family: 'Light';
       padding: 30px;
       margin-right: 30px;
       border-radius: 12px;
-   
+
     }
 
     .textoreal p {
-     font-family: 'Medium';
-  font-size: 20px;
-  text-align: center;
+      font-family: 'Medium';
+      font-size: 20px;
+      text-align: center;
     }
 
-    p{
+    p {
       font-family: 'Medium';
     }
-h3{
-  font-family: 'SemiBold';
-}
-    
+
+    h3 {
+      font-family: 'SemiBold';
+    }
+
 
     /* Seção Contatos */
     .contatos {
@@ -804,8 +863,8 @@ h3{
     }
 
     .contato-section {
-  position: relative;
-  z-index: 10; 
+      position: relative;
+      z-index: 10;
       display: flex;
       justify-content: space-between;
       align-items: center;
@@ -814,9 +873,10 @@ h3{
       margin: 0 auto;
     }
 
-    .trabalhos p{
+    .trabalhos p {
       font-family: '  Medium';
     }
+
     .texto h3 {
 
       position: relative;
@@ -825,7 +885,7 @@ h3{
       text-align: left;
       text-transform: none;
       letter-spacing: normal;
-      
+
     }
 
     .redes {
@@ -864,46 +924,51 @@ h3{
 
     /*dverdade*/
 
-.dverdade {
-  width: 100%;
-  min-height: 400px;
-  height: auto;
-  padding: 40px 20px;
-  display: flex;
-  align-items: center;
-  justify-content: center;
+    .dverdade {
+      width: 100%;
+      min-height: 400px;
+      height: auto;
+      padding: 40px 20px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
 
-}
-.augebit{
-  width: 700px;
-}
+    }
 
-.dverdade p {
-  font-family: 'Medium';
-  font-size: 20px;
-  text-align: center;
-}
-.dverdade em {
-  color: #ac89e6;
-  font-style: normal;
-  font-weight: 200
-}
+    .augebit {
+      width: 700px;
+    }
+
+    .dverdade p {
+      font-family: 'Medium';
+      font-size: 20px;
+      text-align: center;
+    }
+
+    .dverdade em {
+      color: #ac89e6;
+      font-style: normal;
+      font-weight: 200
+    }
 
     /* Rodapé */
     .rodape {
-  background-color: var(--roxo-claro);
-  width: 100vw; /* Ocupa toda a largura da viewport */
-  min-height: 300px; /* Altura mínima */
-  padding: 60px 15px;
-  color: var(--branco);
-  display: flex;
-  justify-content: space-around;
-  align-items: center;
-  flex-wrap: wrap;
-  gap: 40px;
-  position: relative;
-  margin-top: 80px; /* Espaço antes do rodapé */
-}
+      background-color: var(--roxo-claro);
+      width: 100vw;
+      /* Ocupa toda a largura da viewport */
+      min-height: 300px;
+      /* Altura mínima */
+      padding: 60px 15px;
+      color: var(--branco);
+      display: flex;
+      justify-content: space-around;
+      align-items: center;
+      flex-wrap: wrap;
+      gap: 40px;
+      position: relative;
+      margin-top: 80px;
+      /* Espaço antes do rodapé */
+    }
 
     .logo-rodape {
       text-align: center;
@@ -929,14 +994,16 @@ h3{
     }
 
     .logo-rodape p {
-      font-style:"light"; 
+      font-style: "light";
       font-size: 0.9rem;
-       margin-left: 25px;
-      
+      margin-left: 25px;
+
     }
-.pages{
-  margin-left: -110px;
-}
+
+    .pages {
+      margin-left: -110px;
+    }
+
     .pages p {
       margin-bottom: 15px;
       cursor: pointer;
@@ -977,23 +1044,33 @@ h3{
 
     .redescociais img:hover {
       transform: scale(1.2);
-    }; 
+    }
 
-@keyframes fadeIn {
-  from { opacity: 0; }
-  to { opacity: 1; }
-}
+    ;
 
-@keyframes fadeInUp {
-  from {
-    opacity: 0;
-    transform: translateY(20px);
-  }
-  to {
-    opacity: 1;
-    transform: translateY(0);
-  }
-}; 
+    @keyframes fadeIn {
+      from {
+        opacity: 0;
+      }
+
+      to {
+        opacity: 1;
+      }
+    }
+
+    @keyframes fadeInUp {
+      from {
+        opacity: 0;
+        transform: translateY(20px);
+      }
+
+      to {
+        opacity: 1;
+        transform: translateY(0);
+      }
+    }
+
+    ;
 
 
     /* Responsividade */
@@ -1002,28 +1079,28 @@ h3{
         flex-direction: column;
         text-align: center;
       }
-      
+
       .textos h3 {
         text-align: center;
       }
-      
+
       .textos h3::after {
         margin-left: auto;
         margin-right: auto;
       }
-      
+
       .compromisso {
         flex-direction: column;
         gap: 40px;
         padding: 60px 40px;
       }
-     
-      
+
+
       .contato-section {
         flex-direction: column;
         gap: 40px;
       }
-      
+
       .texto h3 {
         text-align: center;
       }
@@ -1059,29 +1136,29 @@ h3{
       section {
         padding: 60px 20px;
       }
-      
+
       .textos h3 {
         font-size: 2rem;
       }
-      
+
       .empresas {
         grid-template-columns: repeat(2, 1fr);
         gap: 20px;
       }
-      
+
       .tudo {
         padding: 60px 20px;
       }
-      
+
       .clientes h2 {
         font-size: 1.5rem;
       }
-      
+
       .compromisso {
         padding: 60px 20px;
       }
-      
-      
+
+
       .rede {
         padding: 15px;
       }
@@ -1128,20 +1205,20 @@ h3{
       .empresas {
         grid-template-columns: 1fr;
       }
-      
+
       .empresa-item {
         padding: 25px;
         display: block;
       }
-      
+
       .textinho h3 {
         font-size: 1.8rem;
       }
-      
+
       .redes {
         gap: 15px;
       }
-      
+
       .logo-rodape h1 {
         font-size: 1.5rem;
       }
@@ -1160,80 +1237,83 @@ h3{
         font-size: 14px;
       }
 
-    .italic p em {
-  color: #7f75e3;
-}
+      .italic p em {
+        color: #7f75e3;
+      }
 
 
-}
-.tudo p{
-  font-family: 'Light';
-  color: #3e206e;
-}
-.cont{
-  display: block;
-  width: 400px;
-}
+    }
 
-section.compromisso .textoreal p em {
-  color: #7f75e3 !important;
-  font-style: normal !important;
- 
-}
-    
+    .tudo p {
+      font-family: 'Light';
+      color: #3e206e;
+    }
+
+    .cont {
+      display: block;
+      width: 400px;
+    }
+
+    section.compromisso .textoreal p em {
+      color: #7f75e3 !important;
+      font-style: normal !important;
+
+    }
   </style>
   </style>
 </head>
+
 <body>
   <!-- Seção Hero Corrigida -->
   <section class="hero">
     <header>
-      <div class="logo-header">    
-        <img src="assets/images/logobranca.png" alt="Logo da empresa"> 
-        <h1><strong>AUGEBIT</strong></h1>  
-      </div>    
-      <nav>       
-        <ul>         
-          <li><a href="#" class="active">Home</a></li>         
-          <li><a href="#quem-somos" class="acount">Quem Somos</a></li>         
-         <li><a href="#contato-section" class="contato">Conecte-se</a></li>    
-        </ul>     
-      </nav>   
-    </header>    
-    
+      <div class="logo-header">
+        <img src="assets/images/logobranca.png" alt="Logo da empresa">
+        <h1><strong>AUGEBIT</strong></h1>
+      </div>
+      <nav>
+        <ul>
+          <li><a href="#" class="active">Home</a></li>
+          <li><a href="#quem-somos" class="acount">Quem Somos</a></li>
+          <li><a href="#contato-section" class="contato">Conecte-se</a></li>
+        </ul>
+      </nav>
+    </header>
+
     <div class="hero-content">
       <!-- Lado Esquerdo -->
       <div class="left-content">
         <div class="italic">
           <p>Eficiência<br><em>move</em> a indústria.</p>
         </div>
-    
+
       </div>
-      
+
       <!-- Lado Direito -->
       <div class="right-content">
-        <div class="cube-container">       
-          <div class="cube">         
-            <div class="face front"></div>         
-            <div class="face back"></div>         
-            <div class="face right"></div>         
-            <div class="face left"></div>         
-            <div class="face top"></div>         
-            <div class="face bottom"></div>       
-          </div>     
+        <div class="cube-container">
+          <div class="cube">
+            <div class="face front"></div>
+            <div class="face back"></div>
+            <div class="face right"></div>
+            <div class="face left"></div>
+            <div class="face top"></div>
+            <div class="face bottom"></div>
+          </div>
         </div>
         <div class="company-description">
-          <p>Somos uma empresa de gestão de projetos técnicos e artísticos com foco na inovação tecnológica e na personalização para empresas de diversos setores industriais presentes no mercado.</p>
-        
-        <div class="buttons">
-          <a href="login.php">         
-          <button>Entrar</button></a>
-          <a href="login.php">      
-          <button>Criar conta</button>
-              </a>
-        </div>      
+          <p>Somos uma empresa de gestão de projetos técnicos e artísticos com foco na inovação tecnológica e na
+            personalização para empresas de diversos setores industriais presentes no mercado.</p>
+
+          <div class="buttons">
+            <a href="login.php">
+              <button>Entrar</button></a>
+            <a href="login.php">
+              <button>Criar conta</button>
+            </a>
+          </div>
+        </div>
       </div>
-    </div>
   </section>
 
   <!-- Seções Adicionais -->
@@ -1247,35 +1327,40 @@ section.compromisso .textoreal p em {
       </div>
       <div class="somos">
         <div class="escrever">
-          <span class="maquina">Somos uma empresa de gestão de projetos técnicos e artísticos com foco na inovação tecnológica e na personalização para empresas de diversos setores industriais presentes no mercado.</span>
+          <span class="maquina">Somos uma empresa de gestão de projetos técnicos e artísticos com foco na inovação
+            tecnológica e na personalização para empresas de diversos setores industriais presentes no mercado.</span>
         </div>
       </div>
     </div>
   </section>
- 
+
   <section class="compromisso">
-   
+
     <div class="textoreal">
-      <p>Desenvolver produtos exige conhecimento <em>técnico</em> e  <em>estratégico</em>, onde em cada etapa profissionais qualificados analisam, pesquisam e testam, encontrando assim a  <em>melhor</em> aplicação de um determinado produto, visando sua funcionalidade e estética de acordo com o seu objetivo principal de uso.<em> A Augebit busca cumprir seu propósito com compromisso e dedicação.</em></p>
+      <p>Desenvolver produtos exige conhecimento <em>técnico</em> e <em>estratégico</em>, onde em cada etapa
+        profissionais qualificados analisam, pesquisam e testam, encontrando assim a <em>melhor</em> aplicação de um
+        determinado produto, visando sua funcionalidade e estética de acordo com o seu objetivo principal de uso.<em> A
+          Augebit busca cumprir seu propósito com compromisso e dedicação.</em></p>
     </div>
   </section>
 
- <section class="trabalhos">
-   
+  <section class="trabalhos">
+
     <div class="carrossel-container">
       <div class="carrossel">
         <!-- Slide 1 -->
 
-        
+
         <div class="slide active">
           <div class="slide-content">
             <img src="assets/images/Frame 7.png" alt="Trabalho 1">
             <div class="slide-text">
-              Solução completa de design técnico para frascos de perfume, combinando estética refinada com funcionalidade industrial
+              Solução completa de design técnico para frascos de perfume, combinando estética refinada com
+              funcionalidade industrial
             </div>
           </div>
         </div>
-        
+
         <!-- Slide 2 -->
         <div class="slide">
           <div class="slide-content">
@@ -1285,46 +1370,51 @@ section.compromisso .textoreal p em {
             </div>
           </div>
         </div>
-        
+
         <!-- Slide 3 -->
         <div class="slide">
           <div class="slide-content">
             <img src="assets/images/Frame 5.png" alt="Trabalho 3">
             <div class="slide-text">
-              Desenvolvimento técnico de engrenagens industriais com tolerância micrométrica para aplicações de alta performance
+              Desenvolvimento técnico de engrenagens industriais com tolerância micrométrica para aplicações de alta
+              performance
             </div>
           </div>
         </div>
       </div>
-          <div class="carrossel-nav">
-      <div class="nav-dot active" data-index="0"></div>
-      <div class="nav-dot" data-index="1"></div>
-      <div class="nav-dot" data-index="2"></div>
-     
-    </div>
+      <div class="carrossel-nav">
+        <div class="nav-dot active" data-index="0"></div>
+        <div class="nav-dot" data-index="1"></div>
+        <div class="nav-dot" data-index="2"></div>
+
+      </div>
 
     </div>
     </div>
-          <h3>Nossos Trabalhos</h3>
-   
+    <h3>Nossos Trabalhos</h3>
+
   </section>
 
-<section class="dverdade">
- <div class="augebit">
+  <section class="dverdade">
+    <div class="augebit">
 
-  <p>
-    Na Augebit, somos especialistas em  <em>transformar</em> ideias em desenhos técnicos precisos e profissionais, prontos para a produção. Desenvolvemos projetos em 2D e 3D com <em>agilidade</em>, seguindo todas as normas técnicas, garantindo segurança e funcionalidade.
-Utilizamos softwares de ponta e contamos com uma <em>equipe qualificada</em> para entregar soluções confiáveis, seja para peças, sistemas mecânicos ou estruturas completas. Com a gente, <em>seu projeto sai do papel com qualidade e eficiência.</em>
+      <p>
+        Na Augebit, somos especialistas em <em>transformar</em> ideias em desenhos técnicos precisos e profissionais,
+        prontos para a produção. Desenvolvemos projetos em 2D e 3D com <em>agilidade</em>, seguindo todas as normas
+        técnicas, garantindo segurança e funcionalidade.
+        Utilizamos softwares de ponta e contamos com uma <em>equipe qualificada</em> para entregar soluções confiáveis,
+        seja para peças, sistemas mecânicos ou estruturas completas. Com a gente, <em>seu projeto sai do papel com
+          qualidade e eficiência.</em>
 
 
-  </p>
-  </div>
-</section>
+      </p>
+    </div>
+  </section>
 
- 
- 
 
-<section id="contato-section" class="contatos">
+
+
+  <section id="contato-section" class="contatos">
 
     <div class="contato-section">
       <div class="texto">
@@ -1373,7 +1463,7 @@ Utilizamos softwares de ponta e contamos com uma <em>equipe qualificada</em> par
 
   <script>
     // Script para o carrossel minimalista
-    document.addEventListener('DOMContentLoaded', function() {
+    document.addEventListener('DOMContentLoaded', function () {
       const carrossel = document.querySelector('.carrossel');
       const slides = document.querySelectorAll('.slide');
       const dots = document.querySelectorAll('.nav-dot');
@@ -1383,12 +1473,12 @@ Utilizamos softwares de ponta e contamos com uma <em>equipe qualificada</em> par
       // Função para atualizar o carrossel
       function updateCarrossel() {
         carrossel.style.transform = `translateX(-${currentIndex * 100}%)`;
-        
+
         // Atualiza os slides ativos
         slides.forEach((slide, index) => {
           slide.classList.toggle('active', index === currentIndex);
         });
-        
+
         // Atualiza os dots de navegação
         dots.forEach((dot, index) => {
           dot.classList.toggle('active', index === currentIndex);
@@ -1397,7 +1487,7 @@ Utilizamos softwares de ponta e contamos com uma <em>equipe qualificada</em> par
 
       // Navegação pelos dots
       dots.forEach(dot => {
-        dot.addEventListener('click', function() {
+        dot.addEventListener('click', function () {
           currentIndex = parseInt(this.getAttribute('data-index'));
           updateCarrossel();
         });
@@ -1409,11 +1499,12 @@ Utilizamos softwares de ponta e contamos com uma <em>equipe qualificada</em> par
         updateCarrossel();
       }, 5000);
     });
-  
 
 
-window.addEventListener('scroll', animateOnScroll);
-window.addEventListener('load', animateOnScroll);
-</script>
+
+    window.addEventListener('scroll', animateOnScroll);
+    window.addEventListener('load', animateOnScroll);
+  </script>
 </body>
+
 </html>

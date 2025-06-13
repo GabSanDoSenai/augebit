@@ -412,17 +412,7 @@ if (isset($_GET['editar'])) {
             <?php else: ?>
                 <p>Nenhuma tarefa encontrada com os filtros aplicados.</p>
             <?php endif; ?>
-        </div>
-
-        <!-- Ações em Lote -->
-        <div style="margin: 20px 0; padding: 15px; border: 1px solid #ddd;">
-            <h3>Ações Rápidas</h3>
-            <p>
-                <a href="tarefas.php">🔄 Atualizar Lista</a> |
-                <a href="relatorio.php">📊 Relatório de Tarefas</a> |
-                <a href="exportar.php">📥 Exportar CSV</a>
-            </p>
-        </div>
+            </div>
     </div>
 
     <script>

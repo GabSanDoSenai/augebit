@@ -18,17 +18,18 @@ class DashboardData
         $this->conn = $connection;
     }
     public function getProjectsData()
-    {
-        $query = "SELECT status, COUNT(*) AS total FROM projetos WHERE status IN ('em_andamento', 'aprovado') GROUP BY status";
-        $result = $this->conn->query($query);
-        $data = [];
+{
+    $query = "SELECT status, COUNT(*) AS total FROM projetos WHERE status IN ('finalizado', 'em_andamento', 'aprovado', 'pendente', 'ajustes') GROUP BY status";
+    $result = $this->conn->query($query);
+    $data = [];
 
-        while ($row = $result->fetch_assoc()) {
-            $data[$row['status']] = $row['total'];
-        }
-
-        return $data;
+    while ($row = $result->fetch_assoc()) {
+        $data[$row['status']] = $row['total'];
     }
+
+    return $data;
+}
+
 
 
 
@@ -195,25 +196,11 @@ while ($row = $taxaConclusao->fetch_assoc()) {
                     <div class="stat-icon users">👥</div>
                 </div>
             </a>
-
-            <a href="usuarios/gerenciar_clientes.php" class="stat-card">
-                <div class="stat-header">
-                    <div>
-                        <div class="stat-number"><?= $dadosUsuarios['clientes'] ?></div>
-                        <div class="stat-label">Clientes</div>
-                    </div>
-                    <div class="stat-icon docs">👤</div>
-                </div>
-            </a>
         </div>
 
 
         <!-- Charts Section -->
         <div class="charts-grid">
-            <div class="chart-card">
-                <h3>📈 Progresso Mensal de Projetos</h3>
-                <canvas id="progressoMensalChart"></canvas>
-            </div>
 
             <div class="chart-card">
                 <h3>🎯 Status das Tarefas</h3>
@@ -267,8 +254,8 @@ while ($row = $taxaConclusao->fetch_assoc()) {
                             <strong><?= htmlspecialchars($projeto['titulo']) ?></strong>
                             <br><small><?= date('d/m/Y', strtotime($projeto['criado_em'])) ?></small>
                         </div>
-                        <span
-                            class="status-badge <?= $projeto['status'] ?>"><?= ucfirst(str_replace('_', ' ', $projeto['status'])) ?></span>
+                       <span class="status-badge <?= $projeto['status'] ?>"><?= ucfirst(str_replace('_', ' ', $projeto['status'])) ?></span>
+
                     </a>
 
                 <?php endwhile; ?>
@@ -320,55 +307,6 @@ while ($row = $taxaConclusao->fetch_assoc()) {
         Chart.defaults.font.family = "'Segoe UI', Tahoma, Geneva, Verdana, sans-serif";
         Chart.defaults.color = '#666';
 
-        // Gráfico de Progresso Mensal
-        const ctxProgresso = document.getElementById('progressoMensalChart').getContext('2d');
-        new Chart(ctxProgresso, {
-            type: 'line',
-            data: {
-                labels: progressoMensalData.map(item => {
-                    const [ano, mes] = item.mes.split('-');
-                    return new Date(ano, mes - 1).toLocaleDateString('pt-BR', { month: 'short', year: 'numeric' });
-                }),
-                datasets: [{
-                    label: 'Projetos Criados',
-                    data: progressoMensalData.map(item => item.total_projetos),
-                    borderColor: '#667eea',
-                    backgroundColor: 'rgba(102, 126, 234, 0.1)',
-                    tension: 0.4,
-                    fill: true
-                }, {
-                    label: 'Projetos Concluídos',
-                    data: progressoMensalData.map(item => item.projetos_concluidos),
-                    borderColor: '#43e97b',
-                    backgroundColor: 'rgba(67, 233, 123, 0.1)',
-                    tension: 0.4,
-                    fill: true
-                }]
-            },
-            options: {
-                responsive: true,
-                maintainAspectRatio: false,
-                plugins: {
-                    legend: {
-                        position: 'top',
-                    }
-                },
-                scales: {
-                    y: {
-                        beginAtZero: true,
-                        grid: {
-                            color: 'rgba(0,0,0,0.1)'
-                        }
-                    },
-                    x: {
-                        grid: {
-                            color: 'rgba(0,0,0,0.1)'
-                        }
-                    }
-                }
-            }
-        });
-
         // Gráfico de Status das Tarefas
         const ctxTarefas = document.getElementById('statusTarefasChart').getContext('2d');
         new Chart(ctxTarefas, {
@@ -415,7 +353,8 @@ while ($row = $taxaConclusao->fetch_assoc()) {
                         '#667eea',
                         '#43e97b',
                         '#fa709a',
-                        '#fee140'
+                        '#fee140',
+                        '#4facfe'
                     ],
                     borderRadius: 8,
                     borderSkipped: false

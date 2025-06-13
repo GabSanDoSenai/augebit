@@ -1,11 +1,7 @@
 
 <?php
 // gestor/tarefas/detalhes.php - Página de detalhes da tarefa
-session_start();
-if (!isset($_SESSION['usuario_id']) || $_SESSION['usuario_tipo'] !== 'admin') {
-    header("Location: ../../login.php");
-    exit;
-}
+
 
 require '../../conexao.php';
 
