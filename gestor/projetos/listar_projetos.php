@@ -1,4 +1,4 @@
-<?php
+listar projetos gestor <?php
 session_start();
 if (!isset($_SESSION['usuario_id']) || $_SESSION['usuario_tipo'] !== 'admin') {
     header("Location: ../../login.php");
@@ -104,9 +104,55 @@ while ($row = $stats_result->fetch_assoc()) {
     <title>Gestão de Projetos</title>
     <link rel="stylesheet" href="../css/geral.css">
     <style>
+        /* Definições da fonte Poppins */
+        @font-face {
+            font-family: 'Poppins';
+            src: url('../../assets/fonte/Poppins-SemiBold.ttf') format('truetype');
+            font-weight: 600;
+        }
+           
+        @font-face {
+            font-family: 'Poppins';
+            src: url('../../assets/fonte/Poppins-Regular.ttf') format('truetype');
+            font-weight: 450;
+        }
+
+        @font-face {
+            font-family: 'Poppins';
+            src: url('../../assets/fonte/Poppins-Medium.ttf') format('truetype');
+            font-weight: 500;
+        }
+
+        @font-face {
+            font-family: 'Poppins';
+            src: url('../../assets/fonte/Poppins-Italic.ttf') format('truetype');
+            font-weight: 400;
+            font-style: italic;
+        }
+        
+        @font-face {
+            font-family: 'Poppins';
+            src: url('../../assets/fonte/Poppins-ExtraLight.ttf') format('truetype');
+            font-weight: 200;
+        }
+
+        /* Estilos gerais com Poppins */
+        body {
+            font-family: 'Poppins', sans-serif;
+            font-weight: 450;
+            color: #333;
+        }
+
         .main-content {
             padding: 20px;
             max-width: 1400px;
+            font-family: 'Poppins', sans-serif;
+        }
+        
+        h1, h2, h3, h4, h5, h6 {
+            font-family: 'Poppins', sans-serif;
+            font-weight: 600;
+            color: #3E236A;
         }
         
         .header-section {
@@ -127,23 +173,27 @@ while ($row = $stats_result->fetch_assoc()) {
         
         .search-filters input, .search-filters select {
             padding: 8px 12px;
-            border: 1px solid #ddd;
+            border: 1px solid #9999FF;
             border-radius: 4px;
             font-size: 14px;
+            font-family: 'Poppins', sans-serif;
         }
         
         .search-filters button {
             padding: 8px 15px;
-            background: #007bff;
+            background: #3E236A;
             color: white;
             border: none;
             border-radius: 4px;
             cursor: pointer;
             font-size: 14px;
+            font-family: 'Poppins', sans-serif;
+            font-weight: 500;
+            transition: all 0.3s;
         }
         
         .search-filters button:hover {
-            background: #0056b3;
+            background: #2A1848;
         }
         
         .stats-cards {
@@ -160,24 +210,30 @@ while ($row = $stats_result->fetch_assoc()) {
             box-shadow: 0 2px 4px rgba(0,0,0,0.1);
             text-align: center;
             border-left: 4px solid;
+            transition: transform 0.3s;
         }
         
-        .stat-card.pendente { border-left-color: #ffc107; }
-        .stat-card.aprovado { border-left-color: #28a745; }
-        .stat-card.em_andamento { border-left-color: #007bff; }
-        .stat-card.finalizado { border-left-color: #6c757d; }
-        .stat-card.ajustes { border-left-color: #dc3545; }
+        .stat-card:hover {
+            transform: translateY(-3px);
+        }
+        
+        .stat-card.pendente { border-left-color: #9999FF; }
+        .stat-card.aprovado { border-left-color: #3E236A; }
+        .stat-card.em_andamento { border-left-color: #7A5CFF; }
+        .stat-card.finalizado { border-left-color: #B399FF; }
+        .stat-card.ajustes { border-left-color: #3E236A; }
         
         .stat-number {
             font-size: 24px;
-            font-weight: bold;
-            color: #333;
+            font-weight: 600;
+            color: #3E236A;
         }
         
         .stat-label {
             font-size: 12px;
             color: #666;
             text-transform: uppercase;
+            font-weight: 500;
         }
         
         .projects-table {
@@ -185,6 +241,7 @@ while ($row = $stats_result->fetch_assoc()) {
             border-radius: 8px;
             overflow: hidden;
             box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+            border: 1px solid rgba(62, 35, 106, 0.1);
         }
         
         .projects-table table {
@@ -193,30 +250,32 @@ while ($row = $stats_result->fetch_assoc()) {
         }
         
         .projects-table th {
-            background: #f8f9fa;
+            background: #F5F5FF;
             padding: 12px;
             text-align: left;
             font-weight: 600;
-            color: #333;
-            border-bottom: 2px solid #dee2e6;
+            color: #3E236A;
+            border-bottom: 2px solid #9999FF;
         }
         
         .projects-table td {
             padding: 12px;
-            border-bottom: 1px solid #dee2e6;
+            border-bottom: 1px solid #E6E6FF;
             vertical-align: middle;
         }
         
         .projects-table tr:hover {
-            background-color: #f8f9fa;
+            background-color: #F9F9FF;
         }
         
         .status-select {
             padding: 6px 10px;
-            border: 1px solid #ddd;
+            border: 1px solid #9999FF;
             border-radius: 4px;
             font-size: 13px;
             min-width: 120px;
+            font-family: 'Poppins', sans-serif;
+            background: #F5F5FF;
         }
         
         .status-badge {
@@ -227,11 +286,11 @@ while ($row = $stats_result->fetch_assoc()) {
             text-transform: uppercase;
         }
         
-        .status-pendente { background: #fff3cd; color: #856404; }
-        .status-aprovado { background: #d4edda; color: #155724; }
-        .status-em_andamento { background: #cce5ff; color: #004085; }
-        .status-finalizado { background: #e2e3e5; color: #383d41; }
-        .status-ajustes { background: #f8d7da; color: #721c24; }
+        .status-pendente { background: #E6E6FF; color: #3E236A; }
+        .status-aprovado { background: #D6D1FF; color: #3E236A; }
+        .status-em_andamento { background: #C2B8FF; color: #3E236A; }
+        .status-finalizado { background: #B399FF; color: white; }
+        .status-ajustes { background:rgba(62, 35, 106, 0.67); color: ##3E236A; }
         
         .actions-cell {
             white-space: nowrap;
@@ -247,21 +306,24 @@ while ($row = $stats_result->fetch_assoc()) {
             display: inline-block;
             margin: 2px;
             transition: all 0.2s;
+            font-family: 'Poppins', sans-serif;
+            font-weight: 500;
         }
         
-        .btn-primary { background: #007bff; color: white; }
+        .btn-primary { background: #3E236A; color: white; }
         .btn-success { background: #28a745; color: white; }
-        .btn-danger { background: #dc3545; color: white; }
-        .btn-info { background: #17a2b8; color: white; }
+        .btn-danger { background: #3E236A; color: white; }
+        .btn-info { background: #9999FF; color: white; }
         
         .btn:hover {
-            opacity: 0.8;
-            transform: translateY(-1px);
+            opacity: 0.9;
+            transform: translateY(-2px);
+            box-shadow: 0 2px 5px rgba(0,0,0,0.1);
         }
         
         .project-title {
             font-weight: 600;
-            color: #333;
+            color: #3E236A;
         }
         
         .project-description {
@@ -290,18 +352,34 @@ while ($row = $stats_result->fetch_assoc()) {
             margin: 10px 0;
             border-radius: 4px;
             font-size: 14px;
+            font-family: 'Poppins', sans-serif;
         }
         
         .message.success {
-            background: #d4edda;
+            background: #E6FFE6;
             color: #155724;
-            border: 1px solid #c3e6cb;
+            border: 1px solid #9999FF;
         }
         
         .message.error {
-            background: #f8d7da;
-            color: #721c24;
-            border: 1px solid #f5c6cb;
+            background:rgba(62, 35, 106, 0.66);
+            color: #3E236A;
+            border: 1px solidrgb(97, 69, 142);
+        }
+        
+        /* Botão secundário */
+        .btn-secondary {
+            background: #9999FF;
+            color: white;
+        }
+        
+        .btn-secondary:hover {
+            background: #7A5CFF;
+        }
+        
+        /* Efeitos de hover para cards */
+        .stat-card:hover {
+            box-shadow: 0 5px 15px rgba(153, 153, 255, 0.2);
         }
         
         @media (max-width: 768px) {
@@ -320,6 +398,12 @@ while ($row = $stats_result->fetch_assoc()) {
             
             .stats-cards {
                 grid-template-columns: repeat(2, 1fr);
+            }
+            
+            .btn {
+                padding: 8px;
+                font-size: 11px;
+                margin: 1px;
             }
         }
     </style>
@@ -342,7 +426,7 @@ while ($row = $stats_result->fetch_assoc()) {
                     <option value="ajustes" <?= $status_filtro === 'ajustes' ? 'selected' : '' ?>>Ajustes</option>
                 </select>
                 
-                <button type="submit">🔍 Filtrar</button>
+                <button type="submit"> Filtrar</button>
                 
                 <?php if ($busca || $status_filtro): ?>
                     <a href="?" class="btn btn-secondary">Limpar</a>
@@ -452,19 +536,19 @@ while ($row = $stats_result->fetch_assoc()) {
                                 <td class="actions-cell">
                                     <a href="ver_tarefas.php?projeto_id=<?= $projeto['id'] ?>" 
                                        class="btn btn-info" title="Ver Tarefas">
-                                       📋 Tarefas
+                                        Tarefas
                                     </a>
                                     
                                     <a href="ver_documentos.php?projeto_id=<?= $projeto['id'] ?>" 
                                        class="btn btn-primary" title="Ver Documentos">
-                                       📄 Docs
+                                        Docs
                                     </a>
                                     
                                     <button class="btn btn-danger delete-btn" 
                                             data-project-id="<?= $projeto['id'] ?>"
                                             data-project-title="<?= htmlspecialchars($projeto['titulo']) ?>"
                                             title="Excluir Projeto">
-                                        🗑️ Excluir
+                                         Excluir
                                     </button>
                                 </td>
                             </tr>

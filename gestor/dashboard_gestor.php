@@ -288,7 +288,7 @@ while ($row = $taxaConclusao->fetch_assoc()) {
                 <a href="documentos/enviar_documento.php" class="action-btn">
                     📁 Enviar Documento
                 </a>
-                <a href="projetos/listar_projetos.php" class="action-btn">
+                <a href="projetos/avaliar_projetos.php" class="action-btn">
                     ⚖️ Avaliar Projetos
                 </a>
             </div>

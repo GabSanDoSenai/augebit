@@ -1,4 +1,4 @@
-<?php
+criar projeto gestor <?php
 session_start();
 if (!isset($_SESSION['usuario_id']) || $_SESSION['usuario_tipo'] !== 'admin') {
     header("Location: ../login.php");
@@ -260,9 +260,39 @@ if (!empty($_FILES['arquivos']['name'][0])) {
             margin: 0 auto;
             padding: 20px;
         }
+           @font-face {
+            font-family: 'Poppins';
+            src: url('../../assets/fonte/Poppins-SemiBold.ttf') format('truetype');
+            font-weight: 600;
+        }
+           
+        @font-face {
+            font-family: 'Poppins';
+            src: url('../../assets/fonte/Poppins-Regular.ttf') format('truetype');
+            font-weight: 450;
+        }
+
+        @font-face {
+            font-family: 'Poppins';
+            src: url('../../assets/fonte/Poppins-Medium.ttf') format('truetype');
+            font-weight: 500;
+        }
+
+        @font-face {
+            font-family: 'Poppins';
+            src: url('../../assets/fonte/Poppins-Italic.ttf') format('truetype');
+            font-weight: 400;
+            font-style: italic;
+        }
+        
+        @font-face {
+            font-family: 'Poppins';
+            src: url('../../assets/fonte/Poppins-ExtraLight.ttf') format('truetype');
+            font-weight: 200;
+        }
 
         .page-header {
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            background: #9999FF;
             color: white;
             padding: 30px;
             border-radius: 12px;
@@ -274,13 +304,16 @@ if (!empty($_FILES['arquivos']['name'][0])) {
         .page-header h1 {
             margin: 0;
             font-size: 2.2em;
-            font-weight: 300;
+            font-weight: 450;
+            font-family:'Poppins';
         }
 
         .page-header p {
             margin: 10px 0 0 0;
             opacity: 0.9;
             font-size: 1.1em;
+             font-weight: 400;
+            font-family:'Poppins';
         }
 
         .form-container {
@@ -298,7 +331,8 @@ if (!empty($_FILES['arquivos']['name'][0])) {
         .form-group label {
             display: block;
             margin-bottom: 8px;
-            font-weight: 600;
+            font-weight: 400;
+            font-family:'Poppins';
             color: #2c3e50;
             font-size: 14px;
             text-transform: uppercase;
@@ -318,6 +352,8 @@ if (!empty($_FILES['arquivos']['name'][0])) {
             font-size: 16px;
             transition: all 0.3s ease;
             background-color: #f8f9fa;
+              font-weight: 400;
+            font-family:'Poppins';
         }
 
         .form-control:focus {
@@ -340,7 +376,8 @@ if (!empty($_FILES['arquivos']['name'][0])) {
         textarea.form-control {
             resize: vertical;
             min-height: 120px;
-            font-family: inherit;
+              font-weight: 400;
+            font-family:'Poppins';
         }
 
         .select-wrapper {
@@ -349,8 +386,8 @@ if (!empty($_FILES['arquivos']['name'][0])) {
 
         .select-wrapper::after {
             content: '\f107';
-            font-family: 'Font Awesome 5 Free';
-            font-weight: 900;
+            font-weight: 400;
+            font-family:'Poppins';
             position: absolute;
             right: 15px;
             top: 50%;
@@ -402,6 +439,8 @@ if (!empty($_FILES['arquivos']['name'][0])) {
         }
 
         .user-info {
+              font-weight: 400;
+            font-family:'Poppins';
             font-size: 13px;
             color: #6c757d;
             margin-top: 4px;
@@ -419,7 +458,8 @@ if (!empty($_FILES['arquivos']['name'][0])) {
             border: none;
             border-radius: 8px;
             font-size: 16px;
-            font-weight: 600;
+           font-weight: 400;
+            font-family:'Poppins';
             cursor: pointer;
             transition: all 0.3s ease;
             text-decoration: none;
@@ -429,7 +469,7 @@ if (!empty($_FILES['arquivos']['name'][0])) {
         }
 
         .btn-primary {
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            background: #9999FF;
             color: white;
         }
 
@@ -455,7 +495,8 @@ if (!empty($_FILES['arquivos']['name'][0])) {
             display: flex;
             align-items: center;
             gap: 12px;
-            font-weight: 500;
+             font-weight: 400;
+            font-family:'Poppins';
         }
 
         .alert-success {
@@ -474,12 +515,15 @@ if (!empty($_FILES['arquivos']['name'][0])) {
             display: flex;
             justify-content: center;
             margin-bottom: 30px;
+
         }
 
         .step {
             display: flex;
             align-items: center;
             color: #6c757d;
+              font-weight: 400;
+            font-family:'Poppins';
         }
 
         .step.active {
@@ -496,7 +540,8 @@ if (!empty($_FILES['arquivos']['name'][0])) {
             align-items: center;
             justify-content: center;
             margin-right: 8px;
-            font-weight: 600;
+             font-weight: 400;
+            font-family:'Poppins';
         }
 
         .step.active .step-number {
@@ -505,6 +550,8 @@ if (!empty($_FILES['arquivos']['name'][0])) {
         }
 
         .char-counter {
+              font-weight: 400;
+            font-family:'Poppins';
             font-size: 12px;
             color: #6c757d;
             text-align: right;

@@ -8,6 +8,14 @@ if (!isset($_SESSION['usuario_id']) || ($_SESSION['usuario_tipo'] !== 'admin' &&
     exit;
 }
 
+// DEBUG: Verificar se há dados na tabela uploads
+$debug_count = $conn->query("SELECT COUNT(*) as total FROM uploads");
+if ($debug_count) {
+    $total_uploads = $debug_count->fetch_assoc()['total'];
+    // Remover ou comentar esta linha em produção
+    // echo "<!-- DEBUG: Total de uploads na tabela: $total_uploads -->";
+}
+
 // Parâmetros para paginação e filtros
 $limite = 20;
 $pagina = isset($_GET['pagina']) ? (int)$_GET['pagina'] : 1;
@@ -16,7 +24,7 @@ $offset = ($pagina - 1) * $limite;
 $filtro_projeto = isset($_GET['projeto']) ? (int)$_GET['projeto'] : '';
 $filtro_tipo = isset($_GET['tipo']) ? $_GET['tipo'] : '';
 
-// Construir a query com filtros
+// Construir a query com filtros - CORRIGIDO
 $where_conditions = [];
 $params = [];
 $types = '';
@@ -28,18 +36,21 @@ if ($filtro_projeto) {
 }
 
 if ($filtro_tipo) {
-    $where_conditions[] = "u.tipo = ?";
+    $where_conditions[] = "us.tipo = ?"; // CORREÇÃO: usar us.tipo em vez de u.tipo
     $params[] = $filtro_tipo;
     $types .= 's';
 }
 
 $where_clause = !empty($where_conditions) ? 'WHERE ' . implode(' AND ', $where_conditions) : '';
 
-// Query principal com JOIN para pegar informações do projeto e usuário
-$sql = "SELECT u.*, p.titulo as projeto_titulo, us.nome as enviado_por_nome, us.tipo as enviado_por_tipo
+// Query principal com LEFT JOIN para evitar perder registros - CORRIGIDO
+$sql = "SELECT u.*, 
+               COALESCE(p.titulo, 'Projeto Removido') as projeto_titulo, 
+               COALESCE(us.nome, 'Usuário Removido') as enviado_por_nome, 
+               COALESCE(us.tipo, 'desconhecido') as enviado_por_tipo
         FROM uploads u 
-        INNER JOIN projetos p ON u.projeto_id = p.id 
-        INNER JOIN usuarios us ON u.enviado_por = us.id 
+        LEFT JOIN projetos p ON u.projeto_id = p.id 
+        LEFT JOIN usuarios us ON u.enviado_por = us.id 
         $where_clause
         ORDER BY u.enviado_em DESC 
         LIMIT ? OFFSET ?";
@@ -55,11 +66,18 @@ if (!empty($params)) {
 $stmt->execute();
 $documentos = $stmt->get_result();
 
-// Contar total de registros para paginação
+// DEBUG: Verificar se a query retornou resultados
+if ($documentos->num_rows == 0) {
+    // Testar query mais simples
+    $test_query = $conn->query("SELECT * FROM uploads ORDER BY enviado_em DESC LIMIT 5");
+    // echo "<!-- DEBUG: Query de teste retornou: " . ($test_query ? $test_query->num_rows : 'ERRO') . " registros -->";
+}
+
+// Contar total de registros para paginação - CORRIGIDO
 $sql_count = "SELECT COUNT(*) as total 
               FROM uploads u 
-              INNER JOIN projetos p ON u.projeto_id = p.id 
-              INNER JOIN usuarios us ON u.enviado_por = us.id 
+              LEFT JOIN projetos p ON u.projeto_id = p.id 
+              LEFT JOIN usuarios us ON u.enviado_por = us.id 
               $where_clause";
 
 if (!empty($where_conditions)) {
@@ -77,8 +95,9 @@ if (!empty($where_conditions)) {
 
 $total_paginas = ceil($total_registros / $limite);
 
-// Buscar projetos para o filtro
-$projetos = $conn->query("SELECT id, titulo FROM projetos ORDER BY titulo");
+// Buscar projetos para o filtro - CORRIGIDO para não falhar se não houver projetos
+$projetos_result = $conn->query("SELECT id, titulo FROM projetos ORDER BY titulo");
+$projetos = $projetos_result ? $projetos_result : [];
 
 // Verificar mensagens de sucesso/erro
 $mensagem_sucesso = isset($_GET['sucesso']) ? $_GET['sucesso'] : '';
@@ -122,6 +141,24 @@ function obterIconeArquivo($nomeArquivo) {
         default:
             return '📎';
     }
+}
+
+// Função para verificar se arquivo existe e obter caminho correto
+function obterCaminhoArquivo($caminho_bd) {
+    // Possíveis caminhos onde o arquivo pode estar
+    $caminhos_possiveis = [
+        $caminho_bd, // Caminho original do banco
+        '../../uploads/' . basename($caminho_bd), // Na pasta uploads da raiz
+        '../../uploads/' . str_replace(['../uploads/', '../../uploads/'], '', $caminho_bd), // Limpar caminho
+    ];
+    
+    foreach ($caminhos_possiveis as $caminho) {
+        if (file_exists($caminho)) {
+            return $caminho;
+        }
+    }
+    
+    return false;
 }
 ?>
 
@@ -367,6 +404,11 @@ function obterIconeArquivo($nomeArquivo) {
             color: #f57c00;
         }
 
+        .badge-desconhecido {
+            background: #f5f5f5;
+            color: #666;
+        }
+
         .paginacao {
             padding: 20px;
             display: flex;
@@ -428,6 +470,16 @@ function obterIconeArquivo($nomeArquivo) {
             border: 1px solid #f5c6cb;
         }
 
+        .debug-info {
+            background: #fff3cd;
+            border: 1px solid #ffeaa7;
+            color: #856404;
+            padding: 10px;
+            border-radius: 5px;
+            margin-bottom: 15px;
+            font-size: 12px;
+        }
+
         @media (max-width: 768px) {
             .main-content {
                 margin-left: 0;
@@ -476,6 +528,15 @@ function obterIconeArquivo($nomeArquivo) {
             </div>
         <?php endif; ?>
 
+        <!-- DEBUG INFO - Remover em produção -->
+        <?php if (isset($total_uploads)): ?>
+            <div class="debug-info">
+                <strong>Debug:</strong> Total de uploads na tabela: <?= $total_uploads ?> | 
+                Documentos encontrados com filtros: <?= $total_registros ?> | 
+                Página atual: <?= $pagina ?>
+            </div>
+        <?php endif; ?>
+
         <!-- Header com filtros -->
         <div class="header-section">
             <h2>📁 Documentos Recentes</h2>
@@ -485,11 +546,13 @@ function obterIconeArquivo($nomeArquivo) {
                     <label>Projeto:</label>
                     <select name="projeto">
                         <option value="">Todos os projetos</option>
-                        <?php while ($proj = $projetos->fetch_assoc()): ?>
-                            <option value="<?= $proj['id'] ?>" <?= $filtro_projeto == $proj['id'] ? 'selected' : '' ?>>
-                                <?= htmlspecialchars($proj['titulo']) ?>
-                            </option>
-                        <?php endwhile; ?>
+                        <?php if ($projetos_result): ?>
+                            <?php while ($proj = $projetos_result->fetch_assoc()): ?>
+                                <option value="<?= $proj['id'] ?>" <?= $filtro_projeto == $proj['id'] ? 'selected' : '' ?>>
+                                    <?= htmlspecialchars($proj['titulo']) ?>
+                                </option>
+                            <?php endwhile; ?>
+                        <?php endif; ?>
                     </select>
                 </div>
 
@@ -511,10 +574,19 @@ function obterIconeArquivo($nomeArquivo) {
         <!-- Cards de estatísticas -->
         <div class="stats-cards">
             <?php
-            // Buscar estatísticas
-            $stats_hoje = $conn->query("SELECT COUNT(*) as total FROM uploads WHERE DATE(enviado_em) = CURDATE()")->fetch_assoc()['total'];
-            $stats_semana = $conn->query("SELECT COUNT(*) as total FROM uploads WHERE enviado_em >= DATE_SUB(NOW(), INTERVAL 7 DAY)")->fetch_assoc()['total'];
-            $stats_mes = $conn->query("SELECT COUNT(*) as total FROM uploads WHERE enviado_em >= DATE_SUB(NOW(), INTERVAL 30 DAY)")->fetch_assoc()['total'];
+            // Buscar estatísticas com tratamento de erro
+            $stats_hoje = 0;
+            $stats_semana = 0;
+            $stats_mes = 0;
+            
+            $result = $conn->query("SELECT COUNT(*) as total FROM uploads WHERE DATE(enviado_em) = CURDATE()");
+            if ($result) $stats_hoje = $result->fetch_assoc()['total'];
+            
+            $result = $conn->query("SELECT COUNT(*) as total FROM uploads WHERE enviado_em >= DATE_SUB(NOW(), INTERVAL 7 DAY)");
+            if ($result) $stats_semana = $result->fetch_assoc()['total'];
+            
+            $result = $conn->query("SELECT COUNT(*) as total FROM uploads WHERE enviado_em >= DATE_SUB(NOW(), INTERVAL 30 DAY)");
+            if ($result) $stats_mes = $result->fetch_assoc()['total'];
             ?>
             
             <div class="stat-card">
@@ -568,9 +640,8 @@ function obterIconeArquivo($nomeArquivo) {
                                         📅 <?= date('d/m/Y H:i', strtotime($doc['enviado_em'])) ?>
                                     </span>
                                     <?php 
-                                    // Ajustar caminho do arquivo para a pasta uploads na raiz
-                                    $caminho_arquivo = str_replace('../../uploads/', '../../uploads/', $doc['caminho_arquivo']);
-                                    if (file_exists($caminho_arquivo)): 
+                                    $caminho_arquivo = obterCaminhoArquivo($doc['caminho_arquivo']);
+                                    if ($caminho_arquivo): 
                                     ?>
                                         <span>
                                             💾 <?= formatarTamanho(filesize($caminho_arquivo)) ?>
@@ -582,14 +653,18 @@ function obterIconeArquivo($nomeArquivo) {
                             <div class="documento-acoes">
                                 <?php 
                                 $extensao = strtolower(pathinfo($doc['nome_arquivo'], PATHINFO_EXTENSION));
-                                // Ajustar caminho do arquivo para a pasta uploads na raiz
-                                $caminho_arquivo = str_replace('../../uploads/', '../../uploads/', $doc['caminho_arquivo']);
-                                $arquivo_existe = file_exists($caminho_arquivo);
-                                // Caminho para exibição no navegador (relativo à raiz do projeto)
-                                $caminho_web = str_replace('../../', '../', $doc['caminho_arquivo']);
+                                $caminho_arquivo = obterCaminhoArquivo($doc['caminho_arquivo']);
+                                
+                                // Converter caminho do sistema para caminho web
+                                if ($caminho_arquivo) {
+                                    $caminho_web = str_replace('../../', '../', $caminho_arquivo);
+                                    if (strpos($caminho_web, '../uploads/') === false) {
+                                        $caminho_web = '../uploads/' . basename($caminho_arquivo);
+                                    }
+                                }
                                 ?>
                                 
-                                <?php if ($arquivo_existe): ?>
+                                <?php if ($caminho_arquivo): ?>
                                     <?php if (in_array($extensao, ['jpg', 'jpeg', 'png', 'gif', 'pdf'])): ?>
                                         <a href="<?= $caminho_web ?>" 
                                            target="_blank" 
@@ -607,6 +682,9 @@ function obterIconeArquivo($nomeArquivo) {
                                     </a>
                                 <?php else: ?>
                                     <span style="color: #dc3545; font-size: 12px;">❌ Arquivo não encontrado</span>
+                                    <small style="color: #666; display: block; margin-top: 5px;">
+                                        Caminho: <?= htmlspecialchars($doc['caminho_arquivo']) ?>
+                                    </small>
                                 <?php endif; ?>
                                 
                                 <?php if ($_SESSION['usuario_tipo'] === 'admin'): ?>
@@ -653,6 +731,9 @@ function obterIconeArquivo($nomeArquivo) {
                     <div class="icone">📄</div>
                     <h3>Nenhum documento encontrado</h3>
                     <p>Não há documentos que correspondam aos critérios de filtro selecionados.</p>
+                    <?php if (!$filtro_projeto && !$filtro_tipo): ?>
+                        <p><small>Verifique se há registros na tabela 'uploads' do banco de dados.</small></p>
+                    <?php endif; ?>
                 </div>
             <?php endif; ?>
         </div>

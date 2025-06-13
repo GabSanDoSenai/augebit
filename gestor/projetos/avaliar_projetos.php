@@ -8,6 +8,53 @@
     <title>Avaliação de Projetos</title>
     <link rel="stylesheet" href="../css/geral.css">
     <style>
+        /* Definições da fonte Poppins */
+        @font-face {
+            font-family: 'Poppins';
+            src: url('../../assets/fonte/Poppins-SemiBold.ttf') format('truetype');
+            font-weight: 600;
+        }
+           
+        @font-face {
+            font-family: 'Poppins';
+            src: url('../../assets/fonte/Poppins-Regular.ttf') format('truetype');
+            font-weight: 450;
+        }
+
+        @font-face {
+            font-family: 'Poppins';
+            src: url('../../assets/fonte/Poppins-Medium.ttf') format('truetype');
+            font-weight: 500;
+        }
+
+        @font-face {
+            font-family: 'Poppins';
+            src: url('../../assets/fonte/Poppins-Italic.ttf') format('truetype');
+            font-weight: 400;
+            font-style: italic;
+        }
+        
+        @font-face {
+            font-family: 'Poppins';
+            src: url('../../assets/fonte/Poppins-ExtraLight.ttf') format('truetype');
+            font-weight: 200;
+        }
+
+        /* Estilos gerais com Poppins */
+        body {
+            font-family: 'Poppins', sans-serif;
+            font-weight: 450; /* Regular */
+        }
+
+        .main-content {
+            font-family: 'Poppins', sans-serif;
+        }
+
+        h1, h2, h3, h4, h5, h6 {
+            font-family: 'Poppins', sans-serif;
+            font-weight: 600; /* SemiBold */
+        }
+
         .project-card {
             border: 1px solid #ddd;
             border-radius: 8px;
@@ -15,6 +62,7 @@
             margin: 15px 0;
             background: #fff;
             box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+            font-family: 'Poppins', sans-serif;
         }
 
         .project-header {
@@ -26,7 +74,7 @@
 
         .project-title {
             font-size: 1.3em;
-            font-weight: bold;
+            font-weight: 500; /* Medium */
             color: #333;
         }
 
@@ -34,33 +82,34 @@
             padding: 5px 12px;
             border-radius: 20px;
             font-size: 0.9em;
-            font-weight: bold;
+            font-weight: 500; /* Medium */
             text-transform: uppercase;
         }
 
         .status-pendente {
-            background: #ffeaa7;
-            color: #fdcb6e;
+            background:rgba(153, 153, 255, 0.65);
+            color: #9999FF;
         }
 
         .status-aprovado {
-            background: #d1f2eb;
-            color: #00b894;
+            background:rgba(153, 153, 255, 0.67);
+            color:  #3E236A;
+;
         }
 
         .status-em_andamento {
             background: #dbeafe;
-            color: #3b82f6;
+            color: #9999FF;
         }
 
         .status-ajustes {
-            background: #fed7aa;
-            color: #f97316;
+            background:rgba(153, 153, 255, 0.78);
+            color: #9999FF;
         }
 
         .status-finalizado {
-            background: #d1fae5;
-            color: #059669;
+            background:rgba(153, 153, 255, 0.75);
+            color: #9999FF;
         }
 
         .status-recusado {
@@ -74,7 +123,8 @@
 
         .project-info p {
             margin: 8px 0;
-            color: #666;
+            color:  #3E236A;
+            font-weight: 450; /* Regular */
         }
 
         .project-actions {
@@ -91,27 +141,28 @@
             cursor: pointer;
             text-decoration: none;
             font-size: 0.9em;
-            font-weight: 500;
+            font-weight: 500; /* Medium */
             transition: all 0.3s;
+            font-family: 'Poppins', sans-serif;
         }
 
         .btn-success {
-            background: #10b981;
-            color: white;
+            background: #rgb(203, 203, 255);
+            color:rgb(45, 25, 77);
         }
 
         .btn-danger {
-            background: #ef4444;
+            background: #3E236A;
             color: white;
         }
 
         .btn-warning {
-            background: #f59e0b;
+            background: #9999FF;
             color: white;
         }
 
         .btn-info {
-            background: #3b82f6;
+            background:rgb(198, 198, 252);
             color: white;
         }
 
@@ -135,6 +186,7 @@
         .filter-section h3 {
             margin-top: 0;
             color: #333;
+            font-weight: 500; /* Medium */
         }
 
         .filter-buttons {
@@ -151,32 +203,36 @@
             cursor: pointer;
             text-decoration: none;
             color: #666;
-            font-weight: 500;
+            font-weight: 450; /* Regular */
             transition: all 0.3s;
+            font-family: 'Poppins', sans-serif;
         }
 
         .filter-btn.active {
-            background: #3b82f6;
-            color: white;
-            border-color: #3b82f6;
+            background: #rgb(203, 203, 255);
+            color: #3E236A;
+            border-color: #3E236A;
+            font-weight: 500; /* Medium */
         }
 
         .alert {
             padding: 15px;
             border-radius: 4px;
             margin-bottom: 20px;
+            font-family: 'Poppins', sans-serif;
+            font-weight: 450; /* Regular */
         }
 
         .alert-success {
-            background: #d1fae5;
-            color: #065f46;
-            border: 1px solid #34d399;
+            background:rgb(203, 203, 255);
+            color: #9999FF;
+            border: 1px solidrgb(113, 113, 194);
         }
 
         .alert-error {
             background: #fef2f2;
-            color: #991b1b;
-            border: 1px solid #f87171;
+            color: #3E236A;
+            border: 1px solidrgba(62, 35, 106, 0.84);
         }
 
         .no-projects {
@@ -184,6 +240,7 @@
             padding: 40px;
             color: #666;
             font-size: 1.1em;
+            font-weight: 450; /* Regular */
         }
 
         .project-description {
@@ -192,6 +249,7 @@
             border-radius: 4px;
             margin: 10px 0;
             line-height: 1.5;
+            font-weight: 450; /* Regular */
         }
 
         .project-meta {
@@ -208,7 +266,7 @@
         }
 
         .meta-label {
-            font-weight: bold;
+            font-weight: 500; /* Medium */
             color: #333;
             font-size: 0.9em;
         }
@@ -216,6 +274,7 @@
         .meta-value {
             color: #666;
             margin-top: 5px;
+            font-weight: 450; /* Regular */
         }
     </style>
 </head>
@@ -376,31 +435,31 @@
 
             switch ($status) {
                 case 'pendente':
-                    $buttons[] = "<a href='?action=aprovar&id=$id' class='btn btn-success'>✅ Aprovar</a>";
-                    $buttons[] = "<a href='?action=recusar&id=$id' class='btn btn-danger' onclick='return confirm(\"Tem certeza que deseja recusar este projeto?\")'>❌ Recusar</a>";
+                    $buttons[] = "<a href='?action=aprovar&id=$id' class='btn btn-success'> Aprovar</a>";
+                    $buttons[] = "<a href='?action=recusar&id=$id' class='btn btn-danger' onclick='return confirm(\"Tem certeza que deseja recusar este projeto?\")'> Recusar</a>";
                     break;
 
                 case 'aprovado':
-                    $buttons[] = "<a href='?action=iniciar&id=$id' class='btn btn-info'>🚀 Iniciar Projeto</a>";
-                    $buttons[] = "<a href='?action=recusar&id=$id' class='btn btn-danger' onclick='return confirm(\"Tem certeza que deseja recusar este projeto?\")'>❌ Recusar</a>";
+                    $buttons[] = "<a href='?action=iniciar&id=$id' class='btn btn-info'>Iniciar Projeto</a>";
+                    $buttons[] = "<a href='?action=recusar&id=$id' class='btn btn-danger' onclick='return confirm(\"Tem certeza que deseja recusar este projeto?\")'> Recusar</a>";
                     break;
 
                 case 'em_andamento':
-                    $buttons[] = "<a href='?action=solicitar_ajustes&id=$id' class='btn btn-warning'>⚠️ Solicitar Ajustes</a>";
-                    $buttons[] = "<a href='?action=finalizar&id=$id' class='btn btn-success'>✅ Finalizar</a>";
+                    $buttons[] = "<a href='?action=solicitar_ajustes&id=$id' class='btn btn-warning'> Solicitar Ajustes</a>";
+                    $buttons[] = "<a href='?action=finalizar&id=$id' class='btn btn-success'> Finalizar</a>";
                     break;
 
                 case 'ajustes':
-                    $buttons[] = "<a href='?action=iniciar&id=$id' class='btn btn-info'>↩️ Retomar</a>";
-                    $buttons[] = "<a href='?action=recusar&id=$id' class='btn btn-danger' onclick='return confirm(\"Tem certeza que deseja recusar este projeto?\")'>❌ Recusar</a>";
+                    $buttons[] = "<a href='?action=iniciar&id=$id' class='btn btn-info'> Retomar</a>";
+                    $buttons[] = "<a href='?action=recusar&id=$id' class='btn btn-danger' onclick='return confirm(\"Tem certeza que deseja recusar este projeto?\")'> Recusar</a>";
                     break;
 
                 case 'finalizado':
-                    $buttons[] = "<a href='?action=reabrir&id=$id' class='btn btn-secondary' onclick='return confirm(\"Tem certeza que deseja reabrir este projeto?\")'>🔄 Reabrir</a>";
+                    $buttons[] = "<a href='?action=reabrir&id=$id' class='btn btn-secondary' onclick='return confirm(\"Tem certeza que deseja reabrir este projeto?\")'> Reabrir</a>";
                     break;
 
                 case 'recusado':
-                    $buttons[] = "<a href='?action=aprovar&id=$id' class='btn btn-success'>✅ Aprovar</a>";
+                    $buttons[] = "<a href='?action=aprovar&id=$id' class='btn btn-success'> Aprovar</a>";
                     break;
             }
 
