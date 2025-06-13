@@ -41,24 +41,6 @@ $navigation = [
             'label' => 'Documentos',
             'url' => $basePath . 'documentos/visualizar_documentos.php',
             'active' => strpos($_SERVER['PHP_SELF'], 'documentos') !== false
-        ],
-        [
-            'icon' => '👤',
-            'label' => 'Clientes',
-            'url' => $basePath . 'usuarios/clientes.php',
-            'active' => strpos($_SERVER['PHP_SELF'], 'avaliar_projetos') !== false
-        ],
-        [
-            'icon' => '⚙️',
-            'label' => 'Configurações',
-            'url' => $basePath . 'configuracoes.php',
-            'active' => strpos($_SERVER['PHP_SELF'], 'configuracoes') !== false
-        ],
-        [
-            'icon' => '👤',
-            'label' => 'Perfil',
-            'url' => $basePath . 'perfil/perfil.php',
-            'active' => strpos($_SERVER['PHP_SELF'], 'configuracoes') !== false
         ]
     ],
 ];
