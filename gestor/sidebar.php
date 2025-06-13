@@ -16,37 +16,57 @@ function getUserTypeName($type)
     return $types[$type] ?? 'Usuário';
 }
 
-$basePath = '/augebit/gestor/';
+// Detectar a profundidade atual para definir caminhos relativos corretos
+function getCurrentDepth()
+{
+    $currentPath = $_SERVER['REQUEST_URI'];
+    $pathParts = explode('/', trim($currentPath, '/'));
+
+    // Remove partes vazias
+    $pathParts = array_filter($pathParts);
+
+    // Conta quantos níveis estamos da raiz do projeto
+    $augebitIndex = array_search('augebit', $pathParts);
+    if ($augebitIndex !== false) {
+        return count($pathParts) - $augebitIndex - 1;
+    }
+
+    return 0;
+}
+
+$depth = getCurrentDepth();
+$basePath = str_repeat('../', $depth) . 'augebit/gestor/';
+$assetsPath = str_repeat('../', $depth) . 'augebit/assets/';
 
 // Menu COMPLETO para todos os usuários
 $navigation = [
     'all' => [
         [
-            'icon' => 'dashboard.png',
+            'icon' => 'icones/Dashboard.png',
             'label' => 'Dashboard',
             'url' => $basePath . 'dashboard_gestor.php',
             'active' => basename($_SERVER['PHP_SELF']) === 'dashboard_gestor.php'
         ],
         [
-            'icon' => 'projetos.png',
+            'icon' => 'icones/projetos.png',
             'label' => 'Projetos',
             'url' => $basePath . 'projetos/listar_projetos.php',
             'active' => strpos($_SERVER['PHP_SELF'], 'projetos') !== false
         ],
         [
-            'icon' => 'tarefas.png',
+            'icon' => 'icones/NovaTarefa.png',
             'label' => 'Tarefas',
             'url' => $basePath . 'tarefas/tarefas.php',
             'active' => strpos($_SERVER['PHP_SELF'], 'tarefas') !== false
         ],
         [
-            'icon' => 'funcionarios.png',
+            'icon' => 'icones/funcionarios.png',
             'label' => 'Funcionários',
             'url' => $basePath . 'usuarios/funcionarios.php',
             'active' => strpos($_SERVER['PHP_SELF'], 'funcionarios') !== false
         ],
         [
-            'icon' => 'documentos.png',
+            'icon' => 'icones/documentos.png',
             'label' => 'Documentos',
             'url' => $basePath . 'documentos/visualizar_documentos.php',
             'active' => strpos($_SERVER['PHP_SELF'], 'documentos') !== false
@@ -68,7 +88,7 @@ $navItems = array_merge(
 
 <nav class="sidebar" id="sidebar">
     <div class="logo">
-        <img src="../assets/img/augebit.logo.png" alt="Logo" class="logo-img">
+        <img src="<?= $assetsPath ?>img/augebit.logo.png" alt="Logo" class="logo-img">
     </div>
 
     <div class="user-info">
@@ -85,7 +105,8 @@ $navItems = array_merge(
                 <a href="<?= htmlspecialchars($item['url']) ?>" class="nav-link <?= $item['active'] ? 'active' : '' ?>"
                     title="<?= htmlspecialchars($item['label']) ?>" data-url="<?= htmlspecialchars($item['url']) ?>">
                     <span class="nav-icon">
-                        <img src="../assets/img/<?= $item['icon'] ?>" alt="<?= htmlspecialchars($item['label']) ?>">
+                        <img src="<?= $assetsPath ?>img/<?= $item['icon'] ?>" alt="<?= htmlspecialchars($item['label']) ?>"
+                            onerror="this.src='<?= $assetsPath ?>img/icones/default.png'">
                     </span>
                     <span class="nav-text"><?= htmlspecialchars($item['label']) ?></span>
                 </a>
@@ -97,13 +118,15 @@ $navItems = array_merge(
         </li>
 
         <li class="nav-item">
-            <a href="/augebit/logout.php" class="nav-link nav-logout" title="Sair do Sistema"
-                data-url="/augebit/logout.php">
-                <span class="nav-icon">🚪</span>
+            <a href="<?= str_repeat('../', $depth) ?>augebit/logout.php" class="nav-link nav-logout"
+                title="Sair do Sistema">
+                <span class="nav-icon">
+                    <img src="<?= $assetsPath ?>img/icones/sair.png" alt="Sair"
+                        onerror="this.src='<?= $assetsPath ?>img/sair.png'">
+                </span>
                 <span class="nav-text">Sair</span>
             </a>
         </li>
-
     </ul>
 
     <button class="sidebar-toggle" id="sidebarToggle" aria-label="Toggle Sidebar">
@@ -114,14 +137,45 @@ $navItems = array_merge(
 </nav>
 
 <style>
-    /* Sidebar Styles - Versão Atualizada */
+    @font-face {
+        font-family: 'Poppins';
+        src: url('<?= $assetsPath ?>fonte/Poppins-SemiBold.ttf') format('truetype');
+        font-weight: 600;
+    }
+
+    @font-face {
+        font-family: 'Poppins';
+        src: url('<?= $assetsPath ?>fonte/Poppins-Regular.ttf') format('truetype');
+        font-weight: 450;
+    }
+
+    @font-face {
+        font-family: 'Poppins';
+        src: url('<?= $assetsPath ?>fonte/Poppins-Medium.ttf') format('truetype');
+        font-weight: 500;
+    }
+
+    @font-face {
+        font-family: 'Poppins';
+        src: url('<?= $assetsPath ?>fonte/Poppins-Italic.ttf') format('truetype');
+        font-weight: 400;
+        font-style: italic;
+    }
+
+    @font-face {
+        font-family: 'Poppins';
+        src: url('<?= $assetsPath ?>fonte/Poppins-ExtraLight.ttf') format('truetype');
+        font-weight: 200;
+    }
+
     .sidebar {
         position: fixed;
         left: 0;
         top: 0;
         width: 280px;
         height: 100vh;
-        background: rgba(153, 153, 255, 0.95);
+        background: #DDE3FE;
+        border: 2px solid #9999FF;
         backdrop-filter: blur(5px);
         box-shadow: 15px 0 25px rgba(0, 0, 0, 0.1);
         padding: 0;
@@ -143,15 +197,8 @@ $navItems = array_merge(
     .logo-img {
         width: 80px;
         height: 80px;
-        border-radius: 50%;
         object-fit: cover;
-        border: 3px solid #3E236A;
-        box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
         transition: all 0.3s ease;
-    }
-
-    .logo-img:hover {
-        transform: scale(1.05);
     }
 
     /* User Info Section */
@@ -166,7 +213,7 @@ $navItems = array_merge(
         width: 50px;
         height: 50px;
         border-radius: 50%;
-        background: linear-gradient(135deg, #3E236A, #9999FF);
+        background: linear-gradient(135deg, rgb(171, 154, 197), #9999FF);
         display: flex;
         align-items: center;
         justify-content: center;
@@ -212,7 +259,7 @@ $navItems = array_merge(
     .nav-separator hr {
         border: none;
         height: 1px;
-        background: rgba(255, 255, 255, 0.3);
+        background: rgba(153, 153, 255, 0.3);
         margin: 0 1rem;
     }
 
@@ -227,8 +274,9 @@ $navItems = array_merge(
         transition: all 0.3s ease;
         font-weight: 500;
         font-size: 0.9rem;
-        background: rgba(255, 255, 255, 0.3);
+        font-family: "Poppins";
         margin: 0.25rem 0;
+        position: relative;
     }
 
     .nav-link:hover {
@@ -259,12 +307,16 @@ $navItems = array_merge(
         display: flex;
         align-items: center;
         justify-content: center;
+        flex-shrink: 0;
     }
 
     .nav-icon img {
         width: 100%;
         height: auto;
         transition: all 0.2s ease;
+        max-width: 20px;
+        max-height: 20px;
+        object-fit: contain;
     }
 
     .nav-text {
@@ -276,12 +328,12 @@ $navItems = array_merge(
 
     /* Logout Button */
     .nav-link.nav-logout {
-        background: rgba(238, 90, 90, 0.1);
-        color: #ee5a5a;
+        background: rgba(255, 255, 255, 0.9);
+        color: rgba(153, 153, 255, 0.9);
     }
 
     .nav-link.nav-logout:hover {
-        background: rgba(238, 90, 90, 0.3);
+        background: rgba(153, 153, 255, 0.28);
         color: white;
     }
 
@@ -392,11 +444,7 @@ $navItems = array_merge(
         font-size: 1rem;
     }
 
-    /* Animations */
-    .nav-link.clicked {
-        transform: scale(0.95);
-    }
-
+    /* Loading State */
     .nav-link.loading {
         position: relative;
         opacity: 0.7;
@@ -417,27 +465,49 @@ $navItems = array_merge(
         animation: spin 0.8s linear infinite;
     }
 
+    .nav-link.clicked {
+        transform: scale(0.95);
+    }
+
     @keyframes spin {
         to {
             transform: translateY(-50%) rotate(360deg);
         }
     }
+
+    /* Error handling for missing images */
+    .nav-icon img[src=""],
+    .nav-icon img:not([src]) {
+        display: none;
+    }
+
+    .nav-icon img[src=""]:after,
+    .nav-icon img:not([src]):after {
+        content: "📄";
+        font-size: 16px;
+        display: block;
+    }
 </style>
 
 <script>
-    // Mantendo o mesmo JavaScript original
     document.addEventListener('DOMContentLoaded', function () {
         const sidebar = document.getElementById('sidebar');
         const sidebarToggle = document.getElementById('sidebarToggle');
-        const sidebarOverlay = document.createElement('div');
-        sidebarOverlay.id = 'sidebarOverlay';
-        sidebarOverlay.className = 'sidebar-overlay';
-        document.body.appendChild(sidebarOverlay);
+
+        // Criar overlay apenas se não existir
+        let sidebarOverlay = document.getElementById('sidebarOverlay');
+        if (!sidebarOverlay) {
+            sidebarOverlay = document.createElement('div');
+            sidebarOverlay.id = 'sidebarOverlay';
+            sidebarOverlay.className = 'sidebar-overlay';
+            document.body.appendChild(sidebarOverlay);
+        }
 
         let isNavigating = false;
         let lastClickTime = 0;
         const DOUBLE_CLICK_THRESHOLD = 300;
 
+        // Toggle sidebar
         if (sidebarToggle) {
             sidebarToggle.addEventListener('click', function () {
                 sidebar.classList.toggle('active');
@@ -446,12 +516,14 @@ $navItems = array_merge(
             });
         }
 
+        // Close sidebar when clicking overlay
         sidebarOverlay.addEventListener('click', function () {
             sidebar.classList.remove('active');
             sidebarToggle.classList.remove('active');
             sidebarOverlay.classList.remove('active');
         });
 
+        // Close sidebar on window resize
         window.addEventListener('resize', function () {
             if (window.innerWidth > 768) {
                 sidebar.classList.remove('active');
@@ -460,37 +532,50 @@ $navItems = array_merge(
             }
         });
 
+        // Função melhorada para verificar página atual
         function isCurrentPage(linkUrl) {
             const currentPath = window.location.pathname;
             const currentFile = currentPath.split('/').pop();
             const linkFile = linkUrl.split('/').pop();
 
+            // Verifica se é exatamente o mesmo arquivo
             if (currentFile === linkFile) {
                 return true;
             }
 
-            const linkFolder = linkUrl.includes('/') ? linkUrl.split('/')[0] : '';
-            if (linkFolder && currentPath.includes(linkFolder)) {
-                return true;
+            // Verifica se está na mesma seção/pasta
+            const currentSegments = currentPath.split('/').filter(segment => segment);
+            const linkSegments = linkUrl.split('/').filter(segment => segment);
+
+            // Verifica seções específicas
+            const sections = ['projetos', 'tarefas', 'funcionarios', 'documentos', 'usuarios'];
+            for (let section of sections) {
+                if (currentSegments.includes(section) && linkSegments.includes(section)) {
+                    return true;
+                }
             }
 
             return false;
         }
 
+        // Gerenciar links de navegação
         const navLinks = document.querySelectorAll('.nav-link:not(.nav-logout)');
 
         navLinks.forEach(link => {
             const linkUrl = link.getAttribute('data-url') || link.getAttribute('href');
 
+            // Marcar link ativo na carga da página
             if (isCurrentPage(linkUrl)) {
-                link.classList.add('active');
+                navLinks.forEach(l => l.classList.remove('active')); // Remove active de todos
+                link.classList.add('active'); // Adiciona apenas ao correto
             }
 
             link.addEventListener('click', function (e) {
                 const currentTime = Date.now();
                 const timeDiff = currentTime - lastClickTime;
 
-                if (isNavigating || timeDiff < DOUBLE_CLICK_THRESHOLD || isCurrentPage(linkUrl)) {
+                // Prevenir cliques duplos ou navegação para página atual
+                if (isNavigating || timeDiff < DOUBLE_CLICK_THRESHOLD) {
                     e.preventDefault();
                     link.classList.add('clicked');
                     setTimeout(() => {
@@ -499,12 +584,29 @@ $navItems = array_merge(
                     return false;
                 }
 
+                // Se já estamos na página, não navegar
+                if (isCurrentPage(linkUrl)) {
+                    e.preventDefault();
+                    return false;
+                }
+
+                // Iniciar navegação
                 isNavigating = true;
                 lastClickTime = currentTime;
                 link.classList.add('loading');
+
+                // Remover active de todos e adicionar ao clicado
                 navLinks.forEach(l => l.classList.remove('active'));
                 link.classList.add('active');
 
+                // Fechar sidebar em mobile
+                if (window.innerWidth <= 768) {
+                    sidebar.classList.remove('active');
+                    sidebarToggle.classList.remove('active');
+                    sidebarOverlay.classList.remove('active');
+                }
+
+                // Reset do estado após timeout
                 setTimeout(() => {
                     isNavigating = false;
                     link.classList.remove('loading');
@@ -512,13 +614,16 @@ $navItems = array_merge(
             });
         });
 
+        // Gerenciar logout
         const logoutLink = document.querySelector('.nav-logout');
         if (logoutLink) {
             logoutLink.addEventListener('click', function (e) {
                 logoutLink.classList.add('loading');
+                // Não prevenir o comportamento padrão para logout
             });
         }
 
+        // Reset de navegação
         window.addEventListener('beforeunload', function () {
             isNavigating = false;
         });
@@ -527,6 +632,21 @@ $navItems = array_merge(
             isNavigating = false;
             navLinks.forEach(link => {
                 link.classList.remove('loading');
+            });
+        });
+
+        // Tratamento de erro para imagens
+        const navImages = document.querySelectorAll('.nav-icon img');
+        navImages.forEach(img => {
+            img.addEventListener('error', function () {
+                // Se a imagem não carregar, tenta um caminho alternativo
+                if (!this.src.includes('default.png')) {
+                    const currentSrc = this.src;
+                    const altSrc = currentSrc.replace('/icones/', '/');
+                    if (altSrc !== currentSrc) {
+                        this.src = altSrc;
+                    }
+                }
             });
         });
     });

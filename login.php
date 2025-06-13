@@ -188,7 +188,7 @@ $conn->close();
             left: 0;
             right: 0;
             bottom: 0;
-            background: linear-gradient(45deg, rgba(167, 139, 250, 0.1), rgba(139, 92, 246, 0.1));
+            background: linear-gradient(45deg, rgba(153, 153, 255, 0.1), rgba(110, 110, 255, 0.1));
             z-index: -1;
         }
 
@@ -200,7 +200,7 @@ $conn->close();
 
         form h2 {
             margin-bottom: 30px;
-            color: #a78bfa;
+            color: #9999FF;
             font-size: 2.2em;
             font-weight: 300;
             text-align: center;
@@ -215,7 +215,7 @@ $conn->close();
             transform: translateX(-50%);
             width: 50px;
             height: 3px;
-            background: linear-gradient(90deg, #a78bfa, #8b5cf6);
+            background: linear-gradient(90deg, #9999FF, #6E6EFF);
             border-radius: 2px;
         }
 
@@ -231,10 +231,10 @@ $conn->close();
         }
 
         form input:focus {
-            border-color: #a78bfa;
+            border-color: #6E6EFF;
             background: rgba(255, 255, 255, 0.1);
             transform: translateY(-2px);
-            box-shadow: 0 5px 15px rgba(167, 139, 250, 0.3);
+            box-shadow: 0 5px 15px rgba(110, 110, 255, 0.3);
         }
 
         form input::placeholder {
@@ -245,7 +245,7 @@ $conn->close();
             padding: 15px;
             border: none;
             border-radius: 25px;
-            background: linear-gradient(45deg, #a78bfa, #8b5cf6);
+            background: linear-gradient(45deg, #6E6EFF, #4747D9);
             color: white;
             font-size: 16px;
             font-weight: 600;
@@ -272,9 +272,9 @@ $conn->close();
         }
 
         form button:hover {
-            background: linear-gradient(45deg, #8b5cf6, #7c3aed);
+            background: linear-gradient(45deg, #4747D9, #3a3ac7);
             transform: translateY(-2px);
-            box-shadow: 0 10px 25px rgba(167, 139, 250, 0.4);
+            box-shadow: 0 10px 25px rgba(110, 110, 255, 0.4);
         }
 
         form button:active {
@@ -289,14 +289,14 @@ $conn->close();
         }
 
         form a {
-            color: #a78bfa;
+            color: #9999FF;
             text-decoration: none;
             font-weight: 600;
             transition: color 0.3s ease;
         }
 
         form a:hover {
-            color: #8b5cf6;
+            color: #6E6EFF;
             text-decoration: underline;
         }
 
@@ -330,9 +330,9 @@ $conn->close();
             height: 150px;
             margin-bottom: 20px;
             border-radius: 50%;
-            border: 3px solid #a78bfa;
+            border: 3px solid #6E6EFF;
             padding: 20px;
-            background: rgba(167, 139, 250, 0.1);
+            background: rgba(110, 110, 255, 0.1);
             transition: transform 0.3s ease;
         }
 
@@ -341,7 +341,7 @@ $conn->close();
         }
 
         .logo-panel h3 {
-            color: #a78bfa;
+            color: #9999FF;
             font-size: 1.5em;
             margin-bottom: 10px;
         }
@@ -445,6 +445,7 @@ $conn->close();
     </style>
 </head>
 <body>
+    <!-- O restante do código HTML permanece exatamente o mesmo -->
     <div class="main-container" id="mainContainer">
         <!-- Login Form -->
         <div class="form-container login-container">

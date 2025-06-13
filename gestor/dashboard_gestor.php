@@ -156,9 +156,7 @@ while ($row = $taxaConclusao->fetch_assoc()) {
 </head>
 
 <body>
-    <div class="sidebar">
         <?php include 'sidebar.php'; ?>
-    </div>
     <main class="main-content">
         <div class="header">
             <h1>Bem-vindo, <?= htmlspecialchars($_SESSION['usuario_nome']) ?>!</h1>

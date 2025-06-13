@@ -135,7 +135,7 @@ function obterIconeArquivo($nomeArquivo) {
     <style>
         .main-content {
             padding: 20px;
-            margin-left: 250px;
+            margin-left: 300px;
             background-color: #f8f9fa;
             min-height: 100vh;
         }

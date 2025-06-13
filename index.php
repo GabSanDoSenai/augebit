@@ -725,6 +725,7 @@
 
     .carrossel-container {
       max-width: 900px;
+      height: 500px;
       margin: 40px auto 0;
       position: relative;
       overflow: hidden;
@@ -783,9 +784,9 @@
     }
 
     .nav-dot {
-      width: 12px;
-      height: 12px;
-      border-radius: 50%;
+      width: 8px;
+      height: 8px;
+      border-radius: 100%;
       background: #9999FF;
       cursor: pointer;
       transition: all 0.3s ease;
