@@ -146,11 +146,6 @@
             font-family: 'Poppins', sans-serif;
         }
 
-        .btn-success {
-            background: #rgb(203, 203, 255);
-            color:rgb(45, 25, 77);
-        }
-
         .btn-danger {
             background: #3E236A;
             color: white;
@@ -206,13 +201,6 @@
             font-weight: 450; /* Regular */
             transition: all 0.3s;
             font-family: 'Poppins', sans-serif;
-        }
-
-        .filter-btn.active {
-            background: #rgb(203, 203, 255);
-            color: #3E236A;
-            border-color: #3E236A;
-            font-weight: 500; /* Medium */
         }
 
         .alert {

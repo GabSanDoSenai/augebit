@@ -290,7 +290,7 @@ while ($row = $stats_result->fetch_assoc()) {
         .status-aprovado { background: #D6D1FF; color: #3E236A; }
         .status-em_andamento { background: #C2B8FF; color: #3E236A; }
         .status-finalizado { background: #B399FF; color: white; }
-        .status-ajustes { background:rgba(62, 35, 106, 0.67); color: ##3E236A; }
+        .status-ajustes { background:rgba(62, 35, 106, 0.67); color: #3E236A;}
         
         .actions-cell {
             white-space: nowrap;

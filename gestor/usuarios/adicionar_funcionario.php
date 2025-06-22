@@ -57,13 +57,20 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     <title>Adicionar Funcionário</title>
     <link rel="stylesheet" href="../css/geral.css">
     <style>
+        .main-content {
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+        }
         .form-container {
-            max-width: 500px;
-            margin: 30px auto;
-            padding: 20px;
+            width: 600px;
+            margin: 30px;
+            padding: 60px;
             background: white;
             border-radius: 8px;
             box-shadow: 0 0 10px rgba(0,0,0,0.05);
+            gap: 10px;
         }
 
         .form-container h2 {
@@ -122,8 +129,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 
 <div class="main-content">
     <div class="form-container">
-        <h2>➕ Adicionar Novo Funcionário</h2>
-
+        <h2>Adicionar Novo Funcionário</h2>
         <?php if ($mensagem): ?>
             <div class="mensagem <?= $tipo_mensagem ?>">
                 <?= htmlspecialchars($mensagem) ?>

@@ -5,17 +5,18 @@ if (!isset($_SESSION['usuario_id']) || ($_SESSION['usuario_tipo'] !== 'admin' &&
     exit;
 }
 include '../../conexao.php';
+if ($conn->connect_error) {
+    die("Conexão falhou: " . $conn->connect_error);
+}
 
 // Buscar projetos disponíveis
 if ($_SESSION['usuario_tipo'] === 'admin') {
-    // Admin vê todos os projetos
     $projetos_query = "SELECT p.id, p.titulo, u.nome as cliente_nome 
                        FROM projetos p 
                        LEFT JOIN usuarios u ON p.cliente_id = u.id 
                        WHERE p.status IN ('aprovado','em_andamento', 'ajustes')
                        ORDER BY p.titulo";
 } else {
-    // Funcionário vê apenas projetos atribuídos a ele
     $projetos_query = "SELECT p.id, p.titulo, u.nome as cliente_nome 
                        FROM projetos p 
                        LEFT JOIN usuarios u ON p.cliente_id = u.id
@@ -47,17 +48,19 @@ if ($_SERVER["REQUEST_METHOD"] === "POST") {
     $projeto_id = $_POST['projeto_id'];
     $prioridade = $_POST['prioridade'];
     $prazo = !empty($_POST['prazo']) ? $_POST['prazo'] : null;
-    
-    // Definir funcionário responsável
+
     if ($_SESSION['usuario_tipo'] === 'admin' && isset($_POST['funcionario_id'])) {
         $funcionario_id = $_POST['funcionario_id'];
     } else {
-        $funcionario_id = $_SESSION['usuario_id']; // Funcionário cria tarefa para si mesmo
+        $funcionario_id = $_SESSION['usuario_id'];
     }
 
     if (!empty($titulo) && !empty($projeto_id)) {
         $sql = "INSERT INTO tarefas (titulo, descricao, projeto_id, funcionario_id, prioridade, prazo) VALUES (?, ?, ?, ?, ?, ?)";
         $stmt = $conn->prepare($sql);
+        if (!$stmt) {
+            die("Erro ao preparar a consulta: " . $conn->error);
+        }
         $stmt->bind_param("ssiiss", $titulo, $descricao, $projeto_id, $funcionario_id, $prioridade, $prazo);
 
         if ($stmt->execute()) {
@@ -74,15 +77,16 @@ if ($_SERVER["REQUEST_METHOD"] === "POST") {
 }
 ?>
 
+
 <?php include '../sidebar.php'; ?>
 <!DOCTYPE html>
 <html lang="pt-BR">
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Criar Nova Tarefa - AugeBit</title>
     <link rel="stylesheet" href="../css/geral.css">
-    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
     <style>
         .main-content {
             max-width: 800px;
@@ -97,7 +101,7 @@ if ($_SERVER["REQUEST_METHOD"] === "POST") {
             border-radius: 12px;
             margin-bottom: 30px;
             text-align: center;
-            box-shadow: 0 4px 15px rgba(0,0,0,0.1);
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
         }
 
         .page-header h1 {
@@ -116,7 +120,7 @@ if ($_SERVER["REQUEST_METHOD"] === "POST") {
             background: white;
             padding: 40px;
             border-radius: 12px;
-            box-shadow: 0 2px 20px rgba(0,0,0,0.08);
+            box-shadow: 0 2px 20px rgba(0, 0, 0, 0.08);
             border: 1px solid #e1e5e9;
         }
 
@@ -237,24 +241,24 @@ if ($_SERVER["REQUEST_METHOD"] === "POST") {
             color: #721c24;
         }
 
-        .priority-option input[type="radio"]:checked + label {
+        .priority-option input[type="radio"]:checked+label {
             transform: scale(1.05);
-            box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
         }
 
-        .priority-option.baixa input[type="radio"]:checked + label {
+        .priority-option.baixa input[type="radio"]:checked+label {
             border-color: #6c757d;
             background: #6c757d;
             color: white;
         }
 
-        .priority-option.media input[type="radio"]:checked + label {
+        .priority-option.media input[type="radio"]:checked+label {
             border-color: #ffc107;
             background: #ffc107;
             color: #212529;
         }
 
-        .priority-option.alta input[type="radio"]:checked + label {
+        .priority-option.alta input[type="radio"]:checked+label {
             border-color: #dc3545;
             background: #dc3545;
             color: white;
@@ -346,25 +350,26 @@ if ($_SERVER["REQUEST_METHOD"] === "POST") {
             .main-content {
                 padding: 15px;
             }
-            
+
             .form-container {
                 padding: 25px 20px;
             }
-            
+
             .form-row {
                 grid-template-columns: 1fr;
             }
-            
+
             .btn-group {
                 flex-direction: column;
             }
-            
+
             .priority-options {
                 grid-template-columns: 1fr;
             }
         }
     </style>
 </head>
+
 <body>
     <div class="main-content">
         <div class="page-header">
@@ -386,13 +391,13 @@ if ($_SERVER["REQUEST_METHOD"] === "POST") {
                         <i class="fas fa-tag"></i> Título da Tarefa
                         <span class="required">*</span>
                     </label>
-                    <input type="text" 
-                           id="titulo" 
-                           name="titulo" 
-                           class="form-control" 
-                           placeholder="Digite um título claro e objetivo para a tarefa"
-                           maxlength="100"
-                           required>
+                    <input type="text"
+                        id="titulo"
+                        name="titulo"
+                        class="form-control"
+                        placeholder="Digite um título claro e objetivo para a tarefa"
+                        maxlength="100"
+                        required>
                     <div class="char-counter">
                         <span id="titulo-count">0</span>/100 caracteres
                     </div>
@@ -402,11 +407,11 @@ if ($_SERVER["REQUEST_METHOD"] === "POST") {
                     <label for="descricao">
                         <i class="fas fa-align-left"></i> Descrição da Tarefa
                     </label>
-                    <textarea id="descricao" 
-                              name="descricao" 
-                              class="form-control" 
-                              placeholder="Detalhe o que deve ser feito, critérios de aceitação e observações importantes..."
-                              maxlength="500"></textarea>
+                    <textarea id="descricao"
+                        name="descricao"
+                        class="form-control"
+                        placeholder="Detalhe o que deve ser feito, critérios de aceitação e observações importantes..."
+                        maxlength="500"></textarea>
                     <div class="char-counter">
                         <span id="descricao-count">0</span>/500 caracteres
                     </div>
@@ -434,22 +439,22 @@ if ($_SERVER["REQUEST_METHOD"] === "POST") {
                     </div>
 
                     <?php if ($_SESSION['usuario_tipo'] === 'admin'): ?>
-                    <div class="form-group">
-                        <label for="funcionario_id">
-                            <i class="fas fa-user"></i> Responsável
-                            <span class="required">*</span>
-                        </label>
-                        <div class="select-wrapper">
-                            <select id="funcionario_id" name="funcionario_id" class="form-control" required>
-                                <option value="">Selecione um funcionário</option>
-                                <?php while ($funcionario = $funcionarios->fetch_assoc()): ?>
-                                    <option value="<?= $funcionario['id'] ?>">
-                                        <?= htmlspecialchars($funcionario['nome']) ?>
-                                    </option>
-                                <?php endwhile; ?>
-                            </select>
+                        <div class="form-group">
+                            <label for="funcionario_id">
+                                <i class="fas fa-user"></i> Responsável
+                                <span class="required">*</span>
+                            </label>
+                            <div class="select-wrapper">
+                                <select id="funcionario_id" name="funcionario_id" class="form-control" required>
+                                    <option value="">Selecione um funcionário</option>
+                                    <?php while ($funcionario = $funcionarios->fetch_assoc()): ?>
+                                        <option value="<?= $funcionario['id'] ?>">
+                                            <?= htmlspecialchars($funcionario['nome']) ?>
+                                        </option>
+                                    <?php endwhile; ?>
+                                </select>
+                            </div>
                         </div>
-                    </div>
                     <?php endif; ?>
                 </div>
 
@@ -485,11 +490,11 @@ if ($_SERVER["REQUEST_METHOD"] === "POST") {
                         <label for="prazo">
                             <i class="fas fa-calendar-alt"></i> Prazo (Opcional)
                         </label>
-                        <input type="datetime-local" 
-                               id="prazo" 
-                               name="prazo" 
-                               class="form-control"
-                               min="<?= date('Y-m-d\TH:i') ?>">
+                        <input type="datetime-local"
+                            id="prazo"
+                            name="prazo"
+                            class="form-control"
+                            min="<?= date('Y-m-d\TH:i') ?>">
                     </div>
                 </div>
 
@@ -507,17 +512,8 @@ if ($_SERVER["REQUEST_METHOD"] === "POST") {
 
     <script>
         // Dados dos projetos para mostrar informações do cliente
-        const projetosData = {
-            <?php 
-            $projetos->data_seek(0); // Reset pointer
-            while ($p = $projetos->fetch_assoc()): 
-            ?>
-            <?= $p['id'] ?>: {
-                cliente: "<?= htmlspecialchars($p['cliente_nome']) ?>"
-            },
-            <?php endwhile; ?>
-        };
-
+        // VERSÃO CORRIGIDA - Segura e sem erros de sintaxe
+        const projetosData = <?= json_encode($projetos_para_js, JSON_UNESCAPED_UNICODE); ?>;
         // Elementos do formulário
         const form = document.getElementById('tarefaForm');
         const titulo = document.getElementById('titulo');
@@ -545,7 +541,7 @@ if ($_SERVER["REQUEST_METHOD"] === "POST") {
 
         projeto.addEventListener('change', function() {
             validateField(this);
-            
+
             if (this.value && projetosData[this.value]) {
                 clienteNome.textContent = projetosData[this.value].cliente;
                 projetoInfo.style.display = 'block';
@@ -568,17 +564,17 @@ if ($_SERVER["REQUEST_METHOD"] === "POST") {
         // Validação do formulário
         form.addEventListener('submit', function(e) {
             let isValid = true;
-            
+
             if (titulo.value.trim() === '') {
                 titulo.classList.add('is-invalid');
                 isValid = false;
             }
-            
+
             if (projeto.value === '') {
                 projeto.classList.add('is-invalid');
                 isValid = false;
             }
-            
+
             if (!isValid) {
                 e.preventDefault();
                 alert('Por favor, preencha todos os campos obrigatórios.');
@@ -592,4 +588,5 @@ if ($_SERVER["REQUEST_METHOD"] === "POST") {
         prazoInput.min = now.toISOString().slice(0, 16);
     </script>
 </body>
+
 </html>

@@ -20,52 +20,156 @@ $result_projetos = null;
 $upload_error = "";
 $upload_success = "";
 
-// Processar upload de arquivo
-if (isset($_POST['upload_arquivo'])) {
-    $projeto_id = $conn->real_escape_string($_POST['projeto_id'] ?? '');
+// FUNÇÃO CORRIGIDA: Obter URL correta para download
+function obterUrlDownload($caminho_arquivo, $projeto_id = null) {
+    // Base URL do diretório uploads
+    $base_url = '/augebit/uploads/';
     
-    if (empty($projeto_id)) {
-        $upload_error = "Por favor, selecione um projeto.";
-    } elseif (!isset($_FILES['arquivo']) || $_FILES['arquivo']['error'] !== 0) {
-        $upload_error = "Por favor, selecione um arquivo válido.";
-    } else {
-        $arquivo = $_FILES['arquivo'];
-        $nome_arquivo = basename($arquivo['name']);
-        $extensao = strtolower(pathinfo($nome_arquivo, PATHINFO_EXTENSION));
+    // Se o caminho já é uma URL completa, retornar como está
+    if (strpos($caminho_arquivo, 'http') === 0) {
+        return $caminho_arquivo;
+    }
+    
+    // Se contém 'uploads/' no caminho, extrair a parte após 'uploads/'
+    if (strpos($caminho_arquivo, 'uploads/') !== false) {
+        $parte_arquivo = substr($caminho_arquivo, strpos($caminho_arquivo, 'uploads/') + 8);
+        return $base_url . $parte_arquivo;
+    }
+    
+    // Se é apenas o nome do arquivo e temos projeto_id
+    if (strpos($caminho_arquivo, '/') === false && $projeto_id) {
+        // Buscar o nome da pasta do projeto
+        global $conn;
+        $sql_projeto = "SELECT titulo FROM projetos WHERE id = ?";
+        $stmt = $conn->prepare($sql_projeto);
+        $stmt->bind_param("i", $projeto_id);
+        $stmt->execute();
+        $result = $stmt->get_result();
         
-        // Validar extensão
-        $extensoes_permitidas = ['pdf', 'doc', 'docx', 'txt', 'jpg', 'jpeg', 'png', 'gif', 'zip', 'rar'];
-        if (!in_array($extensao, $extensoes_permitidas)) {
-            $upload_error = "Tipo de arquivo não permitido.";
+        if ($result->num_rows > 0) {
+            $projeto = $result->fetch_assoc();
+            $nome_projeto_formatado = str_replace(' ', '_', $projeto['titulo']);
+            $pasta_projeto = $nome_projeto_formatado . '_' . $projeto_id;
+            return $base_url . $pasta_projeto . '/' . $caminho_arquivo;
+        }
+    }
+    
+    // Para outros casos, tentar o caminho direto
+    return $base_url . $caminho_arquivo;
+}
+
+// FUNÇÃO CORRIGIDA: Verificar se arquivo existe fisicamente
+function verificarArquivoExiste($caminho_arquivo, $projeto_id = null) {
+    $documento_root = $_SERVER['DOCUMENT_ROOT'];
+    
+    // Lista de caminhos possíveis para verificar
+    $caminhos_possiveis = [];
+    
+    // Se é apenas nome do arquivo e temos projeto_id
+    if (strpos($caminho_arquivo, '/') === false && $projeto_id) {
+        global $conn;
+        $sql_projeto = "SELECT titulo FROM projetos WHERE id = ?";
+        $stmt = $conn->prepare($sql_projeto);
+        $stmt->bind_param("i", $projeto_id);
+        $stmt->execute();
+        $result = $stmt->get_result();
+        
+        if ($result->num_rows > 0) {
+            $projeto = $result->fetch_assoc();
+            $nome_projeto_formatado = str_replace(' ', '_', $projeto['titulo']);
+            $pasta_projeto = $nome_projeto_formatado . '_' . $projeto_id;
+            $caminhos_possiveis[] = $documento_root . '/augebit/uploads/' . $pasta_projeto . '/' . $caminho_arquivo;
+        }
+    }
+    
+    // Outros caminhos possíveis
+    $caminhos_possiveis[] = $documento_root . '/augebit/uploads/' . $caminho_arquivo;
+    $caminhos_possiveis[] = $documento_root . $caminho_arquivo;
+    
+    if (strpos($caminho_arquivo, 'uploads/') !== false) {
+        $parte_arquivo = substr($caminho_arquivo, strpos($caminho_arquivo, 'uploads/') + 8);
+        $caminhos_possiveis[] = $documento_root . '/augebit/uploads/' . $parte_arquivo;
+    }
+    
+    foreach ($caminhos_possiveis as $caminho) {
+        if (file_exists($caminho)) {
+            return $caminho;
+        }
+    }
+    
+    return false;
+}
+
+// Processar upload de arquivo
+if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['enviar_documentos'])) {
+    $projeto_id = (int)$_POST['projeto_id'];
+    
+    if ($projeto_id <= 0) {
+        $upload_error = "Selecione um projeto válido.";
+    } else {
+        // Verificar se o funcionário tem acesso ao projeto
+        $verificar_acesso = $conn->prepare("SELECT COUNT(*) as tem_acesso FROM tarefas WHERE projeto_id = ? AND funcionario_id = ?");
+        $verificar_acesso->bind_param("ii", $projeto_id, $funcionario_id);
+        $verificar_acesso->execute();
+        $acesso_result = $verificar_acesso->get_result();
+        $tem_acesso = $acesso_result->fetch_assoc()['tem_acesso'] > 0;
+        $verificar_acesso->close();
+        
+        if (!$tem_acesso) {
+            $upload_error = "Você não tem permissão para enviar arquivos para este projeto.";
         } else {
-            // Gerar nome único para o arquivo
-            $nome_unico = uniqid() . '_' . $nome_arquivo;
-            $caminho_arquivo = '../uploads/' . $nome_unico;
+            // Buscar título do projeto para criar diretório
+            $projeto_stmt = $conn->prepare("SELECT titulo FROM projetos WHERE id = ?");
+            $projeto_stmt->bind_param("i", $projeto_id);
+            $projeto_stmt->execute();
+            $projeto_result = $projeto_stmt->get_result();
             
-            // Criar diretório se não existir
-            if (!file_exists('../uploads/')) {
-                mkdir('../uploads/', 0777, true);
-            }
-            
-            if (move_uploaded_file($arquivo['tmp_name'], $caminho_arquivo)) {
-                // Salvar no banco de dados
-                $sql = "INSERT INTO uploads (projeto_id, nome_arquivo, caminho_arquivo, tipo, enviado_por, data_upload) VALUES (?, ?, ?, 'funcionario', ?, NOW())";
-                $stmt = $conn->prepare($sql);
-                $stmt->bind_param("issi", $projeto_id, $nome_arquivo, $caminho_arquivo, $funcionario_id);
+            if ($projeto_data = $projeto_result->fetch_assoc()) {
+                $titulo_projeto = $projeto_data['titulo'];
                 
-                if ($stmt->execute()) {
-                    $upload_success = "Arquivo enviado com sucesso!";
+                // Configurar processador de upload
+                $upload_config = [
+                    'max_file_size' => 50 * 1024 * 1024, // 50MB
+                    'allowed_types' => [
+                        'image/jpeg', 'image/jpg', 'image/png', 'image/gif', 'image/webp', 'image/bmp',
+                        'application/pdf', 'application/msword', 'application/vnd.openxmlformats-officedocument.wordprocessingml.document',
+                        'application/vnd.ms-excel', 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet',
+                        'text/plain', 'application/zip', 'application/x-rar-compressed'
+                    ],
+                    'allowed_extensions' => ['jpg', 'jpeg', 'png', 'gif', 'webp', 'bmp', 'pdf', 'doc', 'docx', 'xls', 'xlsx', 'txt', 'zip', 'rar'],
+                    'upload_dir' => '../uploads/',
+                    'field_name' => 'documentos'
+                ];
+                
+                // Verificar se o arquivo upload_processor.php existe
+                if (file_exists('../includes/upload_processor.php')) {
+                    require_once '../includes/upload_processor.php';
+                    
+                    $processor = new UploadProcessor($upload_config);
+                    $resultado = $processor->processarMultiplosArquivos($projeto_id, $titulo_projeto);
+                    
+                    if ($resultado['sucesso'] && $resultado['arquivos_processados'] > 0) {
+                        // Atualizar tabela uploads com informações do usuário funcionário
+                        $update_uploads = $conn->prepare("UPDATE uploads SET enviado_por = ? WHERE projeto_id = ? AND enviado_por IS NULL");
+                        $update_uploads->bind_param("ii", $funcionario_id, $projeto_id);
+                        $update_uploads->execute();
+                        
+                        $upload_success = $resultado['mensagem'];
+                    } else {
+                        $upload_error = !empty($resultado['erros']) ? implode("<br>", $resultado['erros']) : "Erro ao processar arquivos.";
+                    }
                 } else {
-                    $upload_error = "Erro ao salvar arquivo no banco de dados.";
-                    unlink($caminho_arquivo); // Remove arquivo se falhou no banco
+                    // Fallback para upload simples se o processor não existir
+                    $upload_error = "Sistema de upload não está disponível. Entre em contato com o administrador.";
                 }
-                $stmt->close();
             } else {
-                $upload_error = "Erro ao fazer upload do arquivo.";
+                $upload_error = "Projeto não encontrado.";
             }
+            $projeto_stmt->close();
         }
     }
 }
+
 
 // Buscar tarefas do funcionário
 if ($funcionario_id) {
@@ -79,8 +183,8 @@ if ($funcionario_id) {
     $stmt_tarefas->execute();
     $result_tarefas = $stmt_tarefas->get_result();
 
-    // Buscar documentos dos projetos que participa
-    $sql_documentos = "SELECT DISTINCT u.id, u.nome_arquivo, u.caminho_arquivo, u.data_upload, p.titulo as projeto_nome 
+    // CONSULTA CORRIGIDA: Buscar documentos dos projetos que participa
+    $sql_documentos = "SELECT DISTINCT u.id, u.nome_arquivo, u.caminho_arquivo, u.data_upload, u.projeto_id, p.titulo as projeto_nome 
     FROM uploads u 
     INNER JOIN projetos p ON u.projeto_id = p.id 
     INNER JOIN tarefas t ON t.projeto_id = p.id 
@@ -132,8 +236,7 @@ function getPriorityColor($prioridade) {
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Dashboard - Funcionário</title>
     <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
-    <style>
-        :root {
+    <style>:root {
             --primary-color: #9999FF;
             --secondary-color: #f8f9fa;
             --accent-color: #6c5ce7;
@@ -710,9 +813,7 @@ margin-top: 90px;
 
 .redescociais img:hover {
   transform: scale(1.2);
-}
-    </style>
-   
+}</style>   
 </head>
 <body>
    <header>
@@ -732,13 +833,6 @@ margin-top: 90px;
         <h1>Dashboard - Funcionário</h1>
         <div class="user-info">
             <span>Bem-vindo, <?php echo htmlspecialchars($funcionario_nome); ?>!</span>
-            <a href="../logout.php" class="logout-btn">
-                <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" viewBox="0 0 16 16">
-                    <path fill-rule="evenodd" d="M10 12.5a.5.5 0 0 1-.5.5h-8a.5.5 0 0 1-.5-.5v-9a.5.5 0 0 1 .5-.5h8a.5.5 0 0 1 .5.5v2a.5.5 0 0 0 1 0v-2A1.5 1.5 0 0 0 9.5 2h-8A1.5 1.5 0 0 0 0 3.5v9A1.5 1.5 0 0 0 1.5 14h8a1.5 1.5 0 0 0 1.5-1.5v-2a.5.5 0 0 0-1 0v2z"/>
-                    <path fill-rule="evenodd" d="M15.854 8.354a.5.5 0 0 0 0-.708l-3-3a.5.5 0 0 0-.708.708L14.293 7.5H5.5a.5.5 0 0 0 0 1h8.793l-2.147 2.146a.5.5 0 0 0 .708.708l3-3z"/>
-                </svg>
-                Sair
-            </a>
         </div>
     </div>
 
@@ -835,7 +929,7 @@ margin-top: 90px;
             <?php endif; ?>
         </div>
 
-        <!-- Seção de Documentos -->
+        <!-- Seção de Documentos CORRIGIDA -->
         <div class="section">
             <h2>Documentos dos Projetos</h2>
             
@@ -846,6 +940,7 @@ margin-top: 90px;
                             <th>Nome do Arquivo</th>
                             <th>Projeto</th>
                             <th>Data de Upload</th>
+                            <th>Status</th>
                             <th>Ação</th>
                         </tr>
                     </thead>
@@ -856,16 +951,51 @@ margin-top: 90px;
                                 <td><?php echo htmlspecialchars($documento['projeto_nome']); ?></td>
                                 <td><?php echo date('d/m/Y H:i', strtotime($documento['data_upload'])); ?></td>
                                 <td>
-                                    <a href="<?php echo htmlspecialchars($documento['caminho_arquivo']); ?>" 
-                                       class="btn btn-download" 
-                                       download="<?php echo htmlspecialchars($documento['nome_arquivo']); ?>"
-                                       target="_blank">
-                                        <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" viewBox="0 0 16 16">
-                                            <path d="M.5 9.9a.5.5 0 0 1 .5.5v2.5a1 1 0 0 0 1 1h12a1 1 0 0 0 1-1v-2.5a.5.5 0 0 1 1 0v2.5a2 2 0 0 1-2 2H2a2 2 0 0 1-2-2v-2.5a.5.5 0 0 1 .5-.5z"/>
-                                            <path d="M7.646 11.854a.5.5 0 0 0 .708 0l3-3a.5.5 0 0 0-.708-.708L8.5 10.293V1.5a.5.5 0 0 0-1 0v8.793L5.354 8.146a.5.5 0 1 0-.708.708l3 3z"/>
-                                        </svg>
-                                        Download
-                                    </a>
+                                    <?php 
+                                    $caminho_fisico = verificarArquivoExiste($documento['caminho_arquivo'], $documento['projeto_id']);
+                                    if ($caminho_fisico): 
+                                    ?>
+                                        <span style="color: #28a745;">Disponível</span>
+                                    <?php else: ?>
+                                        <span style="color: #dc3545;">Não encontrado</span>
+                                    <?php endif; ?>
+                                </td>
+                                <td>
+                                    <?php if ($caminho_fisico): ?>
+                                        <?php 
+                                        $url_download = obterUrlDownload($documento['caminho_arquivo'], $documento['projeto_id']);
+                                        $extensao = strtolower(pathinfo($documento['nome_arquivo'], PATHINFO_EXTENSION));
+                                        ?>
+                                        
+                                        <!-- Botão de Visualizar (para PDFs e imagens) -->
+                                        <?php if (in_array($extensao, ['pdf', 'jpg', 'jpeg', 'png', 'gif'])): ?>
+                                            <a href="<?php echo htmlspecialchars($url_download); ?>" 
+                                               class="btn btn-secondary" 
+                                               target="_blank"
+                                               title="Visualizar arquivo">
+                                                <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" viewBox="0 0 16 16">
+                                                    <path d="M10.5 8a2.5 2.5 0 1 1-5 0 2.5 2.5 0 0 1 5 0z"/>
+                                                    <path d="M0 8s3-5.5 8-5.5S16 8 16 8s-3 5.5-8 5.5S0 8 0 8zm8 3.5a3.5 3.5 0 1 0 0-7 3.5 3.5 0 0 0 0 7z"/>
+                                                </svg>
+                                                Ver
+                                            </a>
+                                        <?php endif; ?>
+                                        
+                                        <!-- Botão de Download -->
+                                        <a href="<?php echo htmlspecialchars($url_download); ?>" 
+                                           class="btn btn-download" 
+                                           download="<?php echo htmlspecialchars($documento['nome_arquivo']); ?>"
+                                           title="Baixar arquivo">
+                                            <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" viewBox="0 0 16 16">
+                                                <path d="M.5 9.9a.5.5 0 0 1 .5.5v2.5a1 1 0 0 0 1 1h12a1 1 0 0 0 1-1v-2.5a.5.5 0 0 1 1 0v2.5a2 2 0 0 1-2 2H2a2 2 0 0 1-2-2v-2.5a.5.5 0 0 1 .5-.5z"/>
+                                                <path d="M7.646 11.854a.5.5 0 0 0 .708 0l3-3a.5.5 0 0 0-.708-.708L8.5 10.293V1.5a.5.5 0 0 0-1 0v8.793L5.354 8.146a.5.5 0 1 0-.708.708l3 3z"/>
+                                            </svg>
+                                            Download
+                                        </a>
+                                    
+                                    <?php else: ?>
+                                        <span style="color: #dc3545; font-size: 12px;">Arquivo não encontrado no servidor</span>
+                                    <?php endif; ?>
                                 </td>
                             </tr>
                         <?php endwhile; ?>
@@ -884,66 +1014,96 @@ margin-top: 90px;
 
         <!-- Seção de Upload de Arquivos -->
         <div class="section">
-            <h2>Enviar Arquivo</h2>
-            
-            <?php if (!empty($upload_error)): ?>
-                <div class="alert alert-error">
-                    <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" fill="currentColor" viewBox="0 0 16 16">
-                        <path d="M8.982 1.566a1.13 1.13 0 0 0-1.96 0L.165 13.233c-.457.778.091 1.767.98 1.767h13.713c.889 0 1.438-.99.98-1.767L8.982 1.566zM8 5c.535 0 .954.462.9.995l-.35 3.507a.552.552 0 0 1-1.1 0L7.1 5.995A.905.905 0 0 1 8 5zm.002 6a1 1 0 1 1 0 2 1 1 0 0 1 0-2z"/>
-                    </svg>
-                    <?php echo htmlspecialchars($upload_error); ?>
-                </div>
-            <?php endif; ?>
-            
-            <?php if (!empty($upload_success)): ?>
-                <div class="alert alert-success">
-                    <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" fill="currentColor" viewBox="0 0 16 16">
-                        <path d="M16 8A8 8 0 1 1 0 8a8 8 0 0 1 16 0zm-3.97-3.03a.75.75 0 0 0-1.08.022L7.477 9.417 5.384 7.323a.75.75 0 0 0-1.06 1.06L6.97 11.03a.75.75 0 0 0 1.079-.02l3.992-4.99a.75.75 0 0 0-.01-1.05z"/>
-                    </svg>
-                    <?php echo htmlspecialchars($upload_success); ?>
-                </div>
-            <?php endif; ?>
-
-            <div class="upload-form">
-                <form method="POST" enctype="multipart/form-data">
-                    <div class="form-group">
-                        <label for="projeto_id">Projeto</label>
-                        <select name="projeto_id" id="projeto_id" required>
-                            <option value="">Selecione um projeto...</option>
-                            <?php 
-                            if ($result_projetos) {
-                                $result_projetos->data_seek(0);
-                                while ($projeto = $result_projetos->fetch_assoc()): 
-                            ?>
-                                <option value="<?php echo $projeto['id']; ?>">
-                                    <?php echo htmlspecialchars($projeto['titulo']); ?>
-                                </option>
-                            <?php 
-                                endwhile;
-                            }
-                            ?>
-                        </select>
-                    </div>
-                    
-                    <div class="form-group">
-                        <label for="arquivo">Arquivo</label>
-                        <input type="file" name="arquivo" id="arquivo" required 
-                               accept=".pdf,.doc,.docx,.txt,.jpg,.jpeg,.png,.gif,.zip,.rar">
-                        <small style="color: var(--light-text); font-size: 0.875rem;">
-                            Formatos permitidos: PDF, DOC, DOCX, TXT, JPG, JPEG, PNG, GIF, ZIP, RAR
-                        </small>
-                    </div>
-                    
-                    <button type="submit" name="upload_arquivo" class="btn btn-success">
-                        <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" viewBox="0 0 16 16">
-                            <path d="M.5 9.9a.5.5 0 0 1 .5.5v2.5a1 1 0 0 0 1 1h12a1 1 0 0 0 1-1v-2.5a.5.5 0 0 1 1 0v2.5a2 2 0 0 1-2 2H2a2 2 0 0 1-2-2v-2.5a.5.5 0 0 1 .5-.5z"/>
-                            <path d="M7.646 11.854a.5.5 0 0 0 .708 0l3-3a.5.5 0 0 0-.708-.708L8.5 10.293V1.5a.5.5 0 0 0-1 0v8.793L5.354 8.146a.5.5 0 1 0-.708.708l3 3z"/>
-                        </svg>
-                        Enviar Arquivo
-                    </button>
-                </form>
-            </div>
+    <h2>Enviar Documentos</h2>
+    
+    <?php if (!empty($upload_error)): ?>
+        <div class="alert alert-error">
+            <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" fill="currentColor" viewBox="0 0 16 16">
+                <path d="M8.982 1.566a1.13 1.13 0 0 0-1.96 0L.165 13.233c-.457.778.091 1.767.98 1.767h13.713c.889 0 1.438-.99.98-1.767L8.982 1.566zM8 5c.535 0 .954.462.9.995l-.35 3.507a.552.552 0 0 1-1.1 0L7.1 5.995A.905.905 0 0 1 8 5zm.002 6a1 1 0 1 1 0 2 1 1 0 0 1 0-2z"/>
+            </svg>
+            <?php echo $upload_error; ?>
         </div>
+    <?php endif; ?>
+    
+    <?php if (!empty($upload_success)): ?>
+        <div class="alert alert-success">
+            <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" fill="currentColor" viewBox="0 0 16 16">
+                <path d="M16 8A8 8 0 1 1 0 8a8 8 0 0 1 16 0zm-3.97-3.03a.75.75 0 0 0-1.08.022L7.477 9.417 5.384 7.323a.75.75 0 0 0-1.06 1.06L6.97 11.03a.75.75 0 0 0 1.079-.02l3.992-4.99a.75.75 0 0 0-.01-1.05z"/>
+            </svg>
+            <?php echo htmlspecialchars($upload_success); ?>
+        </div>
+    <?php endif; ?>
+
+    <div class="upload-form">
+        <form method="POST" enctype="multipart/form-data">
+            <div class="form-group">
+                <label for="projeto_id">Projeto</label>
+                <select name="projeto_id" id="projeto_id" required>
+                    <option value="">-- Selecione um projeto --</option>
+                    <?php 
+                    if ($result_projetos) {
+                        $result_projetos->data_seek(0);
+                        while ($projeto = $result_projetos->fetch_assoc()): 
+                    ?>
+                        <option value="<?php echo $projeto['id']; ?>">
+                            #<?php echo $projeto['id']; ?> - <?php echo htmlspecialchars($projeto['titulo']); ?>
+                        </option>
+                    <?php 
+                        endwhile;
+                    }
+                    ?>
+                </select>
+            </div>
+
+            <?php
+            // Incluir o sistema de upload de múltiplos arquivos
+            if (file_exists('../includes/upload_files_include.php')) {
+                // Configurar o include de upload
+                $upload_config = [
+                    'max_file_size' => 50 * 1024 * 1024, // 50MB
+                    'allowed_types' => [
+                        'image/jpeg', 'image/jpg', 'image/png', 'image/gif', 'image/webp', 'image/bmp',
+                        'application/pdf', 'application/msword', 'application/vnd.openxmlformats-officedocument.wordprocessingml.document',
+                        'application/vnd.ms-excel', 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet',
+                        'text/plain', 'application/zip', 'application/x-rar-compressed'
+                    ],
+                    'allowed_extensions' => ['jpg', 'jpeg', 'png', 'gif', 'webp', 'bmp', 'pdf', 'doc', 'docx', 'xls', 'xlsx', 'txt', 'zip', 'rar'],
+                    'field_name' => 'documentos',
+                    'label' => 'Documentos do Projeto:',
+                    'accept_attr' => '.jpg,.jpeg,.png,.gif,.webp,.bmp,.pdf,.doc,.docx,.xls,.xlsx,.txt,.zip,.rar',
+                    'description' => 'Tipos aceitos: Imagens, PDFs, Documentos do Office, Arquivos de texto, ZIPs<br>Tamanho máximo por arquivo: 50MB',
+                    'multiple' => true,
+                    'required' => true
+                ];
+                $upload_id = 'funcionario_upload';
+                include '../includes/upload_files_include.php';
+            } else {
+                // Fallback para input simples se o include não existir
+                ?>
+                <div class="form-group">
+                    <label for="documentos">Arquivos</label>
+                    <input type="file" name="documentos[]" id="documentos" multiple required 
+                           accept=".jpg,.jpeg,.png,.gif,.webp,.bmp,.pdf,.doc,.docx,.xls,.xlsx,.txt,.zip,.rar">
+                    <small style="color: var(--light-text); font-size: 0.875rem;">
+                        Formatos permitidos: JPG, PNG, PDF, DOC, DOCX, XLS, XLSX, TXT, ZIP, RAR (Máx: 50MB por arquivo)
+                    </small>
+                </div>
+                <?php
+            }
+            ?>
+            
+            <div style="margin-top: 30px;">
+                <button type="submit" name="enviar_documentos" class="btn btn-success">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" viewBox="0 0 16 16">
+                        <path d="M.5 9.9a.5.5 0 0 1 .5.5v2.5a1 1 0 0 0 1 1h12a1 1 0 0 0 1-1v-2.5a.5.5 0 0 1 1 0v2.5a2 2 0 0 1-2 2H2a2 2 0 0 1-2-2v-2.5a.5.5 0 0 1 .5-.5z"/>
+                        <path d="M7.646 11.854a.5.5 0 0 0 .708 0l3-3a.5.5 0 0 0-.708-.708L8.5 10.293V1.5a.5.5 0 0 0-1 0v8.793L5.354 8.146a.5.5 0 1 0-.708.708l3 3z"/>
+                    </svg>
+                    Enviar Documentos
+                </button>
+            </div>
+        </form>
+    </div>
+</div>
     </div>
 <footer class="rodape">
     <div class="pages">
@@ -971,5 +1131,55 @@ margin-top: 90px;
     if (isset($stmt_projetos)) $stmt_projetos->close();
     if (isset($conn)) $conn->close();
     ?>
+    <script>
+// Adicionar validação JavaScript se o sistema de upload avançado estiver disponível
+if (typeof getSelectedFiles_funcionario_upload === 'function') {
+    // Adicionar confirmação antes do envio
+    document.querySelector('form').addEventListener('submit', function(e) {
+        const arquivos = getSelectedFiles_funcionario_upload();
+        const projeto = document.getElementById('projeto_id').value;
+        
+        if (!projeto) {
+            alert('Por favor, selecione um projeto antes de enviar os documentos.');
+            e.preventDefault();
+            return;
+        }
+        
+        if (arquivos.length === 0) {
+            alert('Por favor, selecione pelo menos um arquivo para enviar.');
+            e.preventDefault();
+            return;
+        }
+        
+        const confirmacao = confirm(`Deseja enviar ${arquivos.length} arquivo(s) para o projeto selecionado?`);
+        if (!confirmacao) {
+            e.preventDefault();
+        }
+    });
+} else {
+    // Validação simples para fallback
+    document.querySelector('form').addEventListener('submit', function(e) {
+        const projeto = document.getElementById('projeto_id').value;
+        const arquivos = document.getElementById('documentos') ? document.getElementById('documentos').files : [];
+        
+        if (!projeto) {
+            alert('Por favor, selecione um projeto antes de enviar os documentos.');
+            e.preventDefault();
+            return;
+        }
+        
+        if (arquivos.length === 0) {
+            alert('Por favor, selecione pelo menos um arquivo para enviar.');
+            e.preventDefault();
+            return;
+        }
+        
+        const confirmacao = confirm(`Deseja enviar ${arquivos.length} arquivo(s) para o projeto selecionado?`);
+        if (!confirmacao) {
+            e.preventDefault();
+        }
+    });
+}
+</script>
 </body>
 </html>

@@ -2,9 +2,7 @@
     margin-left: 300px; /* mesma largura da sidebar */
     padding: 2rem;
 }
-a {
-    text-decoration: none;
-}
+
 @font-face {
     font-family: 'Poppins';
     src: url('../../assets/fonte/Poppins-SemiBold.ttf') format('truetype');
@@ -35,3 +33,31 @@ a {
     src: url('../../assets/fonte/Poppins-ExtraLight.ttf') format('truetype');
     font-weight: 200;
   }
+  a {
+    text-decoration: none;
+    font-family: 'Poppins';
+}
+h1 {
+  font-family: 'Poppins';
+  font-weight: 400px;
+}
+h2 {
+  font-family: 'Poppins';
+  font-weight: 200px;
+}
+h3 {
+  font-family: 'Poppins';
+  font-weight: 200px;
+}
+p {
+  font-family: 'Poppins';
+  font-weight: 100px;
+}
+label {
+  font-family: 'Poppins';
+  font-weight: 200px;
+}
+textarea {
+  font-family: 'Poppins';
+  font-weight: 200px;
+}

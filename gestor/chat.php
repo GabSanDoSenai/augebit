@@ -10,5 +10,6 @@
 </head>
 <body>
     <div class="main-content"></div>
+    <img src="../../assets/img/icones/logout.png" alt="">
 </body>
 </html>

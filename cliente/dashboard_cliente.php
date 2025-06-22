@@ -818,7 +818,8 @@ p{
         <nav>       
             <ul>         
                 <li><a href="../index.php" class="active">Home</a></li>         
-                <li><a href="#projects-section" class="acount">Projetos</a></li>         
+                <li><a href="#projects-section" class="acount">Projetos</a></li>
+                <li><a href="chat.php" class="bate-papo">Chat</a></li>          
                 <li><a href="../logout.php" class="contato">Sair</a></li>    
             </ul>     
         </nav>   
@@ -827,7 +828,7 @@ p{
     <div class="dashboard">
         <section class="greeting">
             <h1>Olá <span class="username"><?php echo htmlspecialchars($nome_cliente); ?></span></h1>
-            <a href="solicitar_projeto.php" class="new-project-btn">Solicitar novo projeto</a>
+            <a href="solicitar_projeto.php" style="text-decoration:none" class="new-project-btn">Solicitar novo projeto</a>
         </section>
         
         <section id="projects-section" class="projects-section">
@@ -968,7 +969,8 @@ p{
                 <h2>Precisa conversar?</h2>
                 <p>Acesse o chat</p>
             </div>
-            <button>Acesse aqui</button>
+            <button>
+            <a href="chat.php" style="text-decoration: none; color: white;">Acesse aqui</a>
         </section>
 
         <section id="contato-section" class="contatos">

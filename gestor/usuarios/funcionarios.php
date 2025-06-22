@@ -14,16 +14,16 @@ $tipo_mensagem = '';
 // Processar exclusão de funcionário
 if (isset($_GET['excluir']) && is_numeric($_GET['excluir'])) {
     $funcionario_id = (int)$_GET['excluir'];
-    
+
     // Verificar se o funcionário existe
     $stmt = $conn->prepare("SELECT nome FROM usuarios WHERE id = ? AND tipo = 'funcionario'");
     $stmt->bind_param("i", $funcionario_id);
     $stmt->execute();
     $resultado = $stmt->get_result();
-    
+
     if ($resultado->num_rows > 0) {
         $funcionario = $resultado->fetch_assoc();
-        
+
         // Verificar se o funcionário tem projetos ou tarefas associadas
         $stmt_check = $conn->prepare("
             SELECT 
@@ -34,7 +34,7 @@ if (isset($_GET['excluir']) && is_numeric($_GET['excluir'])) {
         $stmt_check->execute();
         $check_result = $stmt_check->get_result();
         $check_data = $check_result->fetch_assoc();
-        
+
         if ($check_data['projetos'] > 0 || $check_data['tarefas'] > 0) {
             $mensagem = "Não é possível excluir o funcionário " . htmlspecialchars($funcionario['nome']) . " pois ele possui projetos ou tarefas associadas.";
             $tipo_mensagem = 'erro';
@@ -42,7 +42,7 @@ if (isset($_GET['excluir']) && is_numeric($_GET['excluir'])) {
             // Excluir funcionário
             $stmt_delete = $conn->prepare("DELETE FROM usuarios WHERE id = ? AND tipo = 'funcionario'");
             $stmt_delete->bind_param("i", $funcionario_id);
-            
+
             if ($stmt_delete->execute()) {
                 $mensagem = "Funcionário " . htmlspecialchars($funcionario['nome']) . " excluído com sucesso!";
                 $tipo_mensagem = 'sucesso';
@@ -81,193 +81,463 @@ $funcionarios = $stmt->get_result();
 
 <!DOCTYPE html>
 <html lang="pt-BR">
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Gerenciar Funcionários - AugeBit</title>
     <link rel="stylesheet" href="../css/geral.css">
     <style>
-        .mensagem {
-            padding: 12px;
-            margin: 20px 0;
-            border-radius: 4px;
-            font-weight: bold;
+        /* Estilos para mensagens de feedback */
+        .message {
+            padding: 18px 24px;
+            margin-bottom: 28px;
+            border-radius: 12px;
+            border: none;
+            box-shadow: 0 4px 20px rgba(153, 153, 255, 0.15);
+            animation: slideIn 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+            position: relative;
+            overflow: hidden;
         }
-        
-        .mensagem.sucesso {
-            background-color: #d4edda;
-            color: #155724;
-            border: 1px solid #c3e6cb;
+
+        .message::before {
+            content: '';
+            position: absolute;
+            left: 0;
+            top: 0;
+            bottom: 0;
+            width: 4px;
+            background: linear-gradient(180deg, #9999FF, #7777FF);
         }
-        
-        .mensagem.erro {
-            background-color: #f8d7da;
-            color: #721c24;
-            border: 1px solid #f5c6cb;
+
+        .message.success {
+            background: linear-gradient(135deg, #f8f9ff 0%, #f0f2ff 100%);
+            color: #4a4aff;
+            border-left: 4px solid #6666ff;
         }
-        
-        .tabela-funcionarios {
-            width: 100%;
-            border-collapse: collapse;
-            margin-top: 20px;
-            background-color: white;
-            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+
+        .message.success::before {
+            background: linear-gradient(180deg, #66ff66, #44dd44);
         }
-        
-        .tabela-funcionarios th,
-        .tabela-funcionarios td {
-            padding: 12px;
-            text-align: left;
-            border-bottom: 1px solid #ddd;
+
+        .message.error {
+            background: linear-gradient(135deg, #fff8f8 0%, #fff0f0 100%);
+            color: #dd4444;
+            border-left: 4px solid #ff6666;
         }
-        
-        .tabela-funcionarios th {
-            background-color: #f8f9fa;
-            font-weight: bold;
-            color: #495057;
+
+        .message.error::before {
+            background: linear-gradient(180deg, #ff6666, #dd4444);
         }
-        
-        .tabela-funcionarios tr:hover {
-            background-color: #f8f9fa;
+
+        /* Estilos para as pílulas de estatísticas dos funcionários */
+        .funcionario-stats {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 8px;
+            align-items: center;
         }
-        
-        .btn {
+
+        .stat-pill {
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
             padding: 6px 12px;
-            text-decoration: none;
-            border-radius: 4px;
             font-size: 12px;
-            margin-right: 5px;
-            display: inline-block;
+            font-weight: 600;
+            border-radius: 20px;
+            background: linear-gradient(135deg, #f0f2ff 0%, #e6e9ff 100%);
+            color: #5555dd;
+            border: 1px solid #ccccff;
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+            position: relative;
+            overflow: hidden;
         }
-        
-        
-        .btn-excluir {
-            background-color: #dc3545;
-            color: white;
+
+        .stat-pill::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: -100%;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.4), transparent);
+            transition: left 0.5s;
         }
-        
-        .btn-ver {
-            background-color: #28a745;
-            color: white;
+
+        .stat-pill:hover {
+            background: linear-gradient(135deg, #e6e9ff 0%, #d9ddff 100%);
+            border-color: #9999ff;
+            transform: translateY(-1px);
+            box-shadow: 0 4px 12px rgba(153, 153, 255, 0.25);
         }
-        
-        .btn:hover {
+
+        .stat-pill:hover::before {
+            left: 100%;
+        }
+
+        .stat-pill svg {
+            width: 14px;
+            height: 14px;
             opacity: 0.8;
         }
-        
-        .acoes {
-            white-space: nowrap;
+
+        /* Melhorias na tabela */
+        .table-container {
+            background: linear-gradient(135deg, #ffffff 0%, #fafbff 100%);
+            border-radius: 16px;
+            box-shadow: 0 8px 32px rgba(153, 153, 255, 0.1);
+            overflow: hidden;
+            border: 1px solid #e6e9ff;
         }
-        
-        .stats {
-            font-size: 11px;
-            color: #666;
+
+        .table-responsive table {
+            width: 100%;
+            border-collapse: collapse;
         }
-        
-        .header-actions {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            margin-bottom: 20px;
+
+        .table-responsive thead {
+            background: linear-gradient(135deg, #9999ff 0%, #7777ff 100%);
         }
-        
-        .btn-novo {
-            background-color: #28a745;
+
+        .table-responsive thead th {
+            padding: 16px 20px;
             color: white;
-            padding: 10px 20px;
-            text-decoration: none;
-            border-radius: 4px;
-            font-weight: bold;
+            font-weight: 600;
+            font-size: 14px;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            border: none;
         }
-        
-        .sem-funcionarios {
+
+        .table-responsive tbody tr {
+            transition: all 0.3s ease;
+            border-bottom: 1px solid #f0f2ff;
+        }
+
+        .table-responsive tbody tr:hover {
+            background: linear-gradient(135deg, #f8f9ff 0%, #f0f2ff 100%);
+            transform: translateX(2px);
+        }
+
+        .table-responsive tbody tr:last-child {
+            border-bottom: none;
+        }
+
+        .table-responsive tbody td {
+            padding: 16px 20px;
+            color: #4a4a7a;
+            font-size: 14px;
+            border: none;
+        }
+
+        .table-responsive tbody td strong {
+            color: #333366;
+            font-weight: 600;
+        }
+
+        /* Melhorias nos botões de ação */
+        .table-actions {
+            display: flex;
+            gap: 8px;
+            justify-content: center;
+        }
+
+        .action-link {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            width: 36px;
+            height: 36px;
+            border-radius: 10px;
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+            text-decoration: none;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .action-link img {
+            width: 18px;
+            height: 18px;
+            transition: all 0.3s ease;
+            filter: brightness(1.1);
+        }
+
+        .action-link::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: radial-gradient(circle at center, rgba(255, 255, 255, 0.3) 0%, transparent 70%);
+            opacity: 0;
+            transition: opacity 0.3s ease;
+        }
+
+        .action-link:hover::before {
+            opacity: 1;
+        }
+
+        .action-link:hover img {
+            transform: scale(1.1);
+            filter: brightness(1.3);
+        }
+
+        .action-view {
+            background: linear-gradient(135deg, #e6e9ff 0%, #d9ddff 100%);
+            color: #5555dd;
+            border: 1px solid #ccccff;
+        }
+
+        .action-view:hover {
+            background: linear-gradient(135deg, #d9ddff 0%, #ccccff 100%);
+            transform: translateY(-2px);
+            box-shadow: 0 4px 12px rgba(153, 153, 255, 0.3);
+        }
+
+        .action-delete {
+            background: linear-gradient(135deg, #ffe6e6 0%, #ffd9d9 100%);
+            color: #dd4444;
+            border: 1px solid #ffcccc;
+        }
+
+        .action-delete:hover {
+            background: linear-gradient(135deg, #ffd9d9 0%, #ffcccc 100%);
+            transform: translateY(-2px);
+            box-shadow: 0 4px 12px rgba(255, 102, 102, 0.3);
+        }
+
+        /* Melhorias no cabeçalho */
+        .header-actions h1 {
+            color: #333366;
+            font-weight: 700;
+            font-size: 28px;
+        }
+
+        .btn-primary {
+            background: linear-gradient(135deg, #9999ff 0%, #7777ff 100%);
+            color: white;
+            padding: 12px 24px;
+            border-radius: 12px;
+            text-decoration: none;
+            font-weight: 600;
+            display: inline-flex;
+            align-items: center;
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+            border: none;
+            box-shadow: 0 4px 16px rgba(153, 153, 255, 0.3);
+        }
+
+        .btn-primary:hover {
+            background: linear-gradient(135deg, #7777ff 0%, #5555ff 100%);
+            transform: translateY(-2px);
+            box-shadow: 0 8px 24px rgba(153, 153, 255, 0.4);
+        }
+
+        /* Animações */
+        @keyframes slideIn {
+            from {
+                opacity: 0;
+                transform: translateY(-20px);
+            }
+
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        .fade-in {
+            animation: fadeIn 0.6s ease-out;
+        }
+
+        @keyframes fadeIn {
+            from {
+                opacity: 0;
+                transform: translateY(20px);
+            }
+
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        /* Tooltip melhorado */
+        [data-tooltip] {
+            position: relative;
+        }
+
+        [data-tooltip]:hover::after {
+            content: attr(data-tooltip);
+            position: absolute;
+            bottom: calc(100% + 8px);
+            left: 50%;
+            transform: translateX(-50%);
+            background: linear-gradient(135deg, #333366 0%, #444477 100%);
+            color: white;
+            padding: 6px 12px;
+            border-radius: 6px;
+            font-size: 12px;
+            white-space: nowrap;
+            z-index: 1000;
+            animation: tooltipFadeIn 0.2s ease;
+        }
+
+        [data-tooltip]:hover::before {
+            content: '';
+            position: absolute;
+            bottom: calc(100% + 2px);
+            left: 50%;
+            transform: translateX(-50%);
+            border: 4px solid transparent;
+            border-top-color: #333366;
+            z-index: 1000;
+        }
+
+        @keyframes tooltipFadeIn {
+            from {
+                opacity: 0;
+                transform: translateX(-50%) translateY(4px);
+            }
+
+            to {
+                opacity: 1;
+                transform: translateX(-50%) translateY(0);
+            }
+        }
+
+        /* Estado vazio da tabela */
+        .table-responsive tbody td[colspan] {
             text-align: center;
-            padding: 40px;
-            color: #666;
-            font-style: italic;
+            padding: 60px 40px;
+            background: linear-gradient(135deg, #fafbff 0%, #f5f7ff 100%);
+        }
+
+        .table-responsive tbody td[colspan] h3 {
+            color: #5555dd;
+            margin-bottom: 12px;
+            font-size: 20px;
+        }
+
+        .table-responsive tbody td[colspan] p {
+            color: #7777aa;
+            line-height: 1.6;
         }
     </style>
 </head>
+
 <body>
     <?php include '../sidebar.php'; ?>
-    
+
     <div class="main-content">
-        <div class="header-actions">
-            <h2>👥 Gerenciar Funcionários</h2>
-            <a href="adicionar_funcionario.php" class="btn-novo">+ Novo Funcionário</a>
+        <div class="conteudo-principal">
+
+            <div class="header-actions" style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 25px;">
+                <h1 style="margin: 0;">Gerenciar Funcionários</h1>
+                <a href="adicionar_funcionario.php" class="btn btn-primary">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" viewBox="0 0 16 16" style="margin-right: 8px;">
+                        <path d="M8 8a.5.5 0 0 1-.5-.5v-2a.5.5 0 0 1 1 0v2A.5.5 0 0 1 8 8m.5 0a.5.5 0 0 1-.5.5h-2a.5.5 0 0 1 0-1h2a.5.5 0 0 1 .5.5M8 1a2.5 2.5 0 0 1 2.5 2.5V4h-5v-.5A2.5 2.5 0 0 1 8 1m3.5 3v-.5a3.5 3.5 0 1 0-7 0V4H1v10a2 2 0 0 0 2 2h10a2 2 0 0 0 2-2V4z" />
+                    </svg>
+                    Novo Funcionário
+                </a>
+            </div>
+
+            <?php if (!empty($mensagem)): ?>
+                <div class="message <?= $classe_mensagem ?>">
+                    <?= htmlspecialchars($mensagem) ?>
+                </div>
+            <?php endif; ?>
+
+            <div class="table-container fade-in">
+                <div class="table-responsive">
+                    <table>
+                        <thead>
+                            <tr>
+                                <th>Funcionário</th>
+                                <th>Contato</th>
+                                <th>Estatísticas</th>
+                                <th>Data de Cadastro</th>
+                                <th style="width: 120px;">Ações</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <?php if ($funcionarios->num_rows > 0): ?>
+                                <?php while ($f = $funcionarios->fetch_assoc()): ?>
+                                    <tr>
+                                        <td><strong><?= htmlspecialchars($f['nome']) ?></strong></td>
+                                        <td><?= htmlspecialchars($f['email']) ?></td>
+                                        <td>
+                                            <div class="funcionario-stats">
+                                                <span class="stat-pill" title="<?= $f['total_projetos'] ?> projetos atribuídos">
+                                                    <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" viewBox="0 0 16 16">
+                                                        <path d="M4.5 9a.5.5 0 0 1 .5-.5h5a.5.5 0 0 1 0 1h-5a.5.5 0 0 1-.5-.5m0 2a.5.5 0 0 1 .5-.5h2a.5.5 0 0 1 0 1h-2a.5.5 0 0 1-.5-.5" />
+                                                        <path d="M2 1a1 1 0 0 0-1 1v10a1 1 0 0 0 1 1h12a1 1 0 0 0 1-1V2a1 1 0 0 0-1-1zm12 1v2H2V2zm0 3v7H2V5z" />
+                                                    </svg>
+                                                    <?= $f['total_projetos'] ?>
+                                                </span>
+                                                <span class="stat-pill" title="<?= $f['total_tarefas'] ?> tarefas no total">
+                                                    <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" viewBox="0 0 16 16">
+                                                        <path d="M5.5 2.5a.5.5 0 0 1 .5.5v1a.5.5 0 0 1-1 0v-1a.5.5 0 0 1 .5-.5m5 0a.5.5 0 0 1 .5.5v1a.5.5 0 0 1-1 0v-1a.5.5 0 0 1 .5-.5" />
+                                                        <path d="M1.886.511a1.745 1.745 0 0 1 2.614.163L6.29 2.98c.329.423.445.974.315 1.494l-.547 2.19a.678.678 0 0 0 .178.643l2.457 2.457a.678.678 0 0 0 .644.178l2.189-.547a1.745 1.745 0 0 1 1.494.315l2.306 1.794c.829.645.905 1.87.163 2.614l-1.034 1.034c-.74.74-1.846 1.065-2.877.702a18.6 18.6 0 0 1-7.01-4.42 18.6 18.6 0 0 1-4.42-7.009c-.362-1.03-.037-2.137.703-2.877z" />
+                                                    </svg>
+                                                    <?= $f['total_tarefas'] ?>
+                                                </span>
+                                                <span class="stat-pill" title="<?= $f['concluidas'] ?> tarefas concluídas">
+                                                    <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" viewBox="0 0 16 16">
+                                                        <path d="M12.736 3.97a.733.733 0 0 1 1.047 0c.286.289.29.756.01 1.05L7.88 12.01a.733.733 0 0 1-1.065.02L3.217 8.384a.757.757 0 0 1 0-1.06.733.733 0 0 1 1.047 0l3.052 3.093z" />
+                                                    </svg>
+                                                    <?= $f['concluidas'] ?>
+                                                </span>
+                                            </div>
+                                        </td>
+                                        <td><?= date('d/m/Y', strtotime($f['criado_em'])) ?></td>
+                                        <td>
+                                            <div class="table-actions">
+                                                <a href="../tarefas/listar_tarefas.php?funcionario=<?= $f['id'] ?>" class="action-link action-view" data-tooltip="Ver Tarefas">
+                                                    <img src="../../assets/img/icones/NovaTarefa.png" alt="Ver Tarefas">
+                                                </a>
+                                                <a href="?excluir=<?= $f['id'] ?>" class="action-link action-delete" data-tooltip="Excluir" onclick="return confirm('Tem certeza que deseja excluir o funcionário <?= htmlspecialchars($f['nome'], ENT_QUOTES) ?>?\n\nEsta ação não pode ser desfeita.')">
+                                                    <img src="../../assets/img/icones/logout.png" alt="Excluir">
+                                                </a>
+                                            </div>
+                                        </td>
+                                    </tr>
+                                <?php endwhile; ?>
+                            <?php else: ?>
+                                <tr>
+                                    <td colspan="5">
+                                        <div style="padding: 40px; text-align: center; color: var(--text-light);">
+                                            <h3 style="color: var(--text-dark);">Nenhum funcionário cadastrado</h3>
+                                            <p>Parece que você ainda não tem funcionários no sistema.<br>Clique no botão "Novo Funcionário" para começar a montar sua equipe.</p>
+                                        </div>
+                                    </td>
+                                </tr>
+                            <?php endif; ?>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+
         </div>
-
-        <?php if ($mensagem): ?>
-            <div class="mensagem <?= $tipo_mensagem ?>">
-                <?= $mensagem ?>
-            </div>
-        <?php endif; ?>
-
-        <?php if ($funcionarios->num_rows > 0): ?>
-            <table class="tabela-funcionarios">
-                <thead>
-                    <tr>
-                        <th>ID</th>
-                        <th>Nome</th>
-                        <th>Email</th>
-                        <th>Data de Cadastro</th>
-                        <th>Estatísticas</th>
-                        <th>Ações</th>
-                    </tr>
-                </thead>
-                <tbody>
-                    <?php while ($funcionario = $funcionarios->fetch_assoc()): ?>
-                        <tr>
-                            <td><?= $funcionario['id'] ?></td>
-                            <td><?= htmlspecialchars($funcionario['nome']) ?></td>
-                            <td><?= htmlspecialchars($funcionario['email']) ?></td>
-                            <td><?= date('d/m/Y', strtotime($funcionario['criado_em'])) ?></td>
-                            <td>
-                                <div class="stats">
-                                    📊 <?= $funcionario['total_projetos'] ?> projeto(s)<br>
-                                    📋 <?= $funcionario['total_tarefas'] ?> tarefa(s)<br>
-                                    🔄 <?= $funcionario['em_progresso'] ?> em progresso<br>
-                                    ✅ <?= $funcionario['concluidas'] ?> concluída(s)
-                                </div>
-                            </td>
-                            <td class="acoes">
-                                
-                                <a href="../tarefas/listar_tarefas.php?funcionario_id=<?= $funcionario['id'] ?>" 
-                                   class="btn btn-ver" 
-                                   title="Ver tarefas do funcionário">
-                                    🔍 Tarefas
-                                </a>
-                                
-                                <a href="?excluir=<?= $funcionario['id'] ?>" 
-                                   class="btn btn-excluir" 
-                                   title="Excluir funcionário"
-                                   onclick="return confirm('Tem certeza que deseja excluir o funcionário <?= htmlspecialchars($funcionario['nome'], ENT_QUOTES) ?>?\n\nATENÇÃO: Esta ação não pode ser desfeita!')">
-                                    🗑️ Excluir
-                                </a>
-                            </td>
-                        </tr>
-                    <?php endwhile; ?>
-                </tbody>
-            </table>
-        <?php else: ?>
-            <div class="sem-funcionarios">
-                <h3>Nenhum funcionário cadastrado</h3>
-                <p>Clique em "Novo Funcionário" para adicionar o primeiro funcionário ao sistema.</p>
-            </div>
-        <?php endif; ?>
     </div>
 
     <script>
-        // Remover mensagem após 5 segundos
-        setTimeout(function() {
-            const mensagem = document.querySelector('.mensagem');
+        // Script para remover a mensagem de feedback após alguns segundos
+        document.addEventListener('DOMContentLoaded', function() {
+            const mensagem = document.querySelector('.message');
             if (mensagem) {
-                mensagem.style.opacity = '0';
-                setTimeout(() => mensagem.remove(), 300);
+                setTimeout(() => {
+                    mensagem.style.transition = 'opacity 0.5s ease';
+                    mensagem.style.opacity = '0';
+                    setTimeout(() => mensagem.remove(), 500);
+                }, 5000); // A mensagem some após 5 segundos
             }
-        }, 5000);
+        });
     </script>
 </body>
+
 </html>
 
 <?php
