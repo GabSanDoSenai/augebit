@@ -81,11 +81,12 @@ if ($funcionario_id) {
 
     // Buscar documentos dos projetos que participa
     $sql_documentos = "SELECT DISTINCT u.id, u.nome_arquivo, u.caminho_arquivo, u.data_upload, p.titulo as projeto_nome 
-                       FROM uploads u 
-                       INNER JOIN projetos p ON u.projeto_id = p.id 
-                       INNER JOIN tarefas t ON t.projeto_id = p.id 
-                       WHERE t.funcionario_id = ? AND u.tipo IN ('funcionario', 'cliente', 'gestor')
-                       ORDER BY u.data_upload DESC";
+    FROM uploads u 
+    INNER JOIN projetos p ON u.projeto_id = p.id 
+    INNER JOIN tarefas t ON t.projeto_id = p.id 
+    WHERE t.funcionario_id = ?
+    ORDER BY u.data_upload DESC";
+
     $stmt_documentos = $conn->prepare($sql_documentos);
     $stmt_documentos->bind_param("i", $funcionario_id);
     $stmt_documentos->execute();

@@ -326,20 +326,12 @@ $conn->close();
         }
 
         .logo-panel img {
-            width: 150px;
-            height: 150px;
+            
             margin-bottom: 20px;
             border-radius: 50%;
-            border: 3px solid #6E6EFF;
             padding: 20px;
-            background: rgba(110, 110, 255, 0.1);
             transition: transform 0.3s ease;
         }
-
-        .logo-panel img:hover {
-            transform: scale(1.1) rotate(5deg);
-        }
-
         .logo-panel h3 {
             color: #9999FF;
             font-size: 1.5em;
@@ -482,7 +474,7 @@ $conn->close();
         <!-- Overlay with Logo -->
         <div class="overlay">
             <div class="overlay-panel logo-panel">
-                <img src="assets/images/augebit-logo.png" alt="AugeBit Logo" />
+                <img src="assets/img/augebit.logo.png" alt="AugeBit Logo" />
                 <p>Bem-vindo ao nosso sistema</p>
             </div>
         </div>

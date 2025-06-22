@@ -30,10 +30,10 @@ if (isset($_POST['enviar_arquivo'])) {
         }
         
         if (move_uploaded_file($arquivo_tmp, $caminho_destino)) {
-            // Salvar no banco de dados
-            $sql = "INSERT INTO uploads (projeto_id, nome_arquivo, caminho_arquivo, tipo, enviado_por) VALUES (?, ?, ?, 'cliente', ?)";
+            // Salvar no banco de dados - removido o campo 'tipo' e 'enviado_por'
+            $sql = "INSERT INTO uploads (projeto_id, nome_arquivo, caminho_arquivo) VALUES (?, ?, ?)";
             $stmt = $conn->prepare($sql);
-            $stmt->bind_param("issi", $projeto_id, $nome_original, $caminho_destino, $cliente_id);
+            $stmt->bind_param("iss", $projeto_id, $nome_original, $caminho_destino);
             
             if ($stmt->execute()) {
                 $mensagem_sucesso = "Arquivo enviado com sucesso!";
@@ -55,8 +55,8 @@ if (isset($_POST['enviar_mensagem'])) {
     $mensagem = trim($_POST['mensagem']);
     
     if (!empty($mensagem)) {
-        // Buscar o ID do gestor/admin (assumindo que o primeiro admin/gestor é o destinatário)
-        $sql_gestor = "SELECT id FROM usuarios WHERE tipo IN ('admin', 'gestor') LIMIT 1";
+        // Buscar o ID do gestor/admin (assumindo que o primeiro admin/funcionario é o destinatário)
+        $sql_gestor = "SELECT id FROM usuarios WHERE tipo IN ('admin', 'funcionario') LIMIT 1";
         $resultado_gestor = $conn->query($sql_gestor);
         
         if ($resultado_gestor->num_rows > 0) {
@@ -85,12 +85,13 @@ $stmt->execute();
 $projetos = $stmt->get_result();
 $stmt->close();
 
-// Buscar uploads do cliente
+// Buscar uploads do cliente - corrigida a consulta SQL
 $sql = "SELECT u.*, p.titulo as projeto_titulo 
-        FROM uploads u 
-        INNER JOIN projetos p ON u.projeto_id = p.id 
-        WHERE u.enviado_por = ? AND u.tipo = 'cliente' 
-        ORDER BY u.enviado_em DESC";
+FROM uploads u 
+INNER JOIN projetos p ON u.projeto_id = p.id 
+WHERE p.cliente_id = ? 
+ORDER BY u.enviado_em DESC";
+
 $stmt = $conn->prepare($sql);
 $stmt->bind_param("i", $cliente_id);
 $stmt->execute();

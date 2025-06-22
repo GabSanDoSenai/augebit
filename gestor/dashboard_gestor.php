@@ -19,7 +19,7 @@ class DashboardData
     }
     public function getProjectsData()
 {
-    $query = "SELECT status, COUNT(*) AS total FROM projetos WHERE status IN ('finalizado', 'em_andamento', 'aprovado', 'pendente', 'ajustes') GROUP BY status";
+    $query = "SELECT status, COUNT(*) AS total FROM projetos WHERE status IN ('pendente', 'aprovado', 'em_andamento', 'finalizado', 'ajustes') GROUP BY status";
     $result = $this->conn->query($query);
     $data = [];
 
@@ -246,15 +246,13 @@ while ($row = $taxaConclusao->fetch_assoc()) {
             <div class="recent-section">
                 <h3>📋 Projetos Recentes</h3>
                 <?php while ($projeto = $projetosRecentes->fetch_assoc()): ?>
-                    <a href="projetos/listar_projetos.php?id=<?= $projeto['id'] ?>" class="recent-item"
-                        style="text-decoration: none; color: inherit;">
-                        <div>
+                    <div class="recent-item">
+                    <a href="projetos/listar_projetos.php?id=<?= $projeto['id'] ?>">
                             <strong><?= htmlspecialchars($projeto['titulo']) ?></strong>
                             <br><small><?= date('d/m/Y', strtotime($projeto['criado_em'])) ?></small>
-                        </div>
                        <span class="status-badge <?= $projeto['status'] ?>"><?= ucfirst(str_replace('_', ' ', $projeto['status'])) ?></span>
-
                     </a>
+                </div>
 
                 <?php endwhile; ?>
             </div>
@@ -277,19 +275,19 @@ while ($row = $taxaConclusao->fetch_assoc()) {
 
         <!-- Quick Actions -->
         <div class="quick-actions">
-            <h3>🚀 Ações Rápidas</h3>
+            <h3> Ações Rápidas</h3>
             <div class="action-grid">
                 <a href="projetos/criar_projeto.php" class="action-btn">
-                    ➕ Novo Projeto
+                    Novo Projeto
                 </a>
                 <a href="tarefas/criar_tarefa.php" class="action-btn">
-                    ✅ Nova Tarefa
+                    Nova Tarefa
                 </a>
                 <a href="documentos/enviar_documento.php" class="action-btn">
-                    📁 Enviar Documento
+                    Enviar Documento
                 </a>
                 <a href="projetos/avaliar_projetos.php" class="action-btn">
-                    ⚖️ Avaliar Projetos
+                    Avaliar Projetos
                 </a>
             </div>
         </div>

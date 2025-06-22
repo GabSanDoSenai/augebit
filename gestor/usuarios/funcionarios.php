@@ -140,10 +140,6 @@ $funcionarios = $stmt->get_result();
             display: inline-block;
         }
         
-        .btn-editar {
-            background-color: #007bff;
-            color: white;
-        }
         
         .btn-excluir {
             background-color: #dc3545;
@@ -235,11 +231,6 @@ $funcionarios = $stmt->get_result();
                                 </div>
                             </td>
                             <td class="acoes">
-                                <a href="editar_funcionario.php?id=<?= $funcionario['id'] ?>" 
-                                   class="btn btn-editar" 
-                                   title="Editar funcionário">
-                                    ✏️ Editar
-                                </a>
                                 
                                 <a href="../tarefas/listar_tarefas.php?funcionario_id=<?= $funcionario['id'] ?>" 
                                    class="btn btn-ver" 

@@ -1269,7 +1269,7 @@
   <section class="hero">
     <header>
       <div class="logo-header">
-        <img src="assets/images/logobranca.png" alt="Logo da empresa">
+        <img src="assets/img/logobranca.png" alt="Logo da empresa">
         <h1><strong>AUGEBIT</strong></h1>
       </div>
       <nav>
@@ -1324,7 +1324,7 @@
         <h3>Quem <br>somos?</h3>
       </div>
       <div class="imagem1">
-        <img src="assets/images/Captura de tela 2025-05-09 103240 (2) 1 (1).png" alt="Equipe Augebit">
+        <img src="assets/img/peca.png" alt="Equipe Augebit">
       </div>
       <div class="somos">
         <div class="escrever">
@@ -1354,7 +1354,7 @@
 
         <div class="slide active">
           <div class="slide-content">
-            <img src="assets/images/Frame 7.png" alt="Trabalho 1">
+            <img src="assets/img/ex1.png" alt="Trabalho 1">
             <div class="slide-text">
               Solução completa de design técnico para frascos de perfume, combinando estética refinada com
               funcionalidade industrial
@@ -1365,7 +1365,7 @@
         <!-- Slide 2 -->
         <div class="slide">
           <div class="slide-content">
-            <img src="assets/images/Frame 6.png" alt="Trabalho 2">
+            <img src="assets/img/ex2.png" alt="Trabalho 2">
             <div class="slide-text">
               Modelagem 3D precisa para hélices industriais, otimizando desempenho aerodinâmico e eficiência produtiva
             </div>
@@ -1375,7 +1375,7 @@
         <!-- Slide 3 -->
         <div class="slide">
           <div class="slide-content">
-            <img src="assets/images/Frame 5.png" alt="Trabalho 3">
+            <img src="assets/img/ex3.png" alt="Trabalho 3">
             <div class="slide-text">
               Desenvolvimento técnico de engrenagens industriais com tolerância micrométrica para aplicações de alta
               performance
@@ -1423,19 +1423,19 @@
       </div>
       <div class="redes">
         <div class="rede">
-          <img src="assets/images/ic_outline-email.png" alt="Email">
+          <img src="assets/img/emailroxo.png" alt="Email">
           <p>Email</p>
         </div>
         <div class="rede">
-          <img src="assets/images/uil_linkedin.png" alt="Linkedin">
+          <img src="assets/img/linkedinroxo.png" alt="Linkedin">
           <p>Linkedin</p>
         </div>
         <div class="rede">
-          <img src="assets/images/ic_baseline-whatsapp.png" alt="Whatsapp">
+          <img src="assets/img/zaproxo.png" alt="Whatsapp">
           <p>Whatsapp</p>
         </div>
         <div class="rede">
-          <img src="assets/images/mdi_instagram.png" alt="Instagram">
+          <img src="assets/img/instaroxo.png" alt="Instagram">
           <p>Instagram</p>
         </div>
       </div>
@@ -1450,15 +1450,15 @@
       <p>Entre em contato</p>
     </div>
     <div class="logo-rodape">
-      <img src="assets/images/logobranca.png" alt="Logo Augebit">
+      <img src="assets/img/logobranca.png" alt="Logo Augebit">
       <h1>AUGEBIT</h1>
       <p>Industrial design</p>
     </div>
     <div class="redescociais">
-      <img src="assets/images/emailwhite.png" alt="Email">
-      <img src="assets/images/instawhite.png" alt="Instagram">
-      <img src="assets/images/likendinwhite.png" alt="Linkedin">
-      <img src="assets/images/zapwhite.png" alt="Whatsapp">
+      <img src="assets/img/emailbranco.png" alt="Email">
+      <img src="assets/img/instabranco.png" alt="Instagram">
+      <img src="assets/img/linkedinbranco.png" alt="Linkedin">
+      <img src="assets/img/zapbranco.png" alt="Whatsapp">
     </div>
   </footer>
 

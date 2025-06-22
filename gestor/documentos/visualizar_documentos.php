@@ -1,5 +1,5 @@
-<?php 
-include '../sidebar.php'; 
+<?php
+include '../sidebar.php';
 require '../../conexao.php';
 
 // Verificar se o usuário está logado e tem permissão
@@ -8,13 +8,6 @@ if (!isset($_SESSION['usuario_id']) || ($_SESSION['usuario_tipo'] !== 'admin' &&
     exit;
 }
 
-// DEBUG: Verificar se há dados na tabela uploads
-$debug_count = $conn->query("SELECT COUNT(*) as total FROM uploads");
-if ($debug_count) {
-    $total_uploads = $debug_count->fetch_assoc()['total'];
-    // Remover ou comentar esta linha em produção
-    // echo "<!-- DEBUG: Total de uploads na tabela: $total_uploads -->";
-}
 
 // Parâmetros para paginação e filtros
 $limite = 20;
@@ -66,7 +59,7 @@ if (!empty($params)) {
 $stmt->execute();
 $documentos = $stmt->get_result();
 
-// DEBUG: Verificar se a query retornou resultados
+// DEBUG: Verificar se a query retornou resultrados
 if ($documentos->num_rows == 0) {
     // Testar query mais simples
     $test_query = $conn->query("SELECT * FROM uploads ORDER BY enviado_em DESC LIMIT 5");
@@ -104,7 +97,8 @@ $mensagem_sucesso = isset($_GET['sucesso']) ? $_GET['sucesso'] : '';
 $mensagem_erro = isset($_GET['erro']) ? $_GET['erro'] : '';
 
 // Função para formatar tamanho do arquivo
-function formatarTamanho($bytes) {
+function formatarTamanho($bytes)
+{
     if ($bytes >= 1073741824) {
         return number_format($bytes / 1073741824, 2) . ' GB';
     } elseif ($bytes >= 1048576) {
@@ -117,9 +111,10 @@ function formatarTamanho($bytes) {
 }
 
 // Função para obter ícone do arquivo
-function obterIconeArquivo($nomeArquivo) {
+function obterIconeArquivo($nomeArquivo)
+{
     $extensao = strtolower(pathinfo($nomeArquivo, PATHINFO_EXTENSION));
-    
+
     switch ($extensao) {
         case 'pdf':
             return '📄';
@@ -143,33 +138,71 @@ function obterIconeArquivo($nomeArquivo) {
     }
 }
 
-// Função para verificar se arquivo existe e obter caminho correto
-function obterCaminhoArquivo($caminho_bd) {
-    // Possíveis caminhos onde o arquivo pode estar
-    $caminhos_possiveis = [
-        $caminho_bd, // Caminho original do banco
-        '../../uploads/' . basename($caminho_bd), // Na pasta uploads da raiz
-        '../../uploads/' . str_replace(['../uploads/', '../../uploads/'], '', $caminho_bd), // Limpar caminho
-    ];
+// FUNÇÃO CORRIGIDA: Verificar se arquivo existe e obter caminhos corretos
+function obterCaminhoArquivo($caminho_bd)
+{
+    // Definir o caminho base do uploads de forma mais robusta
+    $upload_dir = $_SERVER['DOCUMENT_ROOT'] . '/augebit/uploads/';
     
+    // Lista de caminhos possíveis para verificar
+    $caminhos_possiveis = [
+        // Caminho completo do banco
+        $caminho_bd,
+        // Caminho relativo ao diretório uploads
+        $upload_dir . basename($caminho_bd),
+        // Caminho com estrutura de subpastas (ex: Sonic_17/arquivo.jpg)
+        $upload_dir . $caminho_bd,
+        // Caminho removendo possível duplicação
+        str_replace('/uploads/uploads/', '/uploads/', $upload_dir . $caminho_bd)
+    ];
+
     foreach ($caminhos_possiveis as $caminho) {
         if (file_exists($caminho)) {
             return $caminho;
         }
     }
-    
+
+    // Log para debug - remover em produção
+    error_log("Arquivo não encontrado em nenhum dos caminhos testados para: $caminho_bd");
     return false;
 }
+
+// FUNÇÃO NOVA: Converter caminho físico para URL web
+function obterUrlArquivo($caminho_bd)
+{
+    // Base URL do diretório uploads
+    $base_url = '/augebit/uploads/';
+    
+    // Se o caminho já contém 'uploads/', extrair apenas a parte após uploads/
+    if (strpos($caminho_bd, 'uploads/') !== false) {
+        $parte_arquivo = substr($caminho_bd, strpos($caminho_bd, 'uploads/') + 8);
+        return $base_url . $parte_arquivo;
+    }
+    
+    // Se é apenas o nome do arquivo, retornar diretamente
+    if (strpos($caminho_bd, '/') === false) {
+        return $base_url . $caminho_bd;
+    }
+    
+    // Para outros casos, usar o caminho como está
+    return $base_url . $caminho_bd;
+}
+
 ?>
 
 <!DOCTYPE html>
 <html lang="pt-br">
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Visualizar Documentos - AugeBit</title>
     <link rel="stylesheet" href="../css/geral.css">
     <style>
+        .main-content {
+            font-family: 'Poppins';
+            font-weight: 100px;
+        }
         .main-content {
             padding: 20px;
             margin-left: 300px;
@@ -181,11 +214,13 @@ function obterCaminhoArquivo($caminho_bd) {
             background: white;
             padding: 20px;
             border-radius: 10px;
-            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
             margin-bottom: 20px;
         }
 
         .header-section h2 {
+            font-family: 'Poppins';
+            font-weight: 300px;
             color: #2c3e50;
             margin: 0 0 20px 0;
             display: flex;
@@ -258,7 +293,7 @@ function obterCaminhoArquivo($caminho_bd) {
             background: white;
             padding: 20px;
             border-radius: 10px;
-            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
             text-align: center;
         }
 
@@ -277,7 +312,7 @@ function obterCaminhoArquivo($caminho_bd) {
         .documentos-container {
             background: white;
             border-radius: 10px;
-            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
             overflow: hidden;
         }
 
@@ -417,7 +452,8 @@ function obterCaminhoArquivo($caminho_bd) {
             background: #f8f9fa;
         }
 
-        .paginacao a, .paginacao span {
+        .paginacao a,
+        .paginacao span {
             padding: 8px 12px;
             border: 1px solid #dee2e6;
             border-radius: 5px;
@@ -470,14 +506,16 @@ function obterCaminhoArquivo($caminho_bd) {
             border: 1px solid #f5c6cb;
         }
 
-        .debug-info {
-            background: #fff3cd;
-            border: 1px solid #ffeaa7;
-            color: #856404;
-            padding: 10px;
-            border-radius: 5px;
-            margin-bottom: 15px;
-            font-size: 12px;
+
+
+        .arquivo-info {
+            background: #e3f2fd;
+            border: 1px solid #bbdefb;
+            color: #0d47a1;
+            padding: 8px;
+            border-radius: 4px;
+            margin-top: 5px;
+            font-size: 11px;
         }
 
         @media (max-width: 768px) {
@@ -513,6 +551,7 @@ function obterCaminhoArquivo($caminho_bd) {
         }
     </style>
 </head>
+
 <body>
     <div class="main-content">
         <!-- Mensagens de sucesso/erro -->
@@ -521,26 +560,19 @@ function obterCaminhoArquivo($caminho_bd) {
                 ✅ <?= htmlspecialchars($mensagem_sucesso) ?>
             </div>
         <?php endif; ?>
-        
+
         <?php if ($mensagem_erro): ?>
             <div class="alert alert-error">
                 ❌ <?= htmlspecialchars($mensagem_erro) ?>
             </div>
         <?php endif; ?>
 
-        <!-- DEBUG INFO - Remover em produção -->
-        <?php if (isset($total_uploads)): ?>
-            <div class="debug-info">
-                <strong>Debug:</strong> Total de uploads na tabela: <?= $total_uploads ?> | 
-                Documentos encontrados com filtros: <?= $total_registros ?> | 
-                Página atual: <?= $pagina ?>
-            </div>
-        <?php endif; ?>
+        
 
         <!-- Header com filtros -->
         <div class="header-section">
             <h2>📁 Documentos Recentes</h2>
-            
+
             <form method="GET" class="filtros">
                 <div class="filtro-grupo">
                     <label>Projeto:</label>
@@ -578,17 +610,17 @@ function obterCaminhoArquivo($caminho_bd) {
             $stats_hoje = 0;
             $stats_semana = 0;
             $stats_mes = 0;
-            
+
             $result = $conn->query("SELECT COUNT(*) as total FROM uploads WHERE DATE(enviado_em) = CURDATE()");
             if ($result) $stats_hoje = $result->fetch_assoc()['total'];
-            
+
             $result = $conn->query("SELECT COUNT(*) as total FROM uploads WHERE enviado_em >= DATE_SUB(NOW(), INTERVAL 7 DAY)");
             if ($result) $stats_semana = $result->fetch_assoc()['total'];
-            
+
             $result = $conn->query("SELECT COUNT(*) as total FROM uploads WHERE enviado_em >= DATE_SUB(NOW(), INTERVAL 30 DAY)");
             if ($result) $stats_mes = $result->fetch_assoc()['total'];
             ?>
-            
+
             <div class="stat-card">
                 <div class="number"><?= $stats_hoje ?></div>
                 <div class="label">Hoje</div>
@@ -610,7 +642,7 @@ function obterCaminhoArquivo($caminho_bd) {
         <!-- Lista de documentos -->
         <div class="documentos-container">
             <div class="documentos-header">
-                <h3 style="margin: 0;">📋 Lista de Documentos</h3>
+                <h3 style="margin: 0;">Lista de Documentos</h3>
                 <span><?= $total_registros ?> documento(s) encontrado(s)</span>
             </div>
 
@@ -621,7 +653,7 @@ function obterCaminhoArquivo($caminho_bd) {
                             <div class="documento-icone">
                                 <?= obterIconeArquivo($doc['nome_arquivo']) ?>
                             </div>
-                            
+
                             <div class="documento-info">
                                 <div class="documento-nome">
                                     <?= htmlspecialchars($doc['nome_arquivo']) ?>
@@ -639,58 +671,50 @@ function obterCaminhoArquivo($caminho_bd) {
                                     <span>
                                         📅 <?= date('d/m/Y H:i', strtotime($doc['enviado_em'])) ?>
                                     </span>
-                                    <?php 
-                                    $caminho_arquivo = obterCaminhoArquivo($doc['caminho_arquivo']);
-                                    if ($caminho_arquivo): 
+                                    <?php
+                                    $caminho_fisico = obterCaminhoArquivo($doc['caminho_arquivo']);
+                                    if ($caminho_fisico):
                                     ?>
                                         <span>
-                                            💾 <?= formatarTamanho(filesize($caminho_arquivo)) ?>
+                                            💾 <?= formatarTamanho(filesize($caminho_fisico)) ?>
                                         </span>
                                     <?php endif; ?>
                                 </div>
+                                
+                                
                             </div>
 
                             <div class="documento-acoes">
-                                <?php 
+                                <?php
                                 $extensao = strtolower(pathinfo($doc['nome_arquivo'], PATHINFO_EXTENSION));
-                                $caminho_arquivo = obterCaminhoArquivo($doc['caminho_arquivo']);
-                                
-                                // Converter caminho do sistema para caminho web
-                                if ($caminho_arquivo) {
-                                    $caminho_web = str_replace('../../', '../', $caminho_arquivo);
-                                    if (strpos($caminho_web, '../uploads/') === false) {
-                                        $caminho_web = '../uploads/' . basename($caminho_arquivo);
-                                    }
-                                }
+                                $caminho_fisico = obterCaminhoArquivo($doc['caminho_arquivo']);
+                                $url_arquivo = obterUrlArquivo($doc['caminho_arquivo']);
                                 ?>
-                                
-                                <?php if ($caminho_arquivo): ?>
+
+                                <?php if ($caminho_fisico): ?>
                                     <?php if (in_array($extensao, ['jpg', 'jpeg', 'png', 'gif', 'pdf'])): ?>
-                                        <a href="<?= $caminho_web ?>" 
-                                           target="_blank" 
-                                           class="btn-acao btn-visualizar"
-                                           title="Visualizar arquivo">
+                                        <a href="<?= $url_arquivo ?>"
+                                            target="_blank"
+                                            class="btn-acao btn-visualizar"
+                                            title="Visualizar arquivo">
                                             👁️ Ver
                                         </a>
                                     <?php endif; ?>
-                                    
-                                    <a href="<?= $caminho_web ?>" 
-                                       download="<?= $doc['nome_arquivo'] ?>"
-                                       class="btn-acao btn-download"
-                                       title="Baixar arquivo">
+
+                                    <a href="<?= $url_arquivo ?>"
+                                        download="<?= htmlspecialchars($doc['nome_arquivo']) ?>"
+                                        class="btn-acao btn-download"
+                                        title="Baixar arquivo">
                                         💾 Baixar
                                     </a>
                                 <?php else: ?>
                                     <span style="color: #dc3545; font-size: 12px;">❌ Arquivo não encontrado</span>
-                                    <small style="color: #666; display: block; margin-top: 5px;">
-                                        Caminho: <?= htmlspecialchars($doc['caminho_arquivo']) ?>
-                                    </small>
                                 <?php endif; ?>
-                                
+
                                 <?php if ($_SESSION['usuario_tipo'] === 'admin'): ?>
                                     <button onclick="confirmarExclusao(<?= $doc['id'] ?>, '<?= addslashes($doc['nome_arquivo']) ?>')"
-                                            class="btn-acao btn-excluir"
-                                            title="Excluir documento">
+                                        class="btn-acao btn-excluir"
+                                        title="Excluir documento">
                                         🗑️ Excluir
                                     </button>
                                 <?php endif; ?>
@@ -707,7 +731,7 @@ function obterCaminhoArquivo($caminho_bd) {
                         $query_string = preg_replace('/&?pagina=[^&]*/', '', $query_string);
                         $query_string = $query_string ? '&' . $query_string : '';
                         ?>
-                        
+
                         <?php if ($pagina > 1): ?>
                             <a href="?pagina=<?= $pagina - 1 ?><?= $query_string ?>">« Anterior</a>
                         <?php endif; ?>
@@ -746,12 +770,12 @@ function obterCaminhoArquivo($caminho_bd) {
                 const form = document.createElement('form');
                 form.method = 'POST';
                 form.action = 'excluir_documento.php';
-                
+
                 const inputId = document.createElement('input');
                 inputId.type = 'hidden';
                 inputId.name = 'documento_id';
                 inputId.value = id;
-                
+
                 form.appendChild(inputId);
                 document.body.appendChild(form);
                 form.submit();
@@ -771,4 +795,5 @@ function obterCaminhoArquivo($caminho_bd) {
         });
     </script>
 </body>
+
 </html>

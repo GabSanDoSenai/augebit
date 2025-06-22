@@ -50,7 +50,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['enviar_documentos']))
             
             if ($resultado['sucesso'] && $resultado['arquivos_processados'] > 0) {
                 // Atualizar tabela uploads com informações do usuário
-                $update_uploads = $conn->prepare("UPDATE uploads SET enviado_por = ?, tipo = 'funcionario' WHERE projeto_id = ? AND enviado_por IS NULL");
+                $update_uploads = $conn->prepare("UPDATE uploads SET enviado_por = ? WHERE projeto_id = ? AND enviado_por IS NULL");
                 $update_uploads->bind_param("ii", $usuario_id, $projeto_id);
                 $update_uploads->execute();
                 
@@ -65,15 +65,20 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['enviar_documentos']))
     }
 }
 
-// Buscar arquivos enviados recentemente
+// Buscar arquivos enviados recentemente (corrigido)
 $arquivos_recentes_query = "SELECT u.*, p.titulo as projeto_titulo, us.nome as enviado_por_nome
                            FROM uploads u
                            LEFT JOIN projetos p ON u.projeto_id = p.id
                            LEFT JOIN usuarios us ON u.enviado_por = us.id
-                           WHERE u.tipo = 'funcionario'
+                           WHERE u.enviado_por IS NOT NULL
                            ORDER BY u.enviado_em DESC
                            LIMIT 10";
 $arquivos_recentes = $conn->query($arquivos_recentes_query);
+
+// Consultas para estatísticas (corrigidas)
+$total_projetos = $conn->query("SELECT COUNT(*) as total FROM projetos")->fetch_assoc()['total'];
+$total_uploads = $conn->query("SELECT COUNT(*) as total FROM uploads WHERE enviado_por IS NOT NULL")->fetch_assoc()['total'];
+$uploads_hoje = $conn->query("SELECT COUNT(*) as total FROM uploads WHERE enviado_por IS NOT NULL AND DATE(enviado_em) = CURDATE()")->fetch_assoc()['total'];
 ?>
 
 <!DOCTYPE html>
@@ -91,7 +96,7 @@ $arquivos_recentes = $conn->query($arquivos_recentes_query);
         }
 
         body {
-            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            font-family: 'Poppins';
             background: #f5f5f5;
             color: #333;
         }
@@ -103,22 +108,23 @@ $arquivos_recentes = $conn->query($arquivos_recentes_query);
         }
 
         .header {
-            background: #2c3e50;
             color: white;
             padding: 20px;
             margin-bottom: 30px;
             border-radius: 8px;
-            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
         }
 
         .header h1 {
+            font-family: 'Poppins';
+            color: #5e35b1;
             font-size: 28px;
             margin-bottom: 10px;
         }
 
         .header p {
-            opacity: 0.9;
+            font-family: 'Poppins';
             font-size: 16px;
+            color: #5e35b1;
         }
 
         .card {
@@ -160,11 +166,11 @@ $arquivos_recentes = $conn->query($arquivos_recentes_query);
 
         .form-group select:focus {
             outline: none;
-            border-color: #3498db;
+            border-color: #5e35b2;
         }
 
         .btn {
-            background: #3498db;
+            background: #5e35b1;
             color: white;
             padding: 12px 30px;
             border: none;
@@ -302,7 +308,7 @@ $arquivos_recentes = $conn->query($arquivos_recentes_query);
     <div class="main-content">
     <div class="container">
         <div class="header">
-            <h1>📁 Gestão de Documentos</h1>
+            <h1>Gestão de Documentos</h1>
             <p>Envie e gerencie documentos dos projetos</p>
         </div>
 
@@ -318,26 +324,6 @@ $arquivos_recentes = $conn->query($arquivos_recentes_query);
             </div>
         <?php endif; ?>
 
-        <!-- Estatísticas rápidas -->
-        <div class="stats">
-            <?php
-            $total_projetos = $conn->query("SELECT COUNT(*) as total FROM projetos")->fetch_assoc()['total'];
-            $total_uploads = $conn->query("SELECT COUNT(*) as total FROM uploads WHERE tipo = 'funcionario'")->fetch_assoc()['total'];
-            $uploads_hoje = $conn->query("SELECT COUNT(*) as total FROM uploads WHERE tipo = 'funcionario' AND DATE(enviado_em) = CURDATE()")->fetch_assoc()['total'];
-            ?>
-            <div class="stat-card">
-                <span class="stat-number"><?= $total_projetos ?></span>
-                <div class="stat-label">Projetos Ativos</div>
-            </div>
-            <div class="stat-card">
-                <span class="stat-number"><?= $total_uploads ?></span>
-                <div class="stat-label">Documentos Enviados</div>
-            </div>
-            <div class="stat-card">
-                <span class="stat-number"><?= $uploads_hoje ?></span>
-                <div class="stat-label">Enviados Hoje</div>
-            </div>
-        </div>
 
         <!-- Formulário de envio -->
         <div class="card">
@@ -385,7 +371,7 @@ $arquivos_recentes = $conn->query($arquivos_recentes_query);
                     <button type="submit" name="enviar_documentos" class="btn">
                         Enviar Documentos
                     </button>
-                    <a href="projetos.php" class="btn btn-secondary" style="margin-left: 10px;">
+                    <a href="../dashboard_gestor.php" class="btn btn-secondary" style="margin-left: 10px;">
                         Cancelar
                     </a>
                 </div>
@@ -393,35 +379,7 @@ $arquivos_recentes = $conn->query($arquivos_recentes_query);
         </div>
 
         <!-- Arquivos enviados recentemente -->
-        <div class="card">
-            <h2>Documentos Enviados Recentemente</h2>
-            
-            <div class="arquivos-recentes">
-                <?php if ($arquivos_recentes->num_rows > 0): ?>
-                    <?php while ($arquivo = $arquivos_recentes->fetch_assoc()): ?>
-                        <div class="arquivo-item">
-                            <div class="arquivo-info">
-                                <div class="arquivo-nome">
-                                    <?= htmlspecialchars($arquivo['nome_arquivo']) ?>
-                                </div>
-                                <div class="arquivo-detalhes">
-                                    Projeto: <?= htmlspecialchars($arquivo['projeto_titulo']) ?> • 
-                                    Enviado por: <?= htmlspecialchars($arquivo['enviado_por_nome']) ?> • 
-                                    Tamanho: <?= number_format($arquivo['tamanho_arquivo'] / 1024, 2) ?> KB
-                                </div>
-                            </div>
-                            <div class="arquivo-data">
-                                <?= date('d/m/Y H:i', strtotime($arquivo['enviado_em'])) ?>
-                            </div>
-                        </div>
-                    <?php endwhile; ?>
-                <?php else: ?>
-                    <p style="text-align: center; color: #666; padding: 40px;">
-                        📭 Nenhum documento foi enviado ainda.
-                    </p>
-                <?php endif; ?>
-            </div>
-        </div>
+        
     </div>
 </div>
     <script>
