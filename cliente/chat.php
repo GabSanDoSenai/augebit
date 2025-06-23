@@ -20,10 +20,8 @@ foreach ($conexao_paths as $path) {
     }
 }
 
-// Se ainda não temos conexão, tentar criar uma diretamente
 if (!isset($pdo) || $pdo === null) {
     try {
-        // Configurações do banco - AJUSTE CONFORME SUA CONFIGURAÇÃO
         $host = 'localhost';
         $dbname = 'augebit';
         $username = 'root';

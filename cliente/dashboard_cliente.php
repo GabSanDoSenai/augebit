@@ -819,7 +819,7 @@ p{
             <ul>         
                 <li><a href="../index.php" class="active">Home</a></li>         
                 <li><a href="#projects-section" class="acount">Projetos</a></li>
-                <li><a href="chat.php" class="bate-papo">Chat</a></li>          
+                <li><a href="chat.php">Chat</a></li>     
                 <li><a href="../logout.php" class="contato">Sair</a></li>    
             </ul>     
         </nav>   
@@ -925,52 +925,13 @@ p{
             </div>
         </section>
         
-        <section class="projects-section">
-            <h1>Enviar Mensagem para o Gestor</h1>
-            
-            <div class="project-card">
-                <?php if (isset($mensagem_chat_sucesso)): ?>
-                    <div class="alert alert-success"><?php echo $mensagem_chat_sucesso; ?></div>
-                <?php endif; ?>
-                
-                <?php if (isset($mensagem_chat_erro)): ?>
-                    <div class="alert alert-danger"><?php echo $mensagem_chat_erro; ?></div>
-                <?php endif; ?>
-
-                <form method="POST" class="chat-form">
-                    <div class="form-group">
-                        <label for="projeto_mensagem_id">Projeto Relacionado:</label>
-                        <select name="projeto_mensagem_id" id="projeto_mensagem_id" class="form-control" required>
-                            <option value="">-- Selecione um projeto --</option>
-                            <?php 
-                            $projetos_upload->data_seek(0);
-                            while ($projeto = $projetos_upload->fetch_assoc()): 
-                            ?>
-                                <option value="<?php echo $projeto['id']; ?>">
-                                    <?php echo htmlspecialchars($projeto['titulo']); ?>
-                                </option>
-                            <?php endwhile; ?>
-                        </select>
-                    </div>
-                    
-                    <div class="form-group">
-                        <label for="mensagem">Sua Mensagem:</label>
-                        <textarea name="mensagem" id="mensagem" class="form-control" 
-                                  placeholder="Digite sua mensagem aqui..." required></textarea>
-                    </div>
-                    
-                    <button type="submit" name="enviar_mensagem" class="btn btn-primary">Enviar Mensagem</button>
-                </form>
-            </div>
-        </section>
         
         <section class="contact">
             <div class="text">
                 <h2>Precisa conversar?</h2>
                 <p>Acesse o chat</p>
             </div>
-            <button>
-            <a href="chat.php" style="text-decoration: none; color: white;">Acesse aqui</a>
+            <button><a href="chat.php" style="text-decoration: none; color: white;">Acesse aqui</a></button>
         </section>
 
         <section id="contato-section" class="contatos">

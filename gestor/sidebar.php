@@ -66,6 +66,12 @@ $navigation = [
             'active' => strpos($_SERVER['PHP_SELF'], 'funcionarios') !== false
         ],
         [
+            'icon' => 'icones/chat.png',
+            'label' => 'Chat',
+            'url' => $basePath . 'chat.php',
+            'active' => strpos($_SERVER['PHP_SELF'], 'chat') !== false
+        ],
+        [
             'icon' => 'icones/documentos.png',
             'label' => 'Documentos',
             'url' => $basePath . 'documentos/visualizar_documentos.php',
@@ -548,7 +554,7 @@ $navItems = array_merge(
             const linkSegments = linkUrl.split('/').filter(segment => segment);
 
             // Verifica seções específicas
-            const sections = ['projetos', 'tarefas', 'funcionarios', 'documentos', 'usuarios'];
+            const sections = ['projetos', 'tarefas', 'funcionarios', 'documentos', 'chat', 'usuarios'];
             for (let section of sections) {
                 if (currentSegments.includes(section) && linkSegments.includes(section)) {
                     return true;

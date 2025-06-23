@@ -784,7 +784,7 @@ textarea:disabled {
 
             <div class="card fade-in">
                 <div class="card-body">
-                    <h3>Estatísticas das Tarefas</h3>
+                    <h3 style="color: #7A7AFF;">Estatísticas das Tarefas</h3>
                     <div class="stats-grid">
                         <div class="stat-item">
                             <span class="stat-number"><?= $stats['total'] ?></span>
