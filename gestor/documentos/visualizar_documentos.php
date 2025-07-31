@@ -660,10 +660,10 @@ function obterUrlArquivo($caminho_bd)
                                 </div>
                                 <div class="documento-detalhes">
                                     <span>
-                                        🏗️ <?= htmlspecialchars($doc['projeto_titulo']) ?>
+                                        <?= htmlspecialchars($doc['projeto_titulo']) ?>
                                     </span>
                                     <span>
-                                        👤 <?= htmlspecialchars($doc['enviado_por_nome']) ?>
+                                        <?= htmlspecialchars($doc['enviado_por_nome']) ?>
                                         <span class="badge badge-<?= $doc['enviado_por_tipo'] ?>">
                                             <?= ucfirst($doc['enviado_por_tipo']) ?>
                                         </span>
@@ -697,7 +697,7 @@ function obterUrlArquivo($caminho_bd)
                                             target="_blank"
                                             class="btn-acao btn-visualizar"
                                             title="Visualizar arquivo">
-                                            👁️ Ver
+                                            Ver
                                         </a>
                                     <?php endif; ?>
 
@@ -705,17 +705,17 @@ function obterUrlArquivo($caminho_bd)
                                         download="<?= htmlspecialchars($doc['nome_arquivo']) ?>"
                                         class="btn-acao btn-download"
                                         title="Baixar arquivo">
-                                        💾 Baixar
+                                        Baixar
                                     </a>
                                 <?php else: ?>
-                                    <span style="color: #dc3545; font-size: 12px;">❌ Arquivo não encontrado</span>
+                                    <span style="color: #dc3545; font-size: 12px;">Arquivo não encontrado</span>
                                 <?php endif; ?>
 
                                 <?php if ($_SESSION['usuario_tipo'] === 'admin'): ?>
                                     <button onclick="confirmarExclusao(<?= $doc['id'] ?>, '<?= addslashes($doc['nome_arquivo']) ?>')"
                                         class="btn-acao btn-excluir"
                                         title="Excluir documento">
-                                        🗑️ Excluir
+                                        Excluir
                                     </button>
                                 <?php endif; ?>
                             </div>
@@ -752,7 +752,6 @@ function obterUrlArquivo($caminho_bd)
 
             <?php else: ?>
                 <div class="sem-documentos">
-                    <div class="icone">📄</div>
                     <h3>Nenhum documento encontrado</h3>
                     <p>Não há documentos que correspondam aos critérios de filtro selecionados.</p>
                     <?php if (!$filtro_projeto && !$filtro_tipo): ?>
