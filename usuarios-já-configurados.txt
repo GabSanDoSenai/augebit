@@ -1,0 +1,10 @@
+usuários já configurados com seus respectivos cargos:
+
+admin@gmail.com
+admin123
+funcionario@gmail.com
+funcionario123
+cliente@gmail.com
+cliente123
+
+caso deseje adicionar um novo usuário acima do cliente, será necessário fazer a modificação diretamente no banco de dados em um usuário já cadastrado

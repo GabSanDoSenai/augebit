@@ -1,5 +1,122 @@
-<?php include 'sidebar.php'; ?>
 <?php
+// PROCESSAR REQUISIÇÕES AJAX PRIMEIRO - ANTES DE QUALQUER SAÍDA
+// ============================================================
+
+// Verificar se é uma requisição AJAX para enviar mensagem
+if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['ajax']) && $_POST['ajax'] === 'enviar_mensagem') {
+    // Iniciar sessão e conectar banco
+    if (session_status() == PHP_SESSION_NONE) {
+        session_start();
+    }
+    
+    // Conectar ao banco
+    try {
+        $pdo = new PDO("mysql:host=localhost;dbname=augebit;charset=utf8mb4", 'root', '');
+        $pdo->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
+        $pdo->setAttribute(PDO::ATTR_DEFAULT_FETCH_MODE, PDO::FETCH_ASSOC);
+    } catch (PDOException $e) {
+        header('Content-Type: application/json');
+        echo json_encode(['success' => false, 'message' => 'Erro de conexão: ' . $e->getMessage()]);
+        exit;
+    }
+    
+    // Processar envio
+    header('Content-Type: application/json');
+    try {
+        $conversa_id = isset($_GET['conversa']) ? (int)$_GET['conversa'] : 0;
+        $gestor_id = $_SESSION['usuario_id'] ?? 1;
+        $mensagem = trim($_POST['mensagem'] ?? '');
+        
+        if (empty($mensagem) || !$conversa_id) {
+            echo json_encode(['success' => false, 'message' => 'Dados inválidos']);
+            exit;
+        }
+        
+        // Inserir mensagem
+        $stmt = $pdo->prepare("
+            INSERT INTO chat_mensagens (conversa_id, remetente_id, mensagem, enviado_em) 
+            VALUES (?, ?, ?, NOW())
+        ");
+        $stmt->execute([$conversa_id, $gestor_id, $mensagem]);
+        
+        // Atualizar conversa
+        $stmt = $pdo->prepare("UPDATE conversas SET ultima_mensagem = NOW() WHERE id = ?");
+        $stmt->execute([$conversa_id]);
+        
+        echo json_encode(['success' => true, 'message' => 'Mensagem enviada']);
+        
+    } catch (Exception $e) {
+        echo json_encode(['success' => false, 'message' => 'Erro: ' . $e->getMessage()]);
+    }
+    exit;
+}
+
+// Verificar se é uma requisição AJAX para buscar mensagens
+if (isset($_GET['ajax']) && $_GET['ajax'] === 'buscar_mensagens') {
+    // Iniciar sessão e conectar banco
+    if (session_status() == PHP_SESSION_NONE) {
+        session_start();
+    }
+    
+    // Conectar ao banco
+    try {
+        $pdo = new PDO("mysql:host=localhost;dbname=augebit;charset=utf8mb4", 'root', '');
+        $pdo->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
+        $pdo->setAttribute(PDO::ATTR_DEFAULT_FETCH_MODE, PDO::FETCH_ASSOC);
+    } catch (PDOException $e) {
+        header('Content-Type: application/json');
+        echo json_encode(['success' => false, 'message' => 'Erro de conexão: ' . $e->getMessage()]);
+        exit;
+    }
+    
+    // Buscar mensagens
+    header('Content-Type: application/json');
+    try {
+        $conversa_id = isset($_GET['conversa']) ? (int)$_GET['conversa'] : 0;
+        $ultimo_id = isset($_GET['ultimo_id']) ? (int)$_GET['ultimo_id'] : 0;
+        $gestor_id = $_SESSION['usuario_id'] ?? 1;
+        
+        if (!$conversa_id) {
+            echo json_encode(['success' => false, 'message' => 'Conversa inválida']);
+            exit;
+        }
+        
+        $stmt = $pdo->prepare("
+            SELECT m.*, u.nome as remetente_nome, u.tipo as remetente_tipo,
+                   DATE_FORMAT(m.enviado_em, '%H:%i') as hora_formatada
+            FROM chat_mensagens m
+            JOIN usuarios u ON m.remetente_id = u.id
+            WHERE m.conversa_id = ? AND m.id > ?
+            ORDER BY m.enviado_em ASC
+        ");
+        $stmt->execute([$conversa_id, $ultimo_id]);
+        $mensagens = $stmt->fetchAll();
+        
+        // Marcar como lidas
+        if (!empty($mensagens)) {
+            $stmt = $pdo->prepare("
+                UPDATE chat_mensagens 
+                SET lida = 1 
+                WHERE conversa_id = ? AND remetente_id != ? AND lida = 0
+            ");
+            $stmt->execute([$conversa_id, $gestor_id]);
+        }
+        
+        echo json_encode(['success' => true, 'mensagens' => $mensagens]);
+        
+    } catch (Exception $e) {
+        echo json_encode(['success' => false, 'message' => 'Erro: ' . $e->getMessage()]);
+    }
+    exit;
+}
+
+// AGORA PROCESSAR A PÁGINA NORMAL
+// ==============================
+
+// Iniciar sessão se não estiver iniciada
+if (session_status() == PHP_SESSION_NONE) {
+    session_start();
+}
 
 // Incluir conexão com banco - tentar diferentes caminhos
 $conexao_paths = [
@@ -42,7 +159,7 @@ if (!isset($pdo) || $pdo === null) {
     }
 }
 
-$gestor_id = $_SESSION['usuario_id'];
+$gestor_id = $_SESSION['usuario_id'] ?? 1;
 $gestor_nome = $_SESSION['nome'] ?? 'Gestor';
 
 // Verificar se foi selecionada uma conversa específica
@@ -61,54 +178,6 @@ if ($conversa_id) {
     $cliente_selecionado = $stmt->fetch();
 }
 
-// Processar envio de mensagem
-if (isset($_POST['acao']) && $_POST['acao'] == 'enviar_mensagem' && !empty($_POST['mensagem']) && $conversa_id) {
-    $mensagem = trim($_POST['mensagem']);
-    
-    $stmt = $pdo->prepare("
-        INSERT INTO chat_mensagens (conversa_id, remetente_id, mensagem) 
-        VALUES (?, ?, ?)
-    ");
-    $stmt->execute([$conversa_id, $gestor_id, $mensagem]);
-    
-    // Atualizar timestamp da conversa
-    $stmt = $pdo->prepare("
-        UPDATE conversas SET ultima_mensagem = NOW() WHERE id = ?
-    ");
-    $stmt->execute([$conversa_id]);
-    
-    echo json_encode(['status' => 'success']);
-    exit();
-}
-
-// Buscar mensagens se for requisição AJAX
-if (isset($_GET['buscar_mensagens']) && $conversa_id) {
-    $ultimo_id = isset($_GET['ultimo_id']) ? (int)$_GET['ultimo_id'] : 0;
-    
-    $stmt = $pdo->prepare("
-        SELECT m.*, u.nome as remetente_nome, u.tipo as remetente_tipo
-        FROM chat_mensagens m
-        JOIN usuarios u ON m.remetente_id = u.id
-        WHERE m.conversa_id = ? AND m.id > ?
-        ORDER BY m.enviado_em ASC
-    ");
-    $stmt->execute([$conversa_id, $ultimo_id]);
-    $mensagens = $stmt->fetchAll();
-    
-    // Marcar mensagens do cliente como lidas
-    if (!empty($mensagens)) {
-        $stmt = $pdo->prepare("
-            UPDATE chat_mensagens 
-            SET lida = TRUE 
-            WHERE conversa_id = ? AND remetente_id != ? AND lida = FALSE
-        ");
-        $stmt->execute([$conversa_id, $gestor_id]);
-    }
-    
-    echo json_encode($mensagens);
-    exit();
-}
-
 // Buscar lista de conversas com clientes
 $stmt = $pdo->prepare("
     SELECT 
@@ -124,7 +193,7 @@ $stmt = $pdo->prepare("
     LEFT JOIN usuarios u ON c.cliente_id = u.id
     LEFT JOIN chat_mensagens m ON c.id = m.conversa_id
     WHERE c.status = 'ativa'
-    GROUP BY c.id
+    GROUP BY c.id, c.cliente_id, u.nome, c.titulo, c.ultima_mensagem, c.status
     ORDER BY c.ultima_mensagem DESC
 ");
 $stmt->execute();
@@ -134,7 +203,8 @@ $conversas = $stmt->fetchAll();
 $mensagens_iniciais = [];
 if ($conversa_id) {
     $stmt = $pdo->prepare("
-        SELECT m.*, u.nome as remetente_nome, u.tipo as remetente_tipo
+        SELECT m.*, u.nome as remetente_nome, u.tipo as remetente_tipo,
+               DATE_FORMAT(m.enviado_em, '%H:%i') as hora_formatada
         FROM chat_mensagens m
         JOIN usuarios u ON m.remetente_id = u.id
         WHERE m.conversa_id = ?
@@ -147,11 +217,14 @@ if ($conversa_id) {
     // Marcar como lidas
     $stmt = $pdo->prepare("
         UPDATE chat_mensagens 
-        SET lida = TRUE 
-        WHERE conversa_id = ? AND remetente_id != ? AND lida = FALSE
+        SET lida = 1 
+        WHERE conversa_id = ? AND remetente_id != ? AND lida = 0
     ");
     $stmt->execute([$conversa_id, $gestor_id]);
 }
+
+// Incluir sidebar após processar dados
+include 'sidebar.php';
 ?>
 <!DOCTYPE html>
 <html lang="pt-br">
@@ -161,11 +234,11 @@ if ($conversa_id) {
     <title>Chat - AUGEBIT</title>
     <link rel="stylesheet" href="css/geral.css">
     <style>
-        /* Variáveis CSS */
         :root {
             --primary-color: #9999FF;
             --accent-color: #6c5ce7;
             --success-color: #2ecc71;
+            --error-color: #e74c3c;
             --border-radius: 8px;
             --box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
             --transition: all 0.3s ease;
@@ -175,17 +248,17 @@ if ($conversa_id) {
             display: grid;
             grid-template-columns: 350px 1fr;
             gap: 20px;
-            height: calc(100vh - 40px);
-            max-height: 800px;
+            height: 600px;
+            max-height: 600px;
         }
         
-        /* Lista de conversas */
         .conversations-panel {
             background: white;
             border-radius: var(--border-radius);
             box-shadow: var(--box-shadow);
             display: flex;
             flex-direction: column;
+            height: 100%;
         }
         
         .conversations-header {
@@ -254,13 +327,13 @@ if ($conversa_id) {
             text-align: center;
         }
         
-        /* Chat principal */
         .chat-container {
             background: white;
             border-radius: var(--border-radius);
             box-shadow: var(--box-shadow);
             display: flex;
             flex-direction: column;
+            height: 100%;
         }
         
         .chat-header {
@@ -295,6 +368,7 @@ if ($conversa_id) {
             display: flex;
             flex-direction: column;
             gap: 12px;
+            max-height: 400px;
         }
         
         .message {
@@ -423,7 +497,33 @@ if ($conversa_id) {
             margin-bottom: 10px;
         }
         
-        /* Scrollbar personalizada */
+        .loading {
+            opacity: 0.7;
+        }
+        
+        .loading .send-btn {
+            background: #ccc;
+        }
+        
+        .alert {
+            padding: 8px 12px;
+            border-radius: 4px;
+            margin-bottom: 10px;
+            font-size: 0.85rem;
+        }
+        
+        .alert-error {
+            background: #f8d7da;
+            color: #721c24;
+            border: 1px solid #f5c6cb;
+        }
+        
+        .alert-success {
+            background: #d4edda;
+            color: #155724;
+            border: 1px solid #c3e6cb;
+        }
+        
         .chat-messages::-webkit-scrollbar,
         .conversations-list::-webkit-scrollbar {
             width: 6px;
@@ -440,12 +540,6 @@ if ($conversa_id) {
             border-radius: 3px;
         }
         
-        .chat-messages::-webkit-scrollbar-thumb:hover,
-        .conversations-list::-webkit-scrollbar-thumb:hover {
-            background: #a8a8a8;
-        }
-        
-        /* Responsivo */
         @media (max-width: 768px) {
             .main-content {
                 margin-left: 0;
@@ -520,7 +614,7 @@ if ($conversa_id) {
                     <div class="chat-header">
                         <div>
                             <h3>💬 <?= htmlspecialchars($cliente_selecionado['cliente_nome']) ?></h3>
-                            <small><?= htmlspecialchars($cliente_selecionado['titulo']) ?></small>
+                            <small><?= htmlspecialchars($cliente_selecionado['titulo'] ?? '') ?></small>
                         </div>
                         <div>
                             <span class="status-online"></span>
@@ -546,7 +640,7 @@ if ($conversa_id) {
                                         <?= nl2br(htmlspecialchars($msg['mensagem'])) ?>
                                     </div>
                                     <div class="message-time">
-                                        <?= date('H:i', strtotime($msg['enviado_em'])) ?>
+                                        <?= $msg['hora_formatada'] ?>
                                     </div>
                                 </div>
                             <?php endforeach; ?>
@@ -554,6 +648,7 @@ if ($conversa_id) {
                     </div>
 
                     <div class="chat-input">
+                        <div id="alertContainer"></div>
                         <form id="chatForm" class="input-group">
                             <textarea 
                                 id="messageInput" 
@@ -575,6 +670,7 @@ if ($conversa_id) {
     
     <script>
         const conversaAtual = <?= $conversa_id ?? 'null' ?>;
+        const currentUrl = window.location.pathname + window.location.search;
         
         function selecionarConversa(conversaId) {
             window.location.href = `?conversa=${conversaId}`;
@@ -588,7 +684,9 @@ if ($conversa_id) {
                 this.messageInput = document.getElementById('messageInput');
                 this.chatForm = document.getElementById('chatForm');
                 this.sendBtn = document.getElementById('sendBtn');
+                this.alertContainer = document.getElementById('alertContainer');
                 this.ultimoIdMensagem = this.getUltimoIdMensagem();
+                this.isEnviando = false;
                 
                 this.init();
             }
@@ -600,6 +698,7 @@ if ($conversa_id) {
                 
                 this.iniciarPolling();
                 this.scrollToBottom();
+                console.log('Chat inicializado para conversa:', conversaAtual);
             }
             
             getUltimoIdMensagem() {
@@ -614,7 +713,9 @@ if ($conversa_id) {
             handleKeydown(e) {
                 if (e.key === 'Enter' && !e.shiftKey) {
                     e.preventDefault();
-                    this.chatForm.dispatchEvent(new Event('submit'));
+                    if (!this.isEnviando) {
+                        this.chatForm.dispatchEvent(new Event('submit'));
+                    }
                 }
             }
             
@@ -623,55 +724,101 @@ if ($conversa_id) {
                 this.messageInput.style.height = Math.min(this.messageInput.scrollHeight, 100) + 'px';
             }
             
+            showAlert(message, type = 'error') {
+                this.alertContainer.innerHTML = `<div class="alert alert-${type}">${message}</div>`;
+                setTimeout(() => {
+                    this.alertContainer.innerHTML = '';
+                }, 3000);
+            }
+            
             async enviarMensagem(e) {
                 e.preventDefault();
                 
                 const mensagem = this.messageInput.value.trim();
-                if (!mensagem) return;
+                if (!mensagem || this.isEnviando) return;
                 
+                console.log('Enviando mensagem:', mensagem);
+                
+                this.isEnviando = true;
                 this.sendBtn.disabled = true;
                 this.messageInput.disabled = true;
+                this.chatForm.classList.add('loading');
                 
                 try {
                     const formData = new FormData();
-                    formData.append('acao', 'enviar_mensagem');
+                    formData.append('ajax', 'enviar_mensagem');
                     formData.append('mensagem', mensagem);
                     
-                    const response = await fetch('', {
+                    const url = `${window.location.pathname}?conversa=${conversaAtual}`;
+                    console.log('URL de envio:', url);
+                    
+                    const response = await fetch(url, {
                         method: 'POST',
                         body: formData
                     });
                     
-                    const result = await response.json();
+                    console.log('Status da resposta:', response.status);
+                    console.log('Headers da resposta:', response.headers.get('content-type'));
                     
-                    if (result.status === 'success') {
+                    const responseText = await response.text();
+                    console.log('Resposta completa:', responseText);
+                    
+                    let result;
+                    try {
+                        result = JSON.parse(responseText);
+                    } catch (parseError) {
+                        console.error('Erro ao fazer parse do JSON:', parseError);
+                        throw new Error('Resposta inválida do servidor: ' + responseText.substring(0, 100));
+                    }
+                    
+                    if (result.success) {
                         this.messageInput.value = '';
                         this.autoResize();
-                        this.buscarNovasMensagens();
+                        this.showAlert('Mensagem enviada!', 'success');
+                        
+                        setTimeout(() => {
+                            this.buscarNovasMensagens();
+                        }, 500);
+                        
+                    } else {
+                        throw new Error(result.message || 'Erro desconhecido');
                     }
+                    
                 } catch (error) {
-                    console.error('Erro ao enviar mensagem:', error);
-                    alert('Erro ao enviar mensagem. Tente novamente.');
+                    console.error('Erro completo:', error);
+                    this.showAlert(`Erro: ${error.message}`);
                 } finally {
+                    this.isEnviando = false;
                     this.sendBtn.disabled = false;
                     this.messageInput.disabled = false;
+                    this.chatForm.classList.remove('loading');
                     this.messageInput.focus();
                 }
             }
             
             async buscarNovasMensagens() {
                 try {
-                    const response = await fetch(`?buscar_mensagens=1&ultimo_id=${this.ultimoIdMensagem}&conversa=${conversaAtual}`);
-                    const mensagens = await response.json();
+                    const url = `${window.location.pathname}?ajax=buscar_mensagens&conversa=${conversaAtual}&ultimo_id=${this.ultimoIdMensagem}`;
                     
-                    if (mensagens.length > 0) {
+                    const response = await fetch(url);
+                    const responseText = await response.text();
+                    
+                    let result;
+                    try {
+                        result = JSON.parse(responseText);
+                    } catch (parseError) {
+                        console.warn('Erro ao buscar mensagens:', parseError);
+                        return;
+                    }
+                    
+                    if (result.success && result.mensagens && result.mensagens.length > 0) {
                         const emptyState = this.chatMessages.querySelector('.empty-state');
                         if (emptyState) {
                             emptyState.remove();
                         }
                         
-                        mensagens.forEach(msg => this.adicionarMensagem(msg));
-                        this.ultimoIdMensagem = Math.max(...mensagens.map(m => m.id));
+                        result.mensagens.forEach(msg => this.adicionarMensagem(msg));
+                        this.ultimoIdMensagem = Math.max(...result.mensagens.map(m => m.id));
                         this.scrollToBottom();
                     }
                 } catch (error) {
@@ -680,6 +827,10 @@ if ($conversa_id) {
             }
             
             adicionarMensagem(msg) {
+                if (this.chatMessages.querySelector(`[data-id="${msg.id}"]`)) {
+                    return;
+                }
+                
                 const messageDiv = document.createElement('div');
                 messageDiv.className = `message ${msg.remetente_tipo}`;
                 messageDiv.dataset.id = msg.id;
@@ -689,15 +840,10 @@ if ($conversa_id) {
                     senderHtml = `<div class="message-sender">${this.escapeHtml(msg.remetente_nome)}</div>`;
                 }
                 
-                const time = new Date(msg.enviado_em).toLocaleTimeString('pt-BR', {
-                    hour: '2-digit',
-                    minute: '2-digit'
-                });
-                
                 messageDiv.innerHTML = `
                     ${senderHtml}
                     <div class="message-content">${this.escapeHtml(msg.mensagem).replace(/\n/g, '<br>')}</div>
-                    <div class="message-time">${time}</div>
+                    <div class="message-time">${msg.hora_formatada || 'Agora'}</div>
                 `;
                 
                 this.chatMessages.appendChild(messageDiv);
@@ -711,7 +857,9 @@ if ($conversa_id) {
             
             iniciarPolling() {
                 setInterval(() => {
-                    this.buscarNovasMensagens();
+                    if (!this.isEnviando) {
+                        this.buscarNovasMensagens();
+                    }
                 }, 3000);
             }
             

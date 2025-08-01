@@ -1,4 +1,4 @@
-listar projetos gestor <?php
+<?php
 session_start();
 if (!isset($_SESSION['usuario_id']) || $_SESSION['usuario_tipo'] !== 'admin') {
     header("Location: ../../login.php");
@@ -6,7 +6,10 @@ if (!isset($_SESSION['usuario_id']) || $_SESSION['usuario_tipo'] !== 'admin') {
 }
 require '../../conexao.php';
 
-// Processar atualização de status via AJAX
+$message = '';
+$message_type = '';
+
+// Processar atualização de status
 if (isset($_POST['action']) && $_POST['action'] === 'update_status') {
     $projeto_id = (int)$_POST['projeto_id'];
     $novo_status = $_POST['status'];
@@ -18,13 +21,21 @@ if (isset($_POST['action']) && $_POST['action'] === 'update_status') {
         $stmt->bind_param("si", $novo_status, $projeto_id);
         
         if ($stmt->execute()) {
-            echo json_encode(['success' => true, 'message' => 'Status atualizado com sucesso!']);
+            $message = 'Status atualizado com sucesso!';
+            $message_type = 'success';
         } else {
-            echo json_encode(['success' => false, 'message' => 'Erro ao atualizar status.']);
+            $message = 'Erro ao atualizar status.';
+            $message_type = 'error';
         }
     } else {
-        echo json_encode(['success' => false, 'message' => 'Status inválido.']);
+        $message = 'Status inválido.';
+        $message_type = 'error';
     }
+    
+    // Redirecionar para evitar reenvio do formulário
+    $_SESSION['message'] = $message;
+    $_SESSION['message_type'] = $message_type;
+    header("Location: " . $_SERVER['PHP_SELF'] . "?" . http_build_query($_GET));
     exit;
 }
 
@@ -41,11 +52,26 @@ if (isset($_POST['action']) && $_POST['action'] === 'delete_project') {
     $stmt->bind_param("i", $projeto_id);
     
     if ($stmt->execute()) {
-        echo json_encode(['success' => true, 'message' => 'Projeto excluído com sucesso!']);
+        $message = 'Projeto excluído com sucesso!';
+        $message_type = 'success';
     } else {
-        echo json_encode(['success' => false, 'message' => 'Erro ao excluir projeto.']);
+        $message = 'Erro ao excluir projeto.';
+        $message_type = 'error';
     }
+    
+    // Redirecionar para evitar reenvio do formulário
+    $_SESSION['message'] = $message;
+    $_SESSION['message_type'] = $message_type;
+    header("Location: " . $_SERVER['PHP_SELF'] . "?" . http_build_query($_GET));
     exit;
+}
+
+// Verificar se há mensagem da sessão
+if (isset($_SESSION['message'])) {
+    $message = $_SESSION['message'];
+    $message_type = $_SESSION['message_type'];
+    unset($_SESSION['message']);
+    unset($_SESSION['message_type']);
 }
 
 // Busca de projetos
@@ -268,6 +294,11 @@ while ($row = $stats_result->fetch_assoc()) {
             background-color: #F9F9FF;
         }
         
+        .status-form {
+            display: inline-block;
+            margin: 0;
+        }
+        
         .status-select {
             padding: 6px 10px;
             border: 1px solid #9999FF;
@@ -276,6 +307,7 @@ while ($row = $stats_result->fetch_assoc()) {
             min-width: 120px;
             font-family: 'Poppins', sans-serif;
             background: #F5F5FF;
+            cursor: pointer;
         }
         
         .status-badge {
@@ -342,11 +374,6 @@ while ($row = $stats_result->fetch_assoc()) {
             color: #666;
         }
         
-        .loading {
-            opacity: 0.5;
-            pointer-events: none;
-        }
-        
         .message {
             padding: 10px 15px;
             margin: 10px 0;
@@ -362,9 +389,9 @@ while ($row = $stats_result->fetch_assoc()) {
         }
         
         .message.error {
-            background:rgba(62, 35, 106, 0.66);
+            background: rgba(62, 35, 106, 0.66);
             color: #3E236A;
-            border: 1px solidrgb(97, 69, 142);
+            border: 1px solid rgb(97, 69, 142);
         }
         
         /* Botão secundário */
@@ -380,6 +407,11 @@ while ($row = $stats_result->fetch_assoc()) {
         /* Efeitos de hover para cards */
         .stat-card:hover {
             box-shadow: 0 5px 15px rgba(153, 153, 255, 0.2);
+        }
+        
+        .delete-form {
+            display: inline-block;
+            margin: 0;
         }
         
         @media (max-width: 768px) {
@@ -426,7 +458,7 @@ while ($row = $stats_result->fetch_assoc()) {
                     <option value="ajustes" <?= $status_filtro === 'ajustes' ? 'selected' : '' ?>>Ajustes</option>
                 </select>
                 
-                <button type="submit"> Filtrar</button>
+                <button type="submit">Filtrar</button>
                 
                 <?php if ($busca || $status_filtro): ?>
                     <a href="?" class="btn btn-secondary">Limpar</a>
@@ -459,7 +491,11 @@ while ($row = $stats_result->fetch_assoc()) {
         </div>
         
         <!-- Mensagem de feedback -->
-        <div id="message-container"></div>
+        <?php if ($message): ?>
+            <div class="message <?= $message_type ?>">
+                <?= htmlspecialchars($message) ?>
+            </div>
+        <?php endif; ?>
         
         <!-- Tabela de Projetos -->
         <div class="projects-table">
@@ -478,7 +514,7 @@ while ($row = $stats_result->fetch_assoc()) {
                 <tbody>
                     <?php if ($result->num_rows > 0): ?>
                         <?php while ($projeto = $result->fetch_assoc()): ?>
-                            <tr data-project-id="<?= $projeto['id'] ?>">
+                            <tr>
                                 <td><strong>#<?= $projeto['id'] ?></strong></td>
                                 <td>
                                     <div class="project-title"><?= htmlspecialchars($projeto['titulo']) ?></div>
@@ -495,24 +531,33 @@ while ($row = $stats_result->fetch_assoc()) {
                                     </div>
                                 </td>
                                 <td>
-                                    <select class="status-select" data-project-id="<?= $projeto['id'] ?>" 
-                                            data-current-status="<?= $projeto['status'] ?>">
-                                        <option value="pendente" <?= $projeto['status'] === 'pendente' ? 'selected' : '' ?>>
-                                            Pendente
-                                        </option>
-                                        <option value="aprovado" <?= $projeto['status'] === 'aprovado' ? 'selected' : '' ?>>
-                                            Aprovado
-                                        </option>
-                                        <option value="em_andamento" <?= $projeto['status'] === 'em_andamento' ? 'selected' : '' ?>>
-                                            Em Andamento
-                                        </option>
-                                        <option value="finalizado" <?= $projeto['status'] === 'finalizado' ? 'selected' : '' ?>>
-                                            Finalizado
-                                        </option>
-                                        <option value="ajustes" <?= $projeto['status'] === 'ajustes' ? 'selected' : '' ?>>
-                                            Ajustes
-                                        </option>
-                                    </select>
+                                    <form method="post" class="status-form">
+                                        <input type="hidden" name="action" value="update_status">
+                                        <input type="hidden" name="projeto_id" value="<?= $projeto['id'] ?>">
+                                        <?php foreach (['busca', 'status'] as $param): ?>
+                                            <?php if (isset($_GET[$param])): ?>
+                                                <input type="hidden" name="<?= $param ?>" value="<?= htmlspecialchars($_GET[$param]) ?>">
+                                            <?php endif; ?>
+                                        <?php endforeach; ?>
+                                        
+                                        <select name="status" class="status-select" onchange="this.form.submit()">
+                                            <option value="pendente" <?= $projeto['status'] === 'pendente' ? 'selected' : '' ?>>
+                                                Pendente
+                                            </option>
+                                            <option value="aprovado" <?= $projeto['status'] === 'aprovado' ? 'selected' : '' ?>>
+                                                Aprovado
+                                            </option>
+                                            <option value="em_andamento" <?= $projeto['status'] === 'em_andamento' ? 'selected' : '' ?>>
+                                                Em Andamento
+                                            </option>
+                                            <option value="finalizado" <?= $projeto['status'] === 'finalizado' ? 'selected' : '' ?>>
+                                                Finalizado
+                                            </option>
+                                            <option value="ajustes" <?= $projeto['status'] === 'ajustes' ? 'selected' : '' ?>>
+                                                Ajustes
+                                            </option>
+                                        </select>
+                                    </form>
                                 </td>
                                 <td>
                                     <?php if ($projeto['data_inicio'] || $projeto['data_fim']): ?>
@@ -544,12 +589,20 @@ while ($row = $stats_result->fetch_assoc()) {
                                         Docs
                                     </a>
                                     
-                                    <button class="btn btn-danger delete-btn" 
-                                            data-project-id="<?= $projeto['id'] ?>"
-                                            data-project-title="<?= htmlspecialchars($projeto['titulo']) ?>"
-                                            title="Excluir Projeto">
-                                         Excluir
-                                    </button>
+                                    <form method="post" class="delete-form" 
+                                          onsubmit="return confirm('Tem certeza que deseja excluir o projeto &quot;<?= htmlspecialchars($projeto['titulo']) ?>&quot;?\n\nEsta ação não pode ser desfeita e irá remover:\n- O projeto\n- Todas as tarefas relacionadas\n- Todas as entregas relacionadas')">
+                                        <input type="hidden" name="action" value="delete_project">
+                                        <input type="hidden" name="projeto_id" value="<?= $projeto['id'] ?>">
+                                        <?php foreach (['busca', 'status'] as $param): ?>
+                                            <?php if (isset($_GET[$param])): ?>
+                                                <input type="hidden" name="<?= $param ?>" value="<?= htmlspecialchars($_GET[$param]) ?>">
+                                            <?php endif; ?>
+                                        <?php endforeach; ?>
+                                        
+                                        <button type="submit" class="btn btn-danger" title="Excluir Projeto">
+                                            Excluir
+                                        </button>
+                                    </form>
                                 </td>
                             </tr>
                         <?php endwhile; ?>
@@ -570,118 +623,31 @@ while ($row = $stats_result->fetch_assoc()) {
     </div>
 
     <script>
-        // Função para mostrar mensagens
-        function showMessage(message, type = 'success') {
-            const container = document.getElementById('message-container');
-            const messageDiv = document.createElement('div');
-            messageDiv.className = `message ${type}`;
-            messageDiv.textContent = message;
-            
-            container.innerHTML = '';
-            container.appendChild(messageDiv);
-            
-            // Auto-hide após 5 segundos
-            setTimeout(() => {
-                messageDiv.remove();
-            }, 5000);
-        }
-
-        // Atualização de status
-        document.querySelectorAll('.status-select').forEach(select => {
-            select.addEventListener('change', function() {
-                const projectId = this.dataset.projectId;
-                const newStatus = this.value;
-                const currentStatus = this.dataset.currentStatus;
-                
-                if (newStatus === currentStatus) return;
-                
-                const row = this.closest('tr');
-                row.classList.add('loading');
-                
-                fetch(window.location.href, {
-                    method: 'POST',
-                    headers: {
-                        'Content-Type': 'application/x-www-form-urlencoded',
-                    },
-                    body: `action=update_status&projeto_id=${projectId}&status=${newStatus}`
-                })
-                .then(response => response.json())
-                .then(data => {
-                    row.classList.remove('loading');
-                    
-                    if (data.success) {
-                        showMessage(data.message, 'success');
-                        this.dataset.currentStatus = newStatus;
-                        
-                        // Atualizar contadores (recarregar página após 1 segundo)
-                        setTimeout(() => {
-                            window.location.reload();
-                        }, 1000);
-                    } else {
-                        showMessage(data.message, 'error');
-                        this.value = currentStatus; // Reverter mudança
-                    }
-                })
-                .catch(error => {
-                    row.classList.remove('loading');
-                    showMessage('Erro ao atualizar status. Tente novamente.', 'error');
-                    this.value = currentStatus; // Reverter mudança
-                });
-            });
-        });
-
-        // Exclusão de projetos
-        document.querySelectorAll('.delete-btn').forEach(button => {
-            button.addEventListener('click', function() {
-                const projectId = this.dataset.projectId;
-                const projectTitle = this.dataset.projectTitle;
-                
-                if (!confirm(`Tem certeza que deseja excluir o projeto "${projectTitle}"?\n\nEsta ação não pode ser desfeita e irá remover:\n- O projeto\n- Todas as tarefas relacionadas\n- Todas as entregas relacionadas`)) {
-                    return;
-                }
-                
-                const row = this.closest('tr');
-                row.classList.add('loading');
-                
-                fetch(window.location.href, {
-                    method: 'POST',
-                    headers: {
-                        'Content-Type': 'application/x-www-form-urlencoded',
-                    },
-                    body: `action=delete_project&projeto_id=${projectId}`
-                })
-                .then(response => response.json())
-                .then(data => {
-                    if (data.success) {
-                        showMessage(data.message, 'success');
-                        row.style.transition = 'opacity 0.3s';
-                        row.style.opacity = '0';
-                        
-                        setTimeout(() => {
-                            row.remove();
-                            // Recarregar para atualizar contadores
-                            window.location.reload();
-                        }, 300);
-                    } else {
-                        row.classList.remove('loading');
-                        showMessage(data.message, 'error');
-                    }
-                })
-                .catch(error => {
-                    row.classList.remove('loading');
-                    showMessage('Erro ao excluir projeto. Tente novamente.', 'error');
-                });
-            });
+        // Auto-hide da mensagem após 5 segundos
+        document.addEventListener('DOMContentLoaded', function() {
+            const message = document.querySelector('.message');
+            if (message) {
+                setTimeout(() => {
+                    message.style.transition = 'opacity 0.5s';
+                    message.style.opacity = '0';
+                    setTimeout(() => {
+                        message.remove();
+                    }, 500);
+                }, 5000);
+            }
         });
 
         // Auto-submit do formulário de busca com delay
         let searchTimeout;
-        document.querySelector('input[name="busca"]').addEventListener('input', function() {
-            clearTimeout(searchTimeout);
-            searchTimeout = setTimeout(() => {
-                this.form.submit();
-            }, 800);
-        });
+        const searchInput = document.querySelector('input[name="busca"]');
+        if (searchInput) {
+            searchInput.addEventListener('input', function() {
+                clearTimeout(searchTimeout);
+                searchTimeout = setTimeout(() => {
+                    this.form.submit();
+                }, 800);
+            });
+        }
     </script>
 </body>
 </html>
