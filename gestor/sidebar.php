@@ -69,7 +69,7 @@ $navigation = [
             'icon' => 'icones/chat.png',
             'label' => 'Chat',
             'url' => $basePath . 'chat.php',
-            'active' => strpos($_SERVER['PHP_SELF'], 'chat') !== false
+            'active' => basename($_SERVER['PHP_SELF']) === 'chat.php'
         ],
         [
             'icon' => 'icones/documentos.png',
@@ -78,10 +78,8 @@ $navigation = [
             'active' => strpos($_SERVER['PHP_SELF'], 'documentos') !== false
         ]
     ],
-    'cliente' => [
-        // Itens específicos para clientes (se necessário)
-    ]
 ];
+
 
 $userType = $_SESSION['usuario_tipo'] ?? 'cliente';
 
@@ -124,7 +122,7 @@ $navItems = array_merge(
         </li>
 
         <li class="nav-item">
-            <a href="<?= str_repeat('../', $depth) ?>augebit/logout.php" class="nav-link nav-logout"
+            <a href="<?= str_repeat('../', $depth) ?>augebit/index.php" class="nav-link nav-logout"
                 title="Sair do Sistema">
                 <span class="nav-icon">
                     <img src="<?= $assetsPath ?>img/icones/sair.png" alt="Sair"

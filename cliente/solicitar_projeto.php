@@ -698,18 +698,19 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 </head>
 
 <body>
-    <header>
-        <div class="logo-header">
-            <img src="../assets/img/augebit.logo.png" alt="Logo da empresa">
-
-        </div>
-        <nav>
-            <ul>
-                <li><a href="#" class="active">Home</a></li>
+<header>
+        <div class="logo-header">    
+            <img src="../assets/img/augebit.logo.png" alt="Logo da empresa"> 
+            <h1>AUGEBIT</h1>
+        </div>    
+        <nav>       
+            <ul>         
+                <li><a href="dashboard_cliente.php" class="active">Home</a></li>         
                 <li><a href="dashboard_cliente.php" class="acount">Projetos</a></li>
-                <li><a href="#contato-section" class="contato">Sair</a></li>
-            </ul>
-        </nav>
+                <li><a href="chat.php">Chat</a></li>     
+                <li><a href="../index.php" class="contato">Sair</a></li>    
+            </ul>     
+        </nav>   
     </header>
     <div class="container">
         <h2>Solicitar Novo Projeto</h2>

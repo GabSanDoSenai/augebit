@@ -29,7 +29,7 @@ augebit/
 │       └── gerenciar_clientes.php
 │
 ├── uploads/              ← pasta pública com arquivos enviados
-│
+│   └── nome do projeto + _ + id do projeto/
 ├── css/
 │   └── geral.css
 │

@@ -162,7 +162,22 @@ while ($row = $taxaConclusao->fetch_assoc()) {
             <h1>Bem-vindo, <?= htmlspecialchars($_SESSION['usuario_nome']) ?>!</h1>
             <p>Aqui está um resumo do seu sistema de gestão</p>
         </div>
-
+        <div class="quick-actions">
+            <div class="action-grid">
+                <a href="projetos/criar_projeto.php" class="action-btn">
+                    Novo Projeto
+                </a>
+                <a href="tarefas/criar_tarefa.php" class="action-btn">
+                    Nova Tarefa
+                </a>
+                <a href="documentos/enviar_documento.php" class="action-btn">
+                    Enviar Documento
+                </a>
+                <a href="projetos/avaliar_projetos.php" class="action-btn">
+                    Avaliar Projetos
+                </a>
+            </div>
+        </div>
         <!-- Stats Grid -->
         <div class="stats-grid">
             <a href="projetos/listar_projetos.php" class="stat-card">
@@ -273,24 +288,7 @@ while ($row = $taxaConclusao->fetch_assoc()) {
             </div>
         </div>
 
-        <!-- Quick Actions -->
-        <div class="quick-actions">
-            <h3> Ações Rápidas</h3>
-            <div class="action-grid">
-                <a href="projetos/criar_projeto.php" class="action-btn">
-                    Novo Projeto
-                </a>
-                <a href="tarefas/criar_tarefa.php" class="action-btn">
-                    Nova Tarefa
-                </a>
-                <a href="documentos/enviar_documento.php" class="action-btn">
-                    Enviar Documento
-                </a>
-                <a href="projetos/avaliar_projetos.php" class="action-btn">
-                    Avaliar Projetos
-                </a>
-            </div>
-        </div>
+       
     </main>
 
     <script>

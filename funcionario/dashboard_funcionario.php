@@ -823,9 +823,9 @@ margin-top: 90px;
         </div>    
         <nav>       
             <ul>         
-                <li><a href="../index.php" class="active">Home</a></li>         
+                <li><a href="dashboard_funcionario.php" class="active">Home</a></li>         
                 <li><a href="#projects-section" class="acount">Projetos</a></li>         
-                <li><a href="../logout.php" class="contato">Sair</a></li>    
+                <li><a href="../index.php" class="contato">Sair</a></li>    
             </ul>     
         </nav>   
     </header>

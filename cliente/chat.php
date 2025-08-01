@@ -447,13 +447,13 @@ $stmt->execute([$conversa_id, $cliente_id]);
         </div>    
         <nav>       
             <ul>         
-                <li><a href="../index.php" class="active">Home</a></li>         
+                <li><a href="dashboard_cliente.php" class="active">Home</a></li>         
                 <li><a href="dashboard_cliente.php" class="acount">Projetos</a></li>
-                <li><a href="chat.php" class="bate-papo">Chat</a></li>            
-                <li><a href="../logout.php" class="contato">Sair</a></li>    
+                <li><a href="chat.php">Chat</a></li>     
+                <li><a href="../index.php" class="contato">Sair</a></li>    
             </ul>     
         </nav>   
-    </header>   
+    </header>
 
     <main class="container">
         <div class="chat-container">
